@@ -1,1 +1,3 @@
-# blog_cp7
+# CP7 Submission for BLOG
+
+Todo...
