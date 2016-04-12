@@ -1,0 +1,38 @@
+type County;
+type HHSRegion;
+
+distinct County counties[28];
+distinct HHSRegion regions[10];
+
+// define parameters
+random Real tau1 ~ Gamma(3, 0.1);
+random Real tau2 ~ Gamma(10, 0.1);
+random Real beta1 ~ Gaussian(0, 10);
+random Real beta2 ~ Gaussian(0, 10);
+
+// load data
+
+fixed RealMatrix covariates1 = loadRealMatrix("data_processed/covariates.txt");
+fixed RealMatrix covariates2 = loadRealMatrix("data_processed/covariates.txt");
+
+fixed Real covariate1(County c, Timestep t) = covariates1[toInt(c)][toInt(t)];
+fixed Real covariate2(County c, Timestep t) = covariates2[toInt(c)][toInt(t)];
+
+// define the model
+
+random Real logit(County c, Timestep t) ~
+  beta1 * covariate1(c, t) +
+  beta2 * covariate1(c, t) +
+  correlation(c, t) +
+  noise(c, t);
+
+random Real noise(County c, Timestep t) ~
+  Gaussian(0, 1 / tau2);
+
+random Real county_rate(County c, Timestep t) ~
+  exp(logit(c, t)) / (1 + exp(logit(c, t)));
+
+random Real correlation(County c, Timestep t) ~ Gaussian(0,1);
+
+/*obs logit(counties[0], @0) = 0.5;*/
+/*query logit(counties[0], @0);*/
