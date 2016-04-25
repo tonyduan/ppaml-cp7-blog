@@ -1,8 +1,8 @@
 type County;
-type HHSRegion;
+type Region;
 
-distinct County counties[28];
-distinct HHSRegion regions[10];
+distinct County counties[3140];
+distinct Region regions[10];
 
 // define hyperparameters
 
@@ -13,7 +13,7 @@ random Real beta2 ~ Gaussian(0, 10);
 
 // load data
 
-fixed Integer ind(County c, Timestep t) = toInt(c) * 100 + toInt(t);
+fixed Integer ind(County c, Timestep t) = toInt(c) + toInt(t) * 52;
 
 fixed RealMatrix county_pop = loadRealMatrix("data_processed/county_pops.txt");
 fixed RealMatrix region_pop = loadRealMatrix("data_processed/region_pops.txt");
@@ -26,31 +26,32 @@ fixed Boolean belongs_to(County c, Region r) =
 
 fixed RealMatrix covariates1 = loadRealMatrix("data_processed/covariates1.txt");
 fixed RealMatrix covariates2 = loadRealMatrix("data_processed/covariates2.txt");
-fixed RealMatrix corr_cov = loadRealMatrix("data_processed/corr_cov.txt");
+/*fixed RealMatrix corr_cov = loadRealMatrix("data_processed/corr_cov.txt");*/
 
-random RealMatrix corr ~ MultivarGaussian(zeros(2800, 1), corr_cov / tau_1);
-random RealMatrix noises ~ MultivarGaussian(zeros(2800, 1), 1 / tau2);
+random RealMatrix corr ~ MultivarGaussian(zeros(3140, 1), eye(3140));
+random RealMatrix noises ~ IsotropicMultivarGaussian(zeros(3140, 1), 1.0 / tau2);
 
 random Real logit(County c, Timestep t) ~
   toReal(beta1 * covariates1[ind(c, t)] +
-         beta2 * covariates2[int(c, t)] +
-         corr[ind(c, t)]) +
+         beta2 * covariates2[ind(c, t)] +
+         corr[ind(c, t)] +
          noises[ind(c, t)]);
 
 random Real county_rate(County c, Timestep t) ~
-  exp(logit(c, t)) / (1 + exp(logit(c, t)));
+  exp(logit(c, t)) / (1.0 + exp(logit(c, t)));
 
 random Real region_rate(Region r, Timestep t) ~
-  sum(
-    {county_rate(c, t) * county_pop[toInt(c)] for County c : belongs_to(c, r)}
-  ) / region_pop[toInt(r)];
-
-
+  sum({
+    (county_rate(c, t) * county_pop[toInt(c)])
+    for County c : county_map[toInt(r)][toInt(c)] == 1.0
+  }) / region_pop[toInt(r)];
 
 // make observations
-/*obs region_rate(regions[0], @0) = 0.0053*/
-/*obs region_rate(regions[1], @0) = 0.0092*/
+
+obs region_rate(regions[0], @0) = 0.0053;
+obs region_rate(regions[1], @0) = 0.0092;
 
 // make query
-/*query county_rate(counties[0], @0)*/
-/*query county_rate(counties[1], @1)*/
+
+query county_rate(counties[0], @0);
+query county_rate(counties[1], @1);
