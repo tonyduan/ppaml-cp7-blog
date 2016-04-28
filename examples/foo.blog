@@ -1,0 +1,9 @@
+/* scratch work for testing */
+
+fixed RealMatrix cov = loadRealMatrix("data_processed/covariates1.txt");
+
+random Real rand ~ Gaussian(0, 1);
+random Real i ~ rand + 1;
+
+query cov[0][1];
+query rand;

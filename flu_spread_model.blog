@@ -1,41 +1,43 @@
 type County;
 type Region;
 
-distinct County counties[3140];
-distinct Region regions[10];
+distinct County counties[82];
+distinct Region regions[9];
 
 // define hyperparameters
 
-random Real tau1 ~ Gamma(3, 0.1);
-random Real tau2 ~ Gamma(10, 0.1);
-random Real beta1 ~ Gaussian(0, 10);
-random Real beta2 ~ Gaussian(0, 10);
+random Real rho ~ Gamma(1.05, 0.5);
+random Real tau1 ~ Gamma(3.0, 0.1);
+random Real tau2 ~ Gamma(10.0, 0.1);
+random Real beta1 ~ Gaussian(0.0, 10.0);
+random Real beta2 ~ Gaussian(0.0, 10.0);
 
 // load data
-
-fixed Integer ind(County c, Timestep t) = toInt(c) + toInt(t) * 52;
 
 fixed RealMatrix county_pop = loadRealMatrix("data_processed/county_pops.txt");
 fixed RealMatrix region_pop = loadRealMatrix("data_processed/region_pops.txt");
 fixed RealMatrix county_map = loadRealMatrix("data_processed/county_map.txt");
 
-fixed Boolean belongs_to(County c, Region r) =
-  if county_map[toInt(r)][toInt(c)] == 1.0 then true else false;
-
 // define the model
 
 fixed RealMatrix covariates1 = loadRealMatrix("data_processed/covariates1.txt");
 fixed RealMatrix covariates2 = loadRealMatrix("data_processed/covariates2.txt");
-/*fixed RealMatrix corr_cov = loadRealMatrix("data_processed/corr_cov.txt");*/
+fixed RealMatrix corr_cov = loadRealMatrix("data_processed/corr_cov.txt");
 
-random RealMatrix corr ~ MultivarGaussian(zeros(3140, 1), eye(3140));
-random RealMatrix noises ~ IsotropicMultivarGaussian(zeros(3140, 1), 1.0 / tau2);
+random RealMatrix correlation(Timestep t) ~
+  if t == @0 then
+    MultivarGaussian(zeros(82, 1), corr_cov)
+  else
+    MultivarGaussian(correlation(prev(t)), corr_cov);
+
+random Real noise(County c, Timestep t) ~
+  Gaussian(0.0, 1.0 / tau2);
 
 random Real logit(County c, Timestep t) ~
-  toReal(beta1 * covariates1[ind(c, t)] +
-         beta2 * covariates2[ind(c, t)] +
-         corr[ind(c, t)] +
-         noises[ind(c, t)]);
+  toReal(beta1 * covariates1[toInt(c)][toInt(t)] +
+         beta2 * covariates2[toInt(c)][toInt(t)] +
+         correlation(t)[toInt(c)]) +
+         noise(c, t);
 
 random Real county_rate(County c, Timestep t) ~
   exp(logit(c, t)) / (1.0 + exp(logit(c, t)));
@@ -48,10 +50,56 @@ random Real region_rate(Region r, Timestep t) ~
 
 // make observations
 
-obs region_rate(regions[0], @0) = 0.0053;
-obs region_rate(regions[1], @0) = 0.0092;
+obs region_rate(regions[0], @0) = 0.5;
+/*
+obs region_rate(regions[1], @0) = 0.0180;
+obs region_rate(regions[2], @0) = 0.0150;
+obs region_rate(regions[3], @0) = 0.0620;
+obs region_rate(regions[4], @0) = 0.0240;
+obs region_rate(regions[5], @0) = 0.0030;
+obs region_rate(regions[6], @0) = 0.0960;
+obs region_rate(regions[7], @0) = 0.0240;
+obs region_rate(regions[8], @0) = 0.0110;
 
-// make query
+obs region_rate(regions[0], @1) = 0.0310;
+obs region_rate(regions[1], @1) = 0.0160;
+obs region_rate(regions[2], @1) = 0.0230;
+obs region_rate(regions[3], @1) = 0.0570;
+obs region_rate(regions[4], @1) = 0.0270;
+obs region_rate(regions[5], @1) = 0.0030;
+obs region_rate(regions[6], @1) = 0.1030;
+obs region_rate(regions[7], @1) = 0.0220;
+obs region_rate(regions[8], @1) = 0.0230;
 
-query county_rate(counties[0], @0);
-query county_rate(counties[1], @1);
+obs region_rate(regions[0], @2) = 0.0290;
+obs region_rate(regions[1], @2) = 0.0120;
+obs region_rate(regions[2], @2) = 0.0420;
+obs region_rate(regions[3], @2) = 0.0440;
+obs region_rate(regions[4], @2) = 0.0200;
+obs region_rate(regions[5], @2) = 0.0050;
+obs region_rate(regions[6], @2) = 0.0840;
+obs region_rate(regions[7], @2) = 0.0270;
+obs region_rate(regions[8], @2) = 0.0220;
+
+obs region_rate(regions[0], @3) = 0.0360;
+obs region_rate(regions[1], @3) = 0.0120;
+obs region_rate(regions[2], @3) = 0.0820;
+obs region_rate(regions[3], @3) = 0.0530;
+obs region_rate(regions[4], @3) = 0.0270;
+obs region_rate(regions[5], @3) = 0.0050;
+obs region_rate(regions[6], @3) = 0.0830;
+obs region_rate(regions[7], @3) = 0.0260;
+obs region_rate(regions[8], @3) = 0.0210;
+
+obs region_rate(regions[0], @4) = 0.0410;
+obs region_rate(regions[1], @4) = 0.0110;
+obs region_rate(regions[2], @4) = 0.0860;
+obs region_rate(regions[3], @4) = 0.0640;
+obs region_rate(regions[4], @4) = 0.0340;
+obs region_rate(regions[5], @4) = 0.0070;
+obs region_rate(regions[6], @4) = 0.0470;
+obs region_rate(regions[7], @4) = 0.0270;
+obs region_rate(regions[8], @4) = 0.0310;
+*/
+query logit(counties[0], @0);
+query county_rate(counties[0], @3);
