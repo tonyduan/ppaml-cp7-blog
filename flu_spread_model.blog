@@ -18,21 +18,26 @@ fixed RealMatrix county_pop = loadRealMatrix("data_processed/county_pops.txt");
 fixed RealMatrix region_pop = loadRealMatrix("data_processed/region_pops.txt");
 fixed RealMatrix county_map = loadRealMatrix("data_processed/county_map.txt");
 
-// define the model
-
 fixed RealMatrix covariates1 = loadRealMatrix("data_processed/covariates1.txt");
 fixed RealMatrix covariates2 = loadRealMatrix("data_processed/covariates2.txt");
-fixed RealMatrix corr_cov = loadRealMatrix("data_processed/corr_cov.txt");
+random RealMatrix corr_cov ~ loadRealMatrix("data_processed/corr_cov.txt") / tau1;
+random RealMatrix corr_cov_timestep ~ corr_cov * rho;
 
+// ----
+// correlation at each timestep is GMRF
+// ----
 random RealMatrix correlation(Timestep t) ~
   if t == @0 then
     MultivarGaussian(zeros(82, 1), corr_cov)
   else
-    MultivarGaussian(correlation(prev(t)), corr_cov);
+    MultivarGaussian(correlation(prev(t)), corr_cov_timestep);
 
 random Real noise(County c, Timestep t) ~
   Gaussian(0.0, 1.0 / tau2);
 
+// ----
+// county rate calculated by logit
+// ----
 random Real logit(County c, Timestep t) ~
   toReal(beta1 * covariates1[toInt(c)][toInt(t)] +
          beta2 * covariates2[toInt(c)][toInt(t)] +
@@ -42,64 +47,14 @@ random Real logit(County c, Timestep t) ~
 random Real county_rate(County c, Timestep t) ~
   exp(logit(c, t)) / (1.0 + exp(logit(c, t)));
 
+// ----
+// region rate is the sum over county rates
+//   (make nondeterministic through Gaussian with very small variance)
+// ----
 random Real region_rate(Region r, Timestep t) ~
-  sum({
-    (county_rate(c, t) * county_pop[toInt(c)])
-    for County c : county_map[toInt(r)][toInt(c)] == 1.0
-  }) / region_pop[toInt(r)];
-
-// make observations
-
-obs region_rate(regions[1], @0) = 0.0180;
-obs region_rate(regions[2], @0) = 0.0150;
-obs region_rate(regions[3], @0) = 0.0620;
-obs region_rate(regions[4], @0) = 0.0240;
-obs region_rate(regions[5], @0) = 0.0030;
-obs region_rate(regions[6], @0) = 0.0960;
-obs region_rate(regions[7], @0) = 0.0240;
-obs region_rate(regions[8], @0) = 0.0110;
-
-obs region_rate(regions[0], @1) = 0.0310;
-obs region_rate(regions[1], @1) = 0.0160;
-obs region_rate(regions[2], @1) = 0.0230;
-obs region_rate(regions[3], @1) = 0.0570;
-obs region_rate(regions[4], @1) = 0.0270;
-obs region_rate(regions[5], @1) = 0.0030;
-obs region_rate(regions[6], @1) = 0.1030;
-obs region_rate(regions[7], @1) = 0.0220;
-obs region_rate(regions[8], @1) = 0.0230;
-
-obs region_rate(regions[0], @2) = 0.0290;
-obs region_rate(regions[1], @2) = 0.0120;
-obs region_rate(regions[2], @2) = 0.0420;
-obs region_rate(regions[3], @2) = 0.0440;
-obs region_rate(regions[4], @2) = 0.0200;
-obs region_rate(regions[5], @2) = 0.0050;
-obs region_rate(regions[6], @2) = 0.0840;
-obs region_rate(regions[7], @2) = 0.0270;
-obs region_rate(regions[8], @2) = 0.0220;
-
-obs region_rate(regions[0], @3) = 0.0360;
-obs region_rate(regions[1], @3) = 0.0120;
-obs region_rate(regions[2], @3) = 0.0820;
-obs region_rate(regions[3], @3) = 0.0530;
-obs region_rate(regions[4], @3) = 0.0270;
-obs region_rate(regions[5], @3) = 0.0050;
-obs region_rate(regions[6], @3) = 0.0830;
-obs region_rate(regions[7], @3) = 0.0260;
-obs region_rate(regions[8], @3) = 0.0210;
-
-obs region_rate(regions[0], @4) = 0.0410;
-obs region_rate(regions[1], @4) = 0.0110;
-obs region_rate(regions[2], @4) = 0.0860;
-obs region_rate(regions[3], @4) = 0.0640;
-obs region_rate(regions[4], @4) = 0.0340;
-obs region_rate(regions[5], @4) = 0.0070;
-obs region_rate(regions[6], @4) = 0.0470;
-obs region_rate(regions[7], @4) = 0.0270;
-obs region_rate(regions[8], @4) = 0.0310;
-
-query county_rate(counties[0], @0);
-query county_rate(counties[0], @1);
-query county_rate(counties[0], @2);
-query county_rate(counties[0], @3);
+  Gaussian(
+    sum({
+      (county_rate(c, t) * county_pop[toInt(c)])
+      for County c : county_map[toInt(r)][toInt(c)] == 1.0
+    }) / region_pop[toInt(r)],
+  0.001);
