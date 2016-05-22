@@ -8,7 +8,10 @@ all:
 		-o bin/flu_spread_compiled_liuwest.cpp \
 		-e ParticleFilter --particle 10000;
 	awk '/perturb/ {$$0="//"$$0}1' bin/flu_spread_compiled_liuwest.cpp \
-        > bin/flu_spread_compiled.cpp;
+        > bin/flu_spread_tmp.cpp;
+	awk '/int _cur_loop/ {$$0="//"$$0}1' bin/flu_spread_tmp.cpp \
+		> bin/flu_spread_compiled.cpp;
+	rm bin/flu_spread_tmp.cpp
 	g++ -I bin -Ofast -std=c++11 \
 		bin/flu_spread_compiled.cpp \
 		/Users/tony/Projects/swift/src/random/*.cpp \

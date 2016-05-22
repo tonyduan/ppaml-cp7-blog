@@ -46,6 +46,7 @@
 #include "random/MultivarGaussianIndep.h"
 #include "random/Multinomial.h"
 #include "random/UniformVector.h"
+#include "random/PrecisionGaussian.h"
 #include "util/Hist_matrix.h"
 #include "util/util_matrix.h"
 using namespace arma;
@@ -66,7 +67,7 @@ class Region;
 const vector<string> __vecstr_instance_Region = {"regions[0]", "regions[1]", "regions[2]", "regions[3]", "regions[4]", "regions[5]", "regions[6]", "regions[7]", "regions[8]"};
 const vector<string> __vecstr_instance_County = {"counties[0]", "counties[1]", "counties[2]", "counties[3]", "counties[4]", "counties[5]", "counties[6]", "counties[7]", "counties[8]", "counties[9]", "counties[10]", "counties[11]", "counties[12]", "counties[13]", "counties[14]", "counties[15]", "counties[16]", "counties[17]", "counties[18]", "counties[19]", "counties[20]", "counties[21]", "counties[22]", "counties[23]", "counties[24]", "counties[25]", "counties[26]", "counties[27]", "counties[28]", "counties[29]", "counties[30]", "counties[31]", "counties[32]", "counties[33]", "counties[34]", "counties[35]", "counties[36]", "counties[37]", "counties[38]", "counties[39]", "counties[40]", "counties[41]", "counties[42]", "counties[43]", "counties[44]", "counties[45]", "counties[46]", "counties[47]", "counties[48]", "counties[49]", "counties[50]", "counties[51]", "counties[52]", "counties[53]", "counties[54]", "counties[55]", "counties[56]", "counties[57]", "counties[58]", "counties[59]", "counties[60]", "counties[61]", "counties[62]", "counties[63]", "counties[64]", "counties[65]", "counties[66]", "counties[67]", "counties[68]", "counties[69]", "counties[70]", "counties[71]", "counties[72]", "counties[73]", "counties[74]", "counties[75]", "counties[76]", "counties[77]", "counties[78]", "counties[79]", "counties[80]", "counties[81]"};
 const int _ParticleN_ = 10000;
-const int _TimeLim_ = 50;
+const int _TimeLim_ = 51;
 const int _DependN_ = 2;
 class BLOG_Static_State {
 public:
@@ -87,8 +88,8 @@ public:
   int __mark_beta1;
   double __value_beta2;
   int __mark_beta2;
-  mat __value_corr_cov;
-  int __mark_corr_cov;
+  mat __value_corr_cov_init;
+  int __mark_corr_cov_init;
   mat __value_corr_cov_timestep;
   int __mark_corr_cov_timestep;
 };
@@ -114,7 +115,7 @@ BLOG_Temporal_State* _ptr_temp_memo[_ParticleN_][_DependN_];
 BLOG_Temporal_State* _ptr_backup[_ParticleN_][_DependN_];
 void init();
 void debug();
-int _cur_loop;
+//int _cur_loop;
 unsigned _cur_time;
 default_random_engine __random_device;
 class County {
@@ -134,39 +135,40 @@ const mat __fixed_region_pop = loadRealMatrix("data_processed/region_pops.txt");
 const mat __fixed_county_map = loadRealMatrix("data_processed/county_map.txt");
 const mat __fixed_covariates1 = loadRealMatrix("data_processed/covariates1.txt");
 const mat __fixed_covariates2 = loadRealMatrix("data_processed/covariates2.txt");
+const mat __fixed_corr_cov = loadRealMatrix("data_processed/corr_cov.txt");
 double __get_rho();
-Gamma Gamma140362417033584;
+Gamma Gamma140730802650752;
 double __likeli_rho();
 void __set_rho(double);
 double __get_tau1();
-Gamma Gamma140362417033920;
+Gamma Gamma140730802651088;
 double __likeli_tau1();
 void __set_tau1(double);
 double __get_tau2();
-Gamma Gamma140362417034256;
+Gamma Gamma140730802651424;
 double __likeli_tau2();
 void __set_tau2(double);
 double __get_beta1();
-Gaussian Gaussian140362417034592;
+Gaussian Gaussian140730802651760;
 double __likeli_beta1();
 void __set_beta1(double);
 double __get_beta2();
-Gaussian Gaussian140362417034928;
+Gaussian Gaussian140730802652096;
 double __likeli_beta2();
 void __set_beta2(double);
-mat& __get_corr_cov();
-double __likeli_corr_cov();
-void __set_corr_cov(mat);
+mat& __get_corr_cov_init();
+double __likeli_corr_cov_init();
+void __set_corr_cov_init(mat);
 mat& __get_corr_cov_timestep();
 double __likeli_corr_cov_timestep();
 void __set_corr_cov_timestep(mat);
 mat& __get_correlation(unsigned);
-MultivarGaussian MultivarGaussian140362417038816;
-MultivarGaussian MultivarGaussian140362417039760;
+PrecisionGaussian PrecisionGaussian140730802656240;
+PrecisionGaussian PrecisionGaussian140730802657184;
 double __likeli_correlation(unsigned);
 void __set_correlation(unsigned,mat);
 double __get_noise(unsigned,int);
-Gaussian Gaussian140362379393536;
+Gaussian Gaussian140730802657952;
 double __likeli_noise(unsigned,int);
 void __set_noise(unsigned,int,double);
 double __get_logit(unsigned,int);
@@ -176,7 +178,7 @@ double __get_county_rate(unsigned,int);
 double __likeli_county_rate(unsigned,int);
 void __set_county_rate(unsigned,int,double);
 double __get_region_rate(unsigned,int);
-Gaussian Gaussian140362379400224;
+Gaussian Gaussian140730802665392;
 double __likeli_region_rate(unsigned,int);
 void __set_region_rate(unsigned,int,double);
 bool _set_evidence(double&);
@@ -4335,6 +4337,125 @@ Hist<double> _answer_4141 = Hist<double>(true, 20);
 Hist<double> _answer_4142 = Hist<double>(true, 20);
 Hist<double> _answer_4143 = Hist<double>(true, 20);
 Hist<double> _answer_4144 = Hist<double>(true, 20);
+Hist<double> _answer_4145 = Hist<double>(true, 20);
+Hist<double> _answer_4146 = Hist<double>(true, 20);
+Hist<double> _answer_4147 = Hist<double>(true, 20);
+Hist<double> _answer_4148 = Hist<double>(true, 20);
+Hist<double> _answer_4149 = Hist<double>(true, 20);
+Hist<double> _answer_4150 = Hist<double>(true, 20);
+Hist<double> _answer_4151 = Hist<double>(true, 20);
+Hist<double> _answer_4152 = Hist<double>(true, 20);
+Hist<double> _answer_4153 = Hist<double>(true, 20);
+Hist<double> _answer_4154 = Hist<double>(true, 20);
+Hist<double> _answer_4155 = Hist<double>(true, 20);
+Hist<double> _answer_4156 = Hist<double>(true, 20);
+Hist<double> _answer_4157 = Hist<double>(true, 20);
+Hist<double> _answer_4158 = Hist<double>(true, 20);
+Hist<double> _answer_4159 = Hist<double>(true, 20);
+Hist<double> _answer_4160 = Hist<double>(true, 20);
+Hist<double> _answer_4161 = Hist<double>(true, 20);
+Hist<double> _answer_4162 = Hist<double>(true, 20);
+Hist<double> _answer_4163 = Hist<double>(true, 20);
+Hist<double> _answer_4164 = Hist<double>(true, 20);
+Hist<double> _answer_4165 = Hist<double>(true, 20);
+Hist<double> _answer_4166 = Hist<double>(true, 20);
+Hist<double> _answer_4167 = Hist<double>(true, 20);
+Hist<double> _answer_4168 = Hist<double>(true, 20);
+Hist<double> _answer_4169 = Hist<double>(true, 20);
+Hist<double> _answer_4170 = Hist<double>(true, 20);
+Hist<double> _answer_4171 = Hist<double>(true, 20);
+Hist<double> _answer_4172 = Hist<double>(true, 20);
+Hist<double> _answer_4173 = Hist<double>(true, 20);
+Hist<double> _answer_4174 = Hist<double>(true, 20);
+Hist<double> _answer_4175 = Hist<double>(true, 20);
+Hist<double> _answer_4176 = Hist<double>(true, 20);
+Hist<double> _answer_4177 = Hist<double>(true, 20);
+Hist<double> _answer_4178 = Hist<double>(true, 20);
+Hist<double> _answer_4179 = Hist<double>(true, 20);
+Hist<double> _answer_4180 = Hist<double>(true, 20);
+Hist<double> _answer_4181 = Hist<double>(true, 20);
+Hist<double> _answer_4182 = Hist<double>(true, 20);
+Hist<double> _answer_4183 = Hist<double>(true, 20);
+Hist<double> _answer_4184 = Hist<double>(true, 20);
+Hist<double> _answer_4185 = Hist<double>(true, 20);
+Hist<double> _answer_4186 = Hist<double>(true, 20);
+Hist<double> _answer_4187 = Hist<double>(true, 20);
+Hist<double> _answer_4188 = Hist<double>(true, 20);
+Hist<double> _answer_4189 = Hist<double>(true, 20);
+Hist<double> _answer_4190 = Hist<double>(true, 20);
+Hist<double> _answer_4191 = Hist<double>(true, 20);
+Hist<double> _answer_4192 = Hist<double>(true, 20);
+Hist<double> _answer_4193 = Hist<double>(true, 20);
+Hist<double> _answer_4194 = Hist<double>(true, 20);
+Hist<double> _answer_4195 = Hist<double>(true, 20);
+Hist<double> _answer_4196 = Hist<double>(true, 20);
+Hist<double> _answer_4197 = Hist<double>(true, 20);
+Hist<double> _answer_4198 = Hist<double>(true, 20);
+Hist<double> _answer_4199 = Hist<double>(true, 20);
+Hist<double> _answer_4200 = Hist<double>(true, 20);
+Hist<double> _answer_4201 = Hist<double>(true, 20);
+Hist<double> _answer_4202 = Hist<double>(true, 20);
+Hist<double> _answer_4203 = Hist<double>(true, 20);
+Hist<double> _answer_4204 = Hist<double>(true, 20);
+Hist<double> _answer_4205 = Hist<double>(true, 20);
+Hist<double> _answer_4206 = Hist<double>(true, 20);
+Hist<double> _answer_4207 = Hist<double>(true, 20);
+Hist<double> _answer_4208 = Hist<double>(true, 20);
+Hist<double> _answer_4209 = Hist<double>(true, 20);
+Hist<double> _answer_4210 = Hist<double>(true, 20);
+Hist<double> _answer_4211 = Hist<double>(true, 20);
+Hist<double> _answer_4212 = Hist<double>(true, 20);
+Hist<double> _answer_4213 = Hist<double>(true, 20);
+Hist<double> _answer_4214 = Hist<double>(true, 20);
+Hist<double> _answer_4215 = Hist<double>(true, 20);
+Hist<double> _answer_4216 = Hist<double>(true, 20);
+Hist<double> _answer_4217 = Hist<double>(true, 20);
+Hist<double> _answer_4218 = Hist<double>(true, 20);
+Hist<double> _answer_4219 = Hist<double>(true, 20);
+Hist<double> _answer_4220 = Hist<double>(true, 20);
+Hist<double> _answer_4221 = Hist<double>(true, 20);
+Hist<double> _answer_4222 = Hist<double>(true, 20);
+Hist<double> _answer_4223 = Hist<double>(true, 20);
+Hist<double> _answer_4224 = Hist<double>(true, 20);
+Hist<double> _answer_4225 = Hist<double>(true, 20);
+Hist<double> _answer_4226 = Hist<double>(true, 20);
+Hist<double> _answer_4227 = Hist<double>(true, 20);
+Hist<double> _answer_4228 = Hist<double>(true, 20);
+Hist<double> _answer_4229 = Hist<double>(true, 20);
+Hist<double> _answer_4230 = Hist<double>(true, 20);
+Hist<double> _answer_4231 = Hist<double>(true, 20);
+Hist<double> _answer_4232 = Hist<double>(true, 20);
+Hist<double> _answer_4233 = Hist<double>(true, 20);
+Hist<double> _answer_4234 = Hist<double>(true, 20);
+Hist<double> _answer_4235 = Hist<double>(true, 20);
+Hist<double> _answer_4236 = Hist<double>(true, 20);
+Hist<double> _answer_4237 = Hist<double>(true, 20);
+Hist<double> _answer_4238 = Hist<double>(true, 20);
+Hist<double> _answer_4239 = Hist<double>(true, 20);
+Hist<double> _answer_4240 = Hist<double>(true, 20);
+Hist<double> _answer_4241 = Hist<double>(true, 20);
+Hist<double> _answer_4242 = Hist<double>(true, 20);
+Hist<double> _answer_4243 = Hist<double>(true, 20);
+Hist<double> _answer_4244 = Hist<double>(true, 20);
+Hist<double> _answer_4245 = Hist<double>(true, 20);
+Hist<double> _answer_4246 = Hist<double>(true, 20);
+Hist<double> _answer_4247 = Hist<double>(true, 20);
+Hist<double> _answer_4248 = Hist<double>(true, 20);
+Hist<double> _answer_4249 = Hist<double>(true, 20);
+Hist<double> _answer_4250 = Hist<double>(true, 20);
+Hist<double> _answer_4251 = Hist<double>(true, 20);
+Hist<double> _answer_4252 = Hist<double>(true, 20);
+Hist<double> _answer_4253 = Hist<double>(true, 20);
+Hist<double> _answer_4254 = Hist<double>(true, 20);
+Hist<double> _answer_4255 = Hist<double>(true, 20);
+Hist<double> _answer_4256 = Hist<double>(true, 20);
+Hist<double> _answer_4257 = Hist<double>(true, 20);
+Hist<double> _answer_4258 = Hist<double>(true, 20);
+Hist<double> _answer_4259 = Hist<double>(true, 20);
+Hist<double> _answer_4260 = Hist<double>(true, 20);
+Hist<double> _answer_4261 = Hist<double>(true, 20);
+Hist<double> _answer_4262 = Hist<double>(true, 20);
+Hist<double> _answer_4263 = Hist<double>(true, 20);
 
 void BLOG_Static_State::init()
 {
@@ -4472,11 +4593,11 @@ void BLOG_Temporal_State::_clear_marks()
 {}
 void init()
 {
-  Gamma140362417033584.init(1.05000000,0.50000000);
-  Gamma140362417033920.init(3.00000000,0.10000000);
-  Gamma140362417034256.init(10.00000000,0.10000000);
-  Gaussian140362417034592.init(0.000000,10.00000000);
-  Gaussian140362417034928.init(0.000000,10.00000000);
+  Gamma140730802650752.init(1.05000000,0.50000000);
+  Gamma140730802651088.init(3.00000000,0.10000000);
+  Gamma140730802651424.init(10.00000000,0.10000000);
+  Gaussian140730802651760.init(0.000000,10.00000000);
+  Gaussian140730802652096.init(0.000000,10.00000000);
   setup_temporal_evidences();
   setup_temporal_queries();
   setup_temporal_prints();
@@ -4506,7 +4627,7 @@ double __get_rho()
   int& __mark = _cur_state.__mark_rho;
   if (__mark>0)
     return __retvalue;
-  __retvalue=Gamma140362417033584.gen();
+  __retvalue=Gamma140730802650752.gen();
   __mark=1;
   return __retvalue;
 }
@@ -4515,7 +4636,7 @@ double __likeli_rho()
   BLOG_Static_State& _cur_state = _stat_memo[_cur_loop];
   double& __retvalue = _cur_state.__value_rho;
   double __local_weight = 0.000000;
-  __local_weight=Gamma140362417033584.loglikeli(__retvalue);
+  __local_weight=Gamma140730802650752.loglikeli(__retvalue);
   return __local_weight;
 }
 void __set_rho(double __retvalue_arg)
@@ -4532,7 +4653,7 @@ double __get_tau1()
   int& __mark = _cur_state.__mark_tau1;
   if (__mark>0)
     return __retvalue;
-  __retvalue=Gamma140362417033920.gen();
+  __retvalue=Gamma140730802651088.gen();
   __mark=1;
   return __retvalue;
 }
@@ -4541,7 +4662,7 @@ double __likeli_tau1()
   BLOG_Static_State& _cur_state = _stat_memo[_cur_loop];
   double& __retvalue = _cur_state.__value_tau1;
   double __local_weight = 0.000000;
-  __local_weight=Gamma140362417033920.loglikeli(__retvalue);
+  __local_weight=Gamma140730802651088.loglikeli(__retvalue);
   return __local_weight;
 }
 void __set_tau1(double __retvalue_arg)
@@ -4558,7 +4679,7 @@ double __get_tau2()
   int& __mark = _cur_state.__mark_tau2;
   if (__mark>0)
     return __retvalue;
-  __retvalue=Gamma140362417034256.gen();
+  __retvalue=Gamma140730802651424.gen();
   __mark=1;
   return __retvalue;
 }
@@ -4567,7 +4688,7 @@ double __likeli_tau2()
   BLOG_Static_State& _cur_state = _stat_memo[_cur_loop];
   double& __retvalue = _cur_state.__value_tau2;
   double __local_weight = 0.000000;
-  __local_weight=Gamma140362417034256.loglikeli(__retvalue);
+  __local_weight=Gamma140730802651424.loglikeli(__retvalue);
   return __local_weight;
 }
 void __set_tau2(double __retvalue_arg)
@@ -4584,7 +4705,7 @@ double __get_beta1()
   int& __mark = _cur_state.__mark_beta1;
   if (__mark>0)
     return __retvalue;
-  __retvalue=Gaussian140362417034592.gen();
+  __retvalue=Gaussian140730802651760.gen();
   __mark=1;
   return __retvalue;
 }
@@ -4593,7 +4714,7 @@ double __likeli_beta1()
   BLOG_Static_State& _cur_state = _stat_memo[_cur_loop];
   double& __retvalue = _cur_state.__value_beta1;
   double __local_weight = 0.000000;
-  __local_weight=Gaussian140362417034592.loglikeli(__retvalue);
+  __local_weight=Gaussian140730802651760.loglikeli(__retvalue);
   return __local_weight;
 }
 void __set_beta1(double __retvalue_arg)
@@ -4610,7 +4731,7 @@ double __get_beta2()
   int& __mark = _cur_state.__mark_beta2;
   if (__mark>0)
     return __retvalue;
-  __retvalue=Gaussian140362417034928.gen();
+  __retvalue=Gaussian140730802652096.gen();
   __mark=1;
   return __retvalue;
 }
@@ -4619,7 +4740,7 @@ double __likeli_beta2()
   BLOG_Static_State& _cur_state = _stat_memo[_cur_loop];
   double& __retvalue = _cur_state.__value_beta2;
   double __local_weight = 0.000000;
-  __local_weight=Gaussian140362417034928.loglikeli(__retvalue);
+  __local_weight=Gaussian140730802652096.loglikeli(__retvalue);
   return __local_weight;
 }
 void __set_beta2(double __retvalue_arg)
@@ -4629,30 +4750,30 @@ void __set_beta2(double __retvalue_arg)
   int& __mark = _cur_state.__mark_beta2;
   __mark=1;
 }
-mat& __get_corr_cov()
+mat& __get_corr_cov_init()
 {
   BLOG_Static_State& _cur_state = _stat_memo[_cur_loop];
-  mat& __retvalue = _cur_state.__value_corr_cov;
-  int& __mark = _cur_state.__mark_corr_cov;
+  mat& __retvalue = _cur_state.__value_corr_cov_init;
+  int& __mark = _cur_state.__mark_corr_cov_init;
   if (__mark>0)
     return __retvalue;
-  __retvalue=loadRealMatrix("data_processed/corr_cov.txt")/__get_tau1();
+  __retvalue=loadRealMatrix("data_processed/corr_cov.txt")*__get_tau1();
   __mark=1;
   return __retvalue;
 }
-double __likeli_corr_cov()
+double __likeli_corr_cov_init()
 {
   BLOG_Static_State& _cur_state = _stat_memo[_cur_loop];
-  mat& __retvalue = _cur_state.__value_corr_cov;
+  mat& __retvalue = _cur_state.__value_corr_cov_init;
   double __local_weight = 0.000000;
-  __local_weight=norm(__retvalue-loadRealMatrix("data_processed/corr_cov.txt")/__get_tau1())<=0.000000;
+  __local_weight=norm(__retvalue-loadRealMatrix("data_processed/corr_cov.txt")*__get_tau1())<=0.000000;
   return __local_weight;
 }
-void __set_corr_cov(mat __retvalue_arg)
+void __set_corr_cov_init(mat __retvalue_arg)
 {
   BLOG_Static_State& _cur_state = _stat_memo[_cur_loop];
-  _cur_state.__value_corr_cov=__retvalue_arg;
-  int& __mark = _cur_state.__mark_corr_cov;
+  _cur_state.__value_corr_cov_init=__retvalue_arg;
+  int& __mark = _cur_state.__mark_corr_cov_init;
   __mark=1;
 }
 mat& __get_corr_cov_timestep()
@@ -4662,7 +4783,7 @@ mat& __get_corr_cov_timestep()
   int& __mark = _cur_state.__mark_corr_cov_timestep;
   if (__mark>0)
     return __retvalue;
-  __retvalue=__get_corr_cov()*__get_rho();
+  __retvalue=__fixed_corr_cov*__get_rho();
   __mark=1;
   return __retvalue;
 }
@@ -4671,7 +4792,7 @@ double __likeli_corr_cov_timestep()
   BLOG_Static_State& _cur_state = _stat_memo[_cur_loop];
   mat& __retvalue = _cur_state.__value_corr_cov_timestep;
   double __local_weight = 0.000000;
-  __local_weight=norm(__retvalue-__get_corr_cov()*__get_rho())<=0.000000;
+  __local_weight=norm(__retvalue-__fixed_corr_cov*__get_rho())<=0.000000;
   return __local_weight;
 }
 void __set_corr_cov_timestep(mat __retvalue_arg)
@@ -4689,9 +4810,9 @@ mat& __get_correlation(unsigned t)
   if (__mark==t+1)
     return __retvalue;
   if (t==0)
-    __retvalue=(MultivarGaussian140362417038816.init(zeros(82,1),__get_corr_cov()),MultivarGaussian140362417038816.gen());
+    __retvalue=(PrecisionGaussian140730802656240.init(zeros(82,1),__get_corr_cov_init()),PrecisionGaussian140730802656240.gen());
   else
-    __retvalue=(MultivarGaussian140362417039760.init(__get_correlation(prev(t,1)),__get_corr_cov_timestep()),MultivarGaussian140362417039760.gen());
+    __retvalue=(PrecisionGaussian140730802657184.init(__get_correlation(prev(t,1)),__get_corr_cov_timestep()),PrecisionGaussian140730802657184.gen());
   __mark=t+1;
   return __retvalue;
 }
@@ -4701,9 +4822,9 @@ double __likeli_correlation(unsigned t)
   mat& __retvalue = _cur_state.__value_correlation;
   double __local_weight = 0.000000;
   if (t==0)
-    __local_weight=(MultivarGaussian140362417038816.init(zeros(82,1),__get_corr_cov()),MultivarGaussian140362417038816.loglikeli(__retvalue));
+    __local_weight=(PrecisionGaussian140730802656240.init(zeros(82,1),__get_corr_cov_init()),PrecisionGaussian140730802656240.loglikeli(__retvalue));
   else
-    __local_weight=(MultivarGaussian140362417039760.init(__get_correlation(prev(t,1)),__get_corr_cov_timestep()),MultivarGaussian140362417039760.loglikeli(__retvalue));
+    __local_weight=(PrecisionGaussian140730802657184.init(__get_correlation(prev(t,1)),__get_corr_cov_timestep()),PrecisionGaussian140730802657184.loglikeli(__retvalue));
   return __local_weight;
 }
 void __set_correlation(unsigned t, mat __retvalue_arg)
@@ -4720,7 +4841,7 @@ double __get_noise(unsigned t, int c)
   int& __mark = _cur_state.__mark_noise[c];
   if (__mark==t+1)
     return __retvalue;
-  __retvalue=(Gaussian140362379393536.init(0.000000,1.00000000/__get_tau2()),Gaussian140362379393536.gen());
+  __retvalue=(Gaussian140730802657952.init(0.000000,1.00000000/__get_tau2()),Gaussian140730802657952.gen());
   __mark=t+1;
   return __retvalue;
 }
@@ -4729,7 +4850,7 @@ double __likeli_noise(unsigned t, int c)
   BLOG_Temporal_State& _cur_state = *_ptr_temp_memo[_cur_loop][t%_DependN_];
   double& __retvalue = _cur_state.__value_noise[c];
   double __local_weight = 0.000000;
-  __local_weight=(Gaussian140362379393536.init(0.000000,1.00000000/__get_tau2()),Gaussian140362379393536.loglikeli(__retvalue));
+  __local_weight=(Gaussian140730802657952.init(0.000000,1.00000000/__get_tau2()),Gaussian140730802657952.loglikeli(__retvalue));
   return __local_weight;
 }
 void __set_noise(unsigned t, int c, double __retvalue_arg)
@@ -4798,11 +4919,11 @@ double __get_region_rate(unsigned t, int r)
   int& __mark = _cur_state.__mark_region_rate[r];
   if (__mark==t+1)
     return __retvalue;
-  __retvalue=(Gaussian140362379400224.init(_aggregate<double>(__get___num_County(),[&](int c){
+  __retvalue=(Gaussian140730802665392.init(_aggregate<double>(__get___num_County(),[&](int c){
     return __fixed_county_map(r,c)==1.00000000;
   },[&](int c){
     return __get_county_rate(t,c)*__fixed_county_pop[c];
-  },_aggr_sum<double>)/__fixed_region_pop[r],0.00100000),Gaussian140362379400224.gen());
+  },_aggr_sum<double>)/__fixed_region_pop[r],0.00100000),Gaussian140730802665392.gen());
   __mark=t+1;
   return __retvalue;
 }
@@ -4811,11 +4932,11 @@ double __likeli_region_rate(unsigned t, int r)
   BLOG_Temporal_State& _cur_state = *_ptr_temp_memo[_cur_loop][t%_DependN_];
   double& __retvalue = _cur_state.__value_region_rate[r];
   double __local_weight = 0.000000;
-  __local_weight=(Gaussian140362379400224.init(_aggregate<double>(__get___num_County(),[&](int c){
+  __local_weight=(Gaussian140730802665392.init(_aggregate<double>(__get___num_County(),[&](int c){
     return __fixed_county_map(r,c)==1.00000000;
   },[&](int c){
     return __get_county_rate(t,c)*__fixed_county_pop[c];
-  },_aggr_sum<double>)/__fixed_region_pop[r],0.00100000),Gaussian140362379400224.loglikeli(__retvalue));
+  },_aggr_sum<double>)/__fixed_region_pop[r],0.00100000),Gaussian140730802665392.loglikeli(__retvalue));
   return __local_weight;
 }
 void __set_region_rate(unsigned t, int r, double __retvalue_arg)
@@ -4835,15 +4956,15 @@ bool _set_evidence(double& __local_weight)
 void setup_temporal_evidences()
 {
   _evidenceTable[7]=[&](double& __local_weight){
-    __set_region_rate(7,0,0.06200000);
-    __set_region_rate(7,1,0.09600000);
-    __set_region_rate(7,2,0.00300000);
-    __set_region_rate(7,3,0.01500000);
-    __set_region_rate(7,4,0.03100000);
-    __set_region_rate(7,5,0.02400000);
-    __set_region_rate(7,6,0.02400000);
-    __set_region_rate(7,7,0.01100000);
-    __set_region_rate(7,8,0.01800000);
+    __set_region_rate(7,0,0.09600000);
+    __set_region_rate(7,1,0.01100000);
+    __set_region_rate(7,2,0.03100000);
+    __set_region_rate(7,3,0.02400000);
+    __set_region_rate(7,4,0.06200000);
+    __set_region_rate(7,5,0.01500000);
+    __set_region_rate(7,6,0.01800000);
+    __set_region_rate(7,7,0.00300000);
+    __set_region_rate(7,8,0.02400000);
     __local_weight+=__likeli_region_rate(7,0);
     __local_weight+=__likeli_region_rate(7,1);
     __local_weight+=__likeli_region_rate(7,2);
@@ -4856,15 +4977,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[8]=[&](double& __local_weight){
-    __set_region_rate(8,0,0.05700000);
-    __set_region_rate(8,1,0.10300000);
-    __set_region_rate(8,2,0.00300000);
-    __set_region_rate(8,3,0.02300000);
-    __set_region_rate(8,4,0.04000000);
-    __set_region_rate(8,5,0.02200000);
-    __set_region_rate(8,6,0.02700000);
-    __set_region_rate(8,7,0.02300000);
-    __set_region_rate(8,8,0.01600000);
+    __set_region_rate(8,0,0.10300000);
+    __set_region_rate(8,1,0.02300000);
+    __set_region_rate(8,2,0.04000000);
+    __set_region_rate(8,3,0.02200000);
+    __set_region_rate(8,4,0.05700000);
+    __set_region_rate(8,5,0.02300000);
+    __set_region_rate(8,6,0.01600000);
+    __set_region_rate(8,7,0.00300000);
+    __set_region_rate(8,8,0.02700000);
     __local_weight+=__likeli_region_rate(8,0);
     __local_weight+=__likeli_region_rate(8,1);
     __local_weight+=__likeli_region_rate(8,2);
@@ -4877,15 +4998,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[9]=[&](double& __local_weight){
-    __set_region_rate(9,0,0.04400000);
-    __set_region_rate(9,1,0.08400000);
-    __set_region_rate(9,2,0.00500000);
-    __set_region_rate(9,3,0.04200000);
-    __set_region_rate(9,4,0.04300000);
-    __set_region_rate(9,5,0.02700000);
-    __set_region_rate(9,6,0.02000000);
-    __set_region_rate(9,7,0.02200000);
-    __set_region_rate(9,8,0.01200000);
+    __set_region_rate(9,0,0.08400000);
+    __set_region_rate(9,1,0.02200000);
+    __set_region_rate(9,2,0.04300000);
+    __set_region_rate(9,3,0.02700000);
+    __set_region_rate(9,4,0.04400000);
+    __set_region_rate(9,5,0.04200000);
+    __set_region_rate(9,6,0.01200000);
+    __set_region_rate(9,7,0.00500000);
+    __set_region_rate(9,8,0.02000000);
     __local_weight+=__likeli_region_rate(9,0);
     __local_weight+=__likeli_region_rate(9,1);
     __local_weight+=__likeli_region_rate(9,2);
@@ -4898,15 +5019,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[10]=[&](double& __local_weight){
-    __set_region_rate(10,0,0.05300000);
-    __set_region_rate(10,1,0.08300000);
-    __set_region_rate(10,2,0.00500000);
-    __set_region_rate(10,3,0.08200000);
-    __set_region_rate(10,4,0.06000000);
-    __set_region_rate(10,5,0.02600000);
-    __set_region_rate(10,6,0.02700000);
-    __set_region_rate(10,7,0.02100000);
-    __set_region_rate(10,8,0.01200000);
+    __set_region_rate(10,0,0.08300000);
+    __set_region_rate(10,1,0.02100000);
+    __set_region_rate(10,2,0.06000000);
+    __set_region_rate(10,3,0.02600000);
+    __set_region_rate(10,4,0.05300000);
+    __set_region_rate(10,5,0.08200000);
+    __set_region_rate(10,6,0.01200000);
+    __set_region_rate(10,7,0.00500000);
+    __set_region_rate(10,8,0.02700000);
     __local_weight+=__likeli_region_rate(10,0);
     __local_weight+=__likeli_region_rate(10,1);
     __local_weight+=__likeli_region_rate(10,2);
@@ -4919,15 +5040,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[11]=[&](double& __local_weight){
-    __set_region_rate(11,0,0.06400000);
-    __set_region_rate(11,1,0.04700000);
-    __set_region_rate(11,2,0.00700000);
-    __set_region_rate(11,3,0.08600000);
-    __set_region_rate(11,4,0.07500000);
-    __set_region_rate(11,5,0.02700000);
-    __set_region_rate(11,6,0.03400000);
-    __set_region_rate(11,7,0.03100000);
-    __set_region_rate(11,8,0.01100000);
+    __set_region_rate(11,0,0.04700000);
+    __set_region_rate(11,1,0.03100000);
+    __set_region_rate(11,2,0.07500000);
+    __set_region_rate(11,3,0.02700000);
+    __set_region_rate(11,4,0.06400000);
+    __set_region_rate(11,5,0.08600000);
+    __set_region_rate(11,6,0.01100000);
+    __set_region_rate(11,7,0.00700000);
+    __set_region_rate(11,8,0.03400000);
     __local_weight+=__likeli_region_rate(11,0);
     __local_weight+=__likeli_region_rate(11,1);
     __local_weight+=__likeli_region_rate(11,2);
@@ -4940,15 +5061,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[12]=[&](double& __local_weight){
-    __set_region_rate(12,0,0.10400000);
-    __set_region_rate(12,1,0.10600000);
-    __set_region_rate(12,2,0.00500000);
-    __set_region_rate(12,3,0.07800000);
-    __set_region_rate(12,4,0.08500000);
-    __set_region_rate(12,5,0.02000000);
-    __set_region_rate(12,6,0.03500000);
-    __set_region_rate(12,7,0.02200000);
-    __set_region_rate(12,8,0.01200000);
+    __set_region_rate(12,0,0.10600000);
+    __set_region_rate(12,1,0.02200000);
+    __set_region_rate(12,2,0.08500000);
+    __set_region_rate(12,3,0.02000000);
+    __set_region_rate(12,4,0.10400000);
+    __set_region_rate(12,5,0.07800000);
+    __set_region_rate(12,6,0.01200000);
+    __set_region_rate(12,7,0.00500000);
+    __set_region_rate(12,8,0.03500000);
     __local_weight+=__likeli_region_rate(12,0);
     __local_weight+=__likeli_region_rate(12,1);
     __local_weight+=__likeli_region_rate(12,2);
@@ -4961,15 +5082,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[13]=[&](double& __local_weight){
-    __set_region_rate(13,0,0.07200000);
-    __set_region_rate(13,1,0.12700000);
-    __set_region_rate(13,2,0.00500000);
-    __set_region_rate(13,3,0.09600000);
-    __set_region_rate(13,4,0.08600000);
-    __set_region_rate(13,5,0.02800000);
-    __set_region_rate(13,6,0.03200000);
-    __set_region_rate(13,7,0.03500000);
-    __set_region_rate(13,8,0.01500000);
+    __set_region_rate(13,0,0.12700000);
+    __set_region_rate(13,1,0.03500000);
+    __set_region_rate(13,2,0.08600000);
+    __set_region_rate(13,3,0.02800000);
+    __set_region_rate(13,4,0.07200000);
+    __set_region_rate(13,5,0.09600000);
+    __set_region_rate(13,6,0.01500000);
+    __set_region_rate(13,7,0.00500000);
+    __set_region_rate(13,8,0.03200000);
     __local_weight+=__likeli_region_rate(13,0);
     __local_weight+=__likeli_region_rate(13,1);
     __local_weight+=__likeli_region_rate(13,2);
@@ -4982,15 +5103,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[14]=[&](double& __local_weight){
-    __set_region_rate(14,0,0.10300000);
-    __set_region_rate(14,1,0.12800000);
-    __set_region_rate(14,2,0.00700000);
-    __set_region_rate(14,3,0.12500000);
-    __set_region_rate(14,4,0.08200000);
-    __set_region_rate(14,5,0.03000000);
-    __set_region_rate(14,6,0.03400000);
-    __set_region_rate(14,7,0.05600000);
-    __set_region_rate(14,8,0.02000000);
+    __set_region_rate(14,0,0.12800000);
+    __set_region_rate(14,1,0.05600000);
+    __set_region_rate(14,2,0.08200000);
+    __set_region_rate(14,3,0.03000000);
+    __set_region_rate(14,4,0.10300000);
+    __set_region_rate(14,5,0.12500000);
+    __set_region_rate(14,6,0.02000000);
+    __set_region_rate(14,7,0.00700000);
+    __set_region_rate(14,8,0.03400000);
     __local_weight+=__likeli_region_rate(14,0);
     __local_weight+=__likeli_region_rate(14,1);
     __local_weight+=__likeli_region_rate(14,2);
@@ -5003,15 +5124,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[15]=[&](double& __local_weight){
-    __set_region_rate(15,0,0.07300000);
-    __set_region_rate(15,1,0.13800000);
-    __set_region_rate(15,2,0.00800000);
-    __set_region_rate(15,3,0.08800000);
-    __set_region_rate(15,4,0.07400000);
-    __set_region_rate(15,5,0.03700000);
-    __set_region_rate(15,6,0.03200000);
-    __set_region_rate(15,7,0.06200000);
-    __set_region_rate(15,8,0.02600000);
+    __set_region_rate(15,0,0.13800000);
+    __set_region_rate(15,1,0.06200000);
+    __set_region_rate(15,2,0.07400000);
+    __set_region_rate(15,3,0.03700000);
+    __set_region_rate(15,4,0.07300000);
+    __set_region_rate(15,5,0.08800000);
+    __set_region_rate(15,6,0.02600000);
+    __set_region_rate(15,7,0.00800000);
+    __set_region_rate(15,8,0.03200000);
     __local_weight+=__likeli_region_rate(15,0);
     __local_weight+=__likeli_region_rate(15,1);
     __local_weight+=__likeli_region_rate(15,2);
@@ -5024,15 +5145,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[16]=[&](double& __local_weight){
-    __set_region_rate(16,0,0.05200000);
-    __set_region_rate(16,1,0.14700000);
-    __set_region_rate(16,2,0.01800000);
-    __set_region_rate(16,3,0.16500000);
-    __set_region_rate(16,4,0.07700000);
-    __set_region_rate(16,5,0.03400000);
-    __set_region_rate(16,6,0.07000000);
-    __set_region_rate(16,7,0.05400000);
-    __set_region_rate(16,8,0.04800000);
+    __set_region_rate(16,0,0.14700000);
+    __set_region_rate(16,1,0.05400000);
+    __set_region_rate(16,2,0.07700000);
+    __set_region_rate(16,3,0.03400000);
+    __set_region_rate(16,4,0.05200000);
+    __set_region_rate(16,5,0.16500000);
+    __set_region_rate(16,6,0.04800000);
+    __set_region_rate(16,7,0.01800000);
+    __set_region_rate(16,8,0.07000000);
     __local_weight+=__likeli_region_rate(16,0);
     __local_weight+=__likeli_region_rate(16,1);
     __local_weight+=__likeli_region_rate(16,2);
@@ -5045,15 +5166,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[17]=[&](double& __local_weight){
-    __set_region_rate(17,0,0.08000000);
-    __set_region_rate(17,1,0.15200000);
-    __set_region_rate(17,2,0.02000000);
-    __set_region_rate(17,3,0.10700000);
-    __set_region_rate(17,4,0.05800000);
-    __set_region_rate(17,5,0.05100000);
-    __set_region_rate(17,6,0.06400000);
-    __set_region_rate(17,7,0.05600000);
-    __set_region_rate(17,8,0.06000000);
+    __set_region_rate(17,0,0.15200000);
+    __set_region_rate(17,1,0.05600000);
+    __set_region_rate(17,2,0.05800000);
+    __set_region_rate(17,3,0.05100000);
+    __set_region_rate(17,4,0.08000000);
+    __set_region_rate(17,5,0.10700000);
+    __set_region_rate(17,6,0.06000000);
+    __set_region_rate(17,7,0.02000000);
+    __set_region_rate(17,8,0.06400000);
     __local_weight+=__likeli_region_rate(17,0);
     __local_weight+=__likeli_region_rate(17,1);
     __local_weight+=__likeli_region_rate(17,2);
@@ -5066,15 +5187,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[18]=[&](double& __local_weight){
-    __set_region_rate(18,0,0.13400000);
-    __set_region_rate(18,1,0.15600000);
-    __set_region_rate(18,2,0.01200000);
-    __set_region_rate(18,3,0.13700000);
-    __set_region_rate(18,4,0.06000000);
-    __set_region_rate(18,5,0.06500000);
-    __set_region_rate(18,6,0.08300000);
-    __set_region_rate(18,7,0.05000000);
-    __set_region_rate(18,8,0.04500000);
+    __set_region_rate(18,0,0.15600000);
+    __set_region_rate(18,1,0.05000000);
+    __set_region_rate(18,2,0.06000000);
+    __set_region_rate(18,3,0.06500000);
+    __set_region_rate(18,4,0.13400000);
+    __set_region_rate(18,5,0.13700000);
+    __set_region_rate(18,6,0.04500000);
+    __set_region_rate(18,7,0.01200000);
+    __set_region_rate(18,8,0.08300000);
     __local_weight+=__likeli_region_rate(18,0);
     __local_weight+=__likeli_region_rate(18,1);
     __local_weight+=__likeli_region_rate(18,2);
@@ -5087,15 +5208,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[19]=[&](double& __local_weight){
-    __set_region_rate(19,0,0.16100000);
-    __set_region_rate(19,1,0.14400000);
-    __set_region_rate(19,2,0.01800000);
+    __set_region_rate(19,0,0.14400000);
+    __set_region_rate(19,1,0.04100000);
+    __set_region_rate(19,2,0.04600000);
     __set_region_rate(19,3,0.12400000);
-    __set_region_rate(19,4,0.04600000);
+    __set_region_rate(19,4,0.16100000);
     __set_region_rate(19,5,0.12400000);
-    __set_region_rate(19,6,0.12200000);
-    __set_region_rate(19,7,0.04100000);
-    __set_region_rate(19,8,0.06800000);
+    __set_region_rate(19,6,0.06800000);
+    __set_region_rate(19,7,0.01800000);
+    __set_region_rate(19,8,0.12200000);
     __local_weight+=__likeli_region_rate(19,0);
     __local_weight+=__likeli_region_rate(19,1);
     __local_weight+=__likeli_region_rate(19,2);
@@ -5108,15 +5229,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[20]=[&](double& __local_weight){
-    __set_region_rate(20,0,0.13600000);
-    __set_region_rate(20,1,0.15400000);
-    __set_region_rate(20,2,0.02000000);
-    __set_region_rate(20,3,0.16200000);
-    __set_region_rate(20,4,0.06400000);
-    __set_region_rate(20,5,0.11000000);
-    __set_region_rate(20,6,0.12700000);
-    __set_region_rate(20,7,0.07000000);
-    __set_region_rate(20,8,0.06200000);
+    __set_region_rate(20,0,0.15400000);
+    __set_region_rate(20,1,0.07000000);
+    __set_region_rate(20,2,0.06400000);
+    __set_region_rate(20,3,0.11000000);
+    __set_region_rate(20,4,0.13600000);
+    __set_region_rate(20,5,0.16200000);
+    __set_region_rate(20,6,0.06200000);
+    __set_region_rate(20,7,0.02000000);
+    __set_region_rate(20,8,0.12700000);
     __local_weight+=__likeli_region_rate(20,0);
     __local_weight+=__likeli_region_rate(20,1);
     __local_weight+=__likeli_region_rate(20,2);
@@ -5129,15 +5250,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[21]=[&](double& __local_weight){
-    __set_region_rate(21,0,0.09200000);
-    __set_region_rate(21,1,0.12000000);
-    __set_region_rate(21,2,0.04700000);
-    __set_region_rate(21,3,0.17200000);
-    __set_region_rate(21,4,0.06500000);
-    __set_region_rate(21,5,0.10500000);
-    __set_region_rate(21,6,0.09900000);
-    __set_region_rate(21,7,0.05300000);
-    __set_region_rate(21,8,0.05800000);
+    __set_region_rate(21,0,0.12000000);
+    __set_region_rate(21,1,0.05300000);
+    __set_region_rate(21,2,0.06500000);
+    __set_region_rate(21,3,0.10500000);
+    __set_region_rate(21,4,0.09200000);
+    __set_region_rate(21,5,0.17200000);
+    __set_region_rate(21,6,0.05800000);
+    __set_region_rate(21,7,0.04700000);
+    __set_region_rate(21,8,0.09900000);
     __local_weight+=__likeli_region_rate(21,0);
     __local_weight+=__likeli_region_rate(21,1);
     __local_weight+=__likeli_region_rate(21,2);
@@ -5150,15 +5271,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[22]=[&](double& __local_weight){
-    __set_region_rate(22,0,0.06800000);
-    __set_region_rate(22,1,0.14900000);
-    __set_region_rate(22,2,0.02200000);
-    __set_region_rate(22,3,0.16200000);
-    __set_region_rate(22,4,0.07200000);
-    __set_region_rate(22,5,0.06500000);
-    __set_region_rate(22,6,0.04700000);
-    __set_region_rate(22,7,0.06600000);
-    __set_region_rate(22,8,0.03500000);
+    __set_region_rate(22,0,0.14900000);
+    __set_region_rate(22,1,0.06600000);
+    __set_region_rate(22,2,0.07200000);
+    __set_region_rate(22,3,0.06500000);
+    __set_region_rate(22,4,0.06800000);
+    __set_region_rate(22,5,0.16200000);
+    __set_region_rate(22,6,0.03500000);
+    __set_region_rate(22,7,0.02200000);
+    __set_region_rate(22,8,0.04700000);
     __local_weight+=__likeli_region_rate(22,0);
     __local_weight+=__likeli_region_rate(22,1);
     __local_weight+=__likeli_region_rate(22,2);
@@ -5171,15 +5292,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[23]=[&](double& __local_weight){
-    __set_region_rate(23,0,0.12900000);
-    __set_region_rate(23,1,0.14900000);
-    __set_region_rate(23,2,0.02000000);
-    __set_region_rate(23,3,0.07800000);
-    __set_region_rate(23,4,0.06700000);
-    __set_region_rate(23,5,0.04800000);
-    __set_region_rate(23,6,0.04900000);
-    __set_region_rate(23,7,0.04400000);
-    __set_region_rate(23,8,0.03100000);
+    __set_region_rate(23,0,0.14900000);
+    __set_region_rate(23,1,0.04400000);
+    __set_region_rate(23,2,0.06700000);
+    __set_region_rate(23,3,0.04800000);
+    __set_region_rate(23,4,0.12900000);
+    __set_region_rate(23,5,0.07800000);
+    __set_region_rate(23,6,0.03100000);
+    __set_region_rate(23,7,0.02000000);
+    __set_region_rate(23,8,0.04900000);
     __local_weight+=__likeli_region_rate(23,0);
     __local_weight+=__likeli_region_rate(23,1);
     __local_weight+=__likeli_region_rate(23,2);
@@ -5192,15 +5313,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[24]=[&](double& __local_weight){
-    __set_region_rate(24,0,0.08500000);
-    __set_region_rate(24,1,0.13200000);
-    __set_region_rate(24,2,0.02900000);
-    __set_region_rate(24,3,0.09400000);
-    __set_region_rate(24,4,0.06500000);
-    __set_region_rate(24,5,0.04500000);
-    __set_region_rate(24,6,0.04500000);
-    __set_region_rate(24,7,0.04100000);
-    __set_region_rate(24,8,0.02300000);
+    __set_region_rate(24,0,0.13200000);
+    __set_region_rate(24,1,0.04100000);
+    __set_region_rate(24,2,0.06500000);
+    __set_region_rate(24,3,0.04500000);
+    __set_region_rate(24,4,0.08500000);
+    __set_region_rate(24,5,0.09400000);
+    __set_region_rate(24,6,0.02300000);
+    __set_region_rate(24,7,0.02900000);
+    __set_region_rate(24,8,0.04500000);
     __local_weight+=__likeli_region_rate(24,0);
     __local_weight+=__likeli_region_rate(24,1);
     __local_weight+=__likeli_region_rate(24,2);
@@ -5213,15 +5334,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[25]=[&](double& __local_weight){
-    __set_region_rate(25,0,0.10800000);
-    __set_region_rate(25,1,0.10000000);
-    __set_region_rate(25,2,0.02100000);
-    __set_region_rate(25,3,0.08100000);
-    __set_region_rate(25,4,0.05300000);
-    __set_region_rate(25,5,0.03400000);
-    __set_region_rate(25,6,0.04900000);
-    __set_region_rate(25,7,0.05200000);
-    __set_region_rate(25,8,0.02400000);
+    __set_region_rate(25,0,0.10000000);
+    __set_region_rate(25,1,0.05200000);
+    __set_region_rate(25,2,0.05300000);
+    __set_region_rate(25,3,0.03400000);
+    __set_region_rate(25,4,0.10800000);
+    __set_region_rate(25,5,0.08100000);
+    __set_region_rate(25,6,0.02400000);
+    __set_region_rate(25,7,0.02100000);
+    __set_region_rate(25,8,0.04900000);
     __local_weight+=__likeli_region_rate(25,0);
     __local_weight+=__likeli_region_rate(25,1);
     __local_weight+=__likeli_region_rate(25,2);
@@ -5234,15 +5355,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[26]=[&](double& __local_weight){
-    __set_region_rate(26,0,0.09600000);
-    __set_region_rate(26,1,0.11600000);
-    __set_region_rate(26,2,0.01400000);
-    __set_region_rate(26,3,0.08800000);
-    __set_region_rate(26,4,0.04800000);
-    __set_region_rate(26,5,0.02900000);
-    __set_region_rate(26,6,0.05500000);
-    __set_region_rate(26,7,0.02100000);
-    __set_region_rate(26,8,0.01200000);
+    __set_region_rate(26,0,0.11600000);
+    __set_region_rate(26,1,0.02100000);
+    __set_region_rate(26,2,0.04800000);
+    __set_region_rate(26,3,0.02900000);
+    __set_region_rate(26,4,0.09600000);
+    __set_region_rate(26,5,0.08800000);
+    __set_region_rate(26,6,0.01200000);
+    __set_region_rate(26,7,0.01400000);
+    __set_region_rate(26,8,0.05500000);
     __local_weight+=__likeli_region_rate(26,0);
     __local_weight+=__likeli_region_rate(26,1);
     __local_weight+=__likeli_region_rate(26,2);
@@ -5255,15 +5376,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[27]=[&](double& __local_weight){
-    __set_region_rate(27,0,0.08000000);
-    __set_region_rate(27,1,0.09500000);
-    __set_region_rate(27,2,0.01800000);
-    __set_region_rate(27,3,0.05300000);
-    __set_region_rate(27,4,0.04500000);
-    __set_region_rate(27,5,0.02500000);
-    __set_region_rate(27,6,0.04400000);
-    __set_region_rate(27,7,0.02800000);
-    __set_region_rate(27,8,0.01200000);
+    __set_region_rate(27,0,0.09500000);
+    __set_region_rate(27,1,0.02800000);
+    __set_region_rate(27,2,0.04500000);
+    __set_region_rate(27,3,0.02500000);
+    __set_region_rate(27,4,0.08000000);
+    __set_region_rate(27,5,0.05300000);
+    __set_region_rate(27,6,0.01200000);
+    __set_region_rate(27,7,0.01800000);
+    __set_region_rate(27,8,0.04400000);
     __local_weight+=__likeli_region_rate(27,0);
     __local_weight+=__likeli_region_rate(27,1);
     __local_weight+=__likeli_region_rate(27,2);
@@ -5276,15 +5397,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[28]=[&](double& __local_weight){
-    __set_region_rate(28,0,0.12100000);
-    __set_region_rate(28,1,0.10700000);
-    __set_region_rate(28,2,0.02800000);
-    __set_region_rate(28,3,0.02500000);
-    __set_region_rate(28,4,0.04100000);
-    __set_region_rate(28,5,0.03500000);
-    __set_region_rate(28,6,0.03500000);
-    __set_region_rate(28,7,0.02000000);
-    __set_region_rate(28,8,0.01300000);
+    __set_region_rate(28,0,0.10700000);
+    __set_region_rate(28,1,0.02000000);
+    __set_region_rate(28,2,0.04100000);
+    __set_region_rate(28,3,0.03500000);
+    __set_region_rate(28,4,0.12100000);
+    __set_region_rate(28,5,0.02500000);
+    __set_region_rate(28,6,0.01300000);
+    __set_region_rate(28,7,0.02800000);
+    __set_region_rate(28,8,0.03500000);
     __local_weight+=__likeli_region_rate(28,0);
     __local_weight+=__likeli_region_rate(28,1);
     __local_weight+=__likeli_region_rate(28,2);
@@ -5297,15 +5418,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[29]=[&](double& __local_weight){
-    __set_region_rate(29,0,0.05700000);
-    __set_region_rate(29,1,0.08000000);
-    __set_region_rate(29,2,0.02000000);
-    __set_region_rate(29,3,0.02400000);
-    __set_region_rate(29,4,0.03700000);
-    __set_region_rate(29,5,0.02800000);
-    __set_region_rate(29,6,0.02600000);
-    __set_region_rate(29,7,0.01700000);
-    __set_region_rate(29,8,0.01400000);
+    __set_region_rate(29,0,0.08000000);
+    __set_region_rate(29,1,0.01700000);
+    __set_region_rate(29,2,0.03700000);
+    __set_region_rate(29,3,0.02800000);
+    __set_region_rate(29,4,0.05700000);
+    __set_region_rate(29,5,0.02400000);
+    __set_region_rate(29,6,0.01400000);
+    __set_region_rate(29,7,0.02000000);
+    __set_region_rate(29,8,0.02600000);
     __local_weight+=__likeli_region_rate(29,0);
     __local_weight+=__likeli_region_rate(29,1);
     __local_weight+=__likeli_region_rate(29,2);
@@ -5318,15 +5439,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[30]=[&](double& __local_weight){
-    __set_region_rate(30,0,0.03100000);
-    __set_region_rate(30,1,0.08500000);
-    __set_region_rate(30,2,0.01700000);
-    __set_region_rate(30,3,0.03600000);
-    __set_region_rate(30,4,0.04100000);
-    __set_region_rate(30,5,0.02700000);
-    __set_region_rate(30,6,0.03700000);
-    __set_region_rate(30,7,0.02000000);
-    __set_region_rate(30,8,0.00500000);
+    __set_region_rate(30,0,0.08500000);
+    __set_region_rate(30,1,0.02000000);
+    __set_region_rate(30,2,0.04100000);
+    __set_region_rate(30,3,0.02700000);
+    __set_region_rate(30,4,0.03100000);
+    __set_region_rate(30,5,0.03600000);
+    __set_region_rate(30,6,0.00500000);
+    __set_region_rate(30,7,0.01700000);
+    __set_region_rate(30,8,0.03700000);
     __local_weight+=__likeli_region_rate(30,0);
     __local_weight+=__likeli_region_rate(30,1);
     __local_weight+=__likeli_region_rate(30,2);
@@ -5339,15 +5460,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[31]=[&](double& __local_weight){
-    __set_region_rate(31,0,0.00600000);
-    __set_region_rate(31,1,0.04300000);
-    __set_region_rate(31,2,0.01900000);
-    __set_region_rate(31,3,0.01300000);
-    __set_region_rate(31,4,0.03900000);
-    __set_region_rate(31,5,0.02400000);
-    __set_region_rate(31,6,0.03400000);
-    __set_region_rate(31,7,0.01100000);
-    __set_region_rate(31,8,0.01100000);
+    __set_region_rate(31,0,0.04300000);
+    __set_region_rate(31,1,0.01100000);
+    __set_region_rate(31,2,0.03900000);
+    __set_region_rate(31,3,0.02400000);
+    __set_region_rate(31,4,0.00600000);
+    __set_region_rate(31,5,0.01300000);
+    __set_region_rate(31,6,0.01100000);
+    __set_region_rate(31,7,0.01900000);
+    __set_region_rate(31,8,0.03400000);
     __local_weight+=__likeli_region_rate(31,0);
     __local_weight+=__likeli_region_rate(31,1);
     __local_weight+=__likeli_region_rate(31,2);
@@ -5360,15 +5481,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[32]=[&](double& __local_weight){
-    __set_region_rate(32,0,0.03100000);
-    __set_region_rate(32,1,0.07500000);
-    __set_region_rate(32,2,0.01300000);
-    __set_region_rate(32,3,0.01700000);
-    __set_region_rate(32,4,0.02500000);
-    __set_region_rate(32,5,0.01900000);
-    __set_region_rate(32,6,0.03000000);
-    __set_region_rate(32,7,0.01100000);
-    __set_region_rate(32,8,0.01100000);
+    __set_region_rate(32,0,0.07500000);
+    __set_region_rate(32,1,0.01100000);
+    __set_region_rate(32,2,0.02500000);
+    __set_region_rate(32,3,0.01900000);
+    __set_region_rate(32,4,0.03100000);
+    __set_region_rate(32,5,0.01700000);
+    __set_region_rate(32,6,0.01100000);
+    __set_region_rate(32,7,0.01300000);
+    __set_region_rate(32,8,0.03000000);
     __local_weight+=__likeli_region_rate(32,0);
     __local_weight+=__likeli_region_rate(32,1);
     __local_weight+=__likeli_region_rate(32,2);
@@ -5381,15 +5502,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[33]=[&](double& __local_weight){
-    __set_region_rate(33,0,0.03200000);
-    __set_region_rate(33,1,0.06700000);
-    __set_region_rate(33,2,0.01200000);
-    __set_region_rate(33,3,0.00300000);
-    __set_region_rate(33,4,0.03000000);
-    __set_region_rate(33,5,0.01500000);
-    __set_region_rate(33,6,0.04400000);
-    __set_region_rate(33,7,0.00700000);
-    __set_region_rate(33,8,0.00400000);
+    __set_region_rate(33,0,0.06700000);
+    __set_region_rate(33,1,0.00700000);
+    __set_region_rate(33,2,0.03000000);
+    __set_region_rate(33,3,0.01500000);
+    __set_region_rate(33,4,0.03200000);
+    __set_region_rate(33,5,0.00300000);
+    __set_region_rate(33,6,0.00400000);
+    __set_region_rate(33,7,0.01200000);
+    __set_region_rate(33,8,0.04400000);
     __local_weight+=__likeli_region_rate(33,0);
     __local_weight+=__likeli_region_rate(33,1);
     __local_weight+=__likeli_region_rate(33,2);
@@ -5402,15 +5523,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[34]=[&](double& __local_weight){
-    __set_region_rate(34,0,0.04900000);
-    __set_region_rate(34,1,0.05700000);
-    __set_region_rate(34,2,0.01000000);
-    __set_region_rate(34,3,0.01100000);
-    __set_region_rate(34,4,0.03200000);
-    __set_region_rate(34,5,0.02200000);
-    __set_region_rate(34,6,0.02400000);
+    __set_region_rate(34,0,0.05700000);
+    __set_region_rate(34,1,0.01000000);
+    __set_region_rate(34,2,0.03200000);
+    __set_region_rate(34,3,0.02200000);
+    __set_region_rate(34,4,0.04900000);
+    __set_region_rate(34,5,0.01100000);
+    __set_region_rate(34,6,0.01100000);
     __set_region_rate(34,7,0.01000000);
-    __set_region_rate(34,8,0.01100000);
+    __set_region_rate(34,8,0.02400000);
     __local_weight+=__likeli_region_rate(34,0);
     __local_weight+=__likeli_region_rate(34,1);
     __local_weight+=__likeli_region_rate(34,2);
@@ -5423,15 +5544,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[35]=[&](double& __local_weight){
-    __set_region_rate(35,0,0.03300000);
-    __set_region_rate(35,1,0.07300000);
-    __set_region_rate(35,2,0.01400000);
-    __set_region_rate(35,3,0.01900000);
-    __set_region_rate(35,4,0.02700000);
-    __set_region_rate(35,5,0.01300000);
-    __set_region_rate(35,6,0.02400000);
-    __set_region_rate(35,7,0.01200000);
-    __set_region_rate(35,8,0.01000000);
+    __set_region_rate(35,0,0.07300000);
+    __set_region_rate(35,1,0.01200000);
+    __set_region_rate(35,2,0.02700000);
+    __set_region_rate(35,3,0.01300000);
+    __set_region_rate(35,4,0.03300000);
+    __set_region_rate(35,5,0.01900000);
+    __set_region_rate(35,6,0.01000000);
+    __set_region_rate(35,7,0.01400000);
+    __set_region_rate(35,8,0.02400000);
     __local_weight+=__likeli_region_rate(35,0);
     __local_weight+=__likeli_region_rate(35,1);
     __local_weight+=__likeli_region_rate(35,2);
@@ -5444,15 +5565,15 @@ void setup_temporal_evidences()
     return true;
   };
   _evidenceTable[36]=[&](double& __local_weight){
-    __set_region_rate(36,0,0.05000000);
-    __set_region_rate(36,1,0.05800000);
-    __set_region_rate(36,2,0.01300000);
-    __set_region_rate(36,3,0.01800000);
-    __set_region_rate(36,4,0.02900000);
-    __set_region_rate(36,5,0.01400000);
-    __set_region_rate(36,6,0.02800000);
-    __set_region_rate(36,7,0.01000000);
-    __set_region_rate(36,8,0.00600000);
+    __set_region_rate(36,0,0.05800000);
+    __set_region_rate(36,1,0.01000000);
+    __set_region_rate(36,2,0.02900000);
+    __set_region_rate(36,3,0.01400000);
+    __set_region_rate(36,4,0.05000000);
+    __set_region_rate(36,5,0.01800000);
+    __set_region_rate(36,6,0.00600000);
+    __set_region_rate(36,7,0.01300000);
+    __set_region_rate(36,8,0.02800000);
     __local_weight+=__likeli_region_rate(36,0);
     __local_weight+=__likeli_region_rate(36,1);
     __local_weight+=__likeli_region_rate(36,2);
@@ -5491,7 +5612,7 @@ void sample()
 //    __perturb(tau2);
 //    __perturb(beta1);
 //    __perturb(beta2);
-//    __perturb_matrix(corr_cov);
+//    __perturb_matrix(corr_cov_init);
 //    __perturb_matrix(corr_cov_timestep);
   }
 
@@ -9757,6 +9878,127 @@ void setup_temporal_queries()
     _answer_4142.add(__get_county_rate(50,42),__local_weight);
     _answer_4143.add(__get_county_rate(50,43),__local_weight);
     _answer_4144.add(__get_county_rate(50,44),__local_weight);
+    _answer_4145.add(__get_county_rate(50,45),__local_weight);
+    _answer_4146.add(__get_county_rate(50,46),__local_weight);
+    _answer_4147.add(__get_county_rate(50,47),__local_weight);
+    _answer_4148.add(__get_county_rate(50,48),__local_weight);
+    _answer_4149.add(__get_county_rate(50,49),__local_weight);
+    _answer_4150.add(__get_county_rate(50,50),__local_weight);
+    _answer_4151.add(__get_county_rate(50,51),__local_weight);
+    _answer_4152.add(__get_county_rate(50,52),__local_weight);
+    _answer_4153.add(__get_county_rate(50,53),__local_weight);
+    _answer_4154.add(__get_county_rate(50,54),__local_weight);
+    _answer_4155.add(__get_county_rate(50,55),__local_weight);
+    _answer_4156.add(__get_county_rate(50,56),__local_weight);
+    _answer_4157.add(__get_county_rate(50,57),__local_weight);
+    _answer_4158.add(__get_county_rate(50,58),__local_weight);
+    _answer_4159.add(__get_county_rate(50,59),__local_weight);
+    _answer_4160.add(__get_county_rate(50,60),__local_weight);
+    _answer_4161.add(__get_county_rate(50,61),__local_weight);
+    _answer_4162.add(__get_county_rate(50,62),__local_weight);
+    _answer_4163.add(__get_county_rate(50,63),__local_weight);
+    _answer_4164.add(__get_county_rate(50,64),__local_weight);
+    _answer_4165.add(__get_county_rate(50,65),__local_weight);
+    _answer_4166.add(__get_county_rate(50,66),__local_weight);
+    _answer_4167.add(__get_county_rate(50,67),__local_weight);
+    _answer_4168.add(__get_county_rate(50,68),__local_weight);
+    _answer_4169.add(__get_county_rate(50,69),__local_weight);
+    _answer_4170.add(__get_county_rate(50,70),__local_weight);
+    _answer_4171.add(__get_county_rate(50,71),__local_weight);
+    _answer_4172.add(__get_county_rate(50,72),__local_weight);
+    _answer_4173.add(__get_county_rate(50,73),__local_weight);
+    _answer_4174.add(__get_county_rate(50,74),__local_weight);
+    _answer_4175.add(__get_county_rate(50,75),__local_weight);
+    _answer_4176.add(__get_county_rate(50,76),__local_weight);
+    _answer_4177.add(__get_county_rate(50,77),__local_weight);
+    _answer_4178.add(__get_county_rate(50,78),__local_weight);
+    _answer_4179.add(__get_county_rate(50,79),__local_weight);
+    _answer_4180.add(__get_county_rate(50,80),__local_weight);
+    _answer_4181.add(__get_county_rate(50,81),__local_weight);
+  };
+  _queryTable[51]=[&](double __local_weight){
+    _answer_4182.add(__get_county_rate(51,0),__local_weight);
+    _answer_4183.add(__get_county_rate(51,1),__local_weight);
+    _answer_4184.add(__get_county_rate(51,2),__local_weight);
+    _answer_4185.add(__get_county_rate(51,3),__local_weight);
+    _answer_4186.add(__get_county_rate(51,4),__local_weight);
+    _answer_4187.add(__get_county_rate(51,5),__local_weight);
+    _answer_4188.add(__get_county_rate(51,6),__local_weight);
+    _answer_4189.add(__get_county_rate(51,7),__local_weight);
+    _answer_4190.add(__get_county_rate(51,8),__local_weight);
+    _answer_4191.add(__get_county_rate(51,9),__local_weight);
+    _answer_4192.add(__get_county_rate(51,10),__local_weight);
+    _answer_4193.add(__get_county_rate(51,11),__local_weight);
+    _answer_4194.add(__get_county_rate(51,12),__local_weight);
+    _answer_4195.add(__get_county_rate(51,13),__local_weight);
+    _answer_4196.add(__get_county_rate(51,14),__local_weight);
+    _answer_4197.add(__get_county_rate(51,15),__local_weight);
+    _answer_4198.add(__get_county_rate(51,16),__local_weight);
+    _answer_4199.add(__get_county_rate(51,17),__local_weight);
+    _answer_4200.add(__get_county_rate(51,18),__local_weight);
+    _answer_4201.add(__get_county_rate(51,19),__local_weight);
+    _answer_4202.add(__get_county_rate(51,20),__local_weight);
+    _answer_4203.add(__get_county_rate(51,21),__local_weight);
+    _answer_4204.add(__get_county_rate(51,22),__local_weight);
+    _answer_4205.add(__get_county_rate(51,23),__local_weight);
+    _answer_4206.add(__get_county_rate(51,24),__local_weight);
+    _answer_4207.add(__get_county_rate(51,25),__local_weight);
+    _answer_4208.add(__get_county_rate(51,26),__local_weight);
+    _answer_4209.add(__get_county_rate(51,27),__local_weight);
+    _answer_4210.add(__get_county_rate(51,28),__local_weight);
+    _answer_4211.add(__get_county_rate(51,29),__local_weight);
+    _answer_4212.add(__get_county_rate(51,30),__local_weight);
+    _answer_4213.add(__get_county_rate(51,31),__local_weight);
+    _answer_4214.add(__get_county_rate(51,32),__local_weight);
+    _answer_4215.add(__get_county_rate(51,33),__local_weight);
+    _answer_4216.add(__get_county_rate(51,34),__local_weight);
+    _answer_4217.add(__get_county_rate(51,35),__local_weight);
+    _answer_4218.add(__get_county_rate(51,36),__local_weight);
+    _answer_4219.add(__get_county_rate(51,37),__local_weight);
+    _answer_4220.add(__get_county_rate(51,38),__local_weight);
+    _answer_4221.add(__get_county_rate(51,39),__local_weight);
+    _answer_4222.add(__get_county_rate(51,40),__local_weight);
+    _answer_4223.add(__get_county_rate(51,41),__local_weight);
+    _answer_4224.add(__get_county_rate(51,42),__local_weight);
+    _answer_4225.add(__get_county_rate(51,43),__local_weight);
+    _answer_4226.add(__get_county_rate(51,44),__local_weight);
+    _answer_4227.add(__get_county_rate(51,45),__local_weight);
+    _answer_4228.add(__get_county_rate(51,46),__local_weight);
+    _answer_4229.add(__get_county_rate(51,47),__local_weight);
+    _answer_4230.add(__get_county_rate(51,48),__local_weight);
+    _answer_4231.add(__get_county_rate(51,49),__local_weight);
+    _answer_4232.add(__get_county_rate(51,50),__local_weight);
+    _answer_4233.add(__get_county_rate(51,51),__local_weight);
+    _answer_4234.add(__get_county_rate(51,52),__local_weight);
+    _answer_4235.add(__get_county_rate(51,53),__local_weight);
+    _answer_4236.add(__get_county_rate(51,54),__local_weight);
+    _answer_4237.add(__get_county_rate(51,55),__local_weight);
+    _answer_4238.add(__get_county_rate(51,56),__local_weight);
+    _answer_4239.add(__get_county_rate(51,57),__local_weight);
+    _answer_4240.add(__get_county_rate(51,58),__local_weight);
+    _answer_4241.add(__get_county_rate(51,59),__local_weight);
+    _answer_4242.add(__get_county_rate(51,60),__local_weight);
+    _answer_4243.add(__get_county_rate(51,61),__local_weight);
+    _answer_4244.add(__get_county_rate(51,62),__local_weight);
+    _answer_4245.add(__get_county_rate(51,63),__local_weight);
+    _answer_4246.add(__get_county_rate(51,64),__local_weight);
+    _answer_4247.add(__get_county_rate(51,65),__local_weight);
+    _answer_4248.add(__get_county_rate(51,66),__local_weight);
+    _answer_4249.add(__get_county_rate(51,67),__local_weight);
+    _answer_4250.add(__get_county_rate(51,68),__local_weight);
+    _answer_4251.add(__get_county_rate(51,69),__local_weight);
+    _answer_4252.add(__get_county_rate(51,70),__local_weight);
+    _answer_4253.add(__get_county_rate(51,71),__local_weight);
+    _answer_4254.add(__get_county_rate(51,72),__local_weight);
+    _answer_4255.add(__get_county_rate(51,73),__local_weight);
+    _answer_4256.add(__get_county_rate(51,74),__local_weight);
+    _answer_4257.add(__get_county_rate(51,75),__local_weight);
+    _answer_4258.add(__get_county_rate(51,76),__local_weight);
+    _answer_4259.add(__get_county_rate(51,77),__local_weight);
+    _answer_4260.add(__get_county_rate(51,78),__local_weight);
+    _answer_4261.add(__get_county_rate(51,79),__local_weight);
+    _answer_4262.add(__get_county_rate(51,80),__local_weight);
+    _answer_4263.add(__get_county_rate(51,81),__local_weight);
   };
 }
 void setup_temporal_prints()
@@ -14007,6 +14249,127 @@ void setup_temporal_prints()
     _answer_4142.print("county_rate(counties[42], @50)");
     _answer_4143.print("county_rate(counties[43], @50)");
     _answer_4144.print("county_rate(counties[44], @50)");
+    _answer_4145.print("county_rate(counties[45], @50)");
+    _answer_4146.print("county_rate(counties[46], @50)");
+    _answer_4147.print("county_rate(counties[47], @50)");
+    _answer_4148.print("county_rate(counties[48], @50)");
+    _answer_4149.print("county_rate(counties[49], @50)");
+    _answer_4150.print("county_rate(counties[50], @50)");
+    _answer_4151.print("county_rate(counties[51], @50)");
+    _answer_4152.print("county_rate(counties[52], @50)");
+    _answer_4153.print("county_rate(counties[53], @50)");
+    _answer_4154.print("county_rate(counties[54], @50)");
+    _answer_4155.print("county_rate(counties[55], @50)");
+    _answer_4156.print("county_rate(counties[56], @50)");
+    _answer_4157.print("county_rate(counties[57], @50)");
+    _answer_4158.print("county_rate(counties[58], @50)");
+    _answer_4159.print("county_rate(counties[59], @50)");
+    _answer_4160.print("county_rate(counties[60], @50)");
+    _answer_4161.print("county_rate(counties[61], @50)");
+    _answer_4162.print("county_rate(counties[62], @50)");
+    _answer_4163.print("county_rate(counties[63], @50)");
+    _answer_4164.print("county_rate(counties[64], @50)");
+    _answer_4165.print("county_rate(counties[65], @50)");
+    _answer_4166.print("county_rate(counties[66], @50)");
+    _answer_4167.print("county_rate(counties[67], @50)");
+    _answer_4168.print("county_rate(counties[68], @50)");
+    _answer_4169.print("county_rate(counties[69], @50)");
+    _answer_4170.print("county_rate(counties[70], @50)");
+    _answer_4171.print("county_rate(counties[71], @50)");
+    _answer_4172.print("county_rate(counties[72], @50)");
+    _answer_4173.print("county_rate(counties[73], @50)");
+    _answer_4174.print("county_rate(counties[74], @50)");
+    _answer_4175.print("county_rate(counties[75], @50)");
+    _answer_4176.print("county_rate(counties[76], @50)");
+    _answer_4177.print("county_rate(counties[77], @50)");
+    _answer_4178.print("county_rate(counties[78], @50)");
+    _answer_4179.print("county_rate(counties[79], @50)");
+    _answer_4180.print("county_rate(counties[80], @50)");
+    _answer_4181.print("county_rate(counties[81], @50)");
+  };
+  _printTable[51]=[&](){
+    _answer_4182.print("county_rate(counties[0], @51)");
+    _answer_4183.print("county_rate(counties[1], @51)");
+    _answer_4184.print("county_rate(counties[2], @51)");
+    _answer_4185.print("county_rate(counties[3], @51)");
+    _answer_4186.print("county_rate(counties[4], @51)");
+    _answer_4187.print("county_rate(counties[5], @51)");
+    _answer_4188.print("county_rate(counties[6], @51)");
+    _answer_4189.print("county_rate(counties[7], @51)");
+    _answer_4190.print("county_rate(counties[8], @51)");
+    _answer_4191.print("county_rate(counties[9], @51)");
+    _answer_4192.print("county_rate(counties[10], @51)");
+    _answer_4193.print("county_rate(counties[11], @51)");
+    _answer_4194.print("county_rate(counties[12], @51)");
+    _answer_4195.print("county_rate(counties[13], @51)");
+    _answer_4196.print("county_rate(counties[14], @51)");
+    _answer_4197.print("county_rate(counties[15], @51)");
+    _answer_4198.print("county_rate(counties[16], @51)");
+    _answer_4199.print("county_rate(counties[17], @51)");
+    _answer_4200.print("county_rate(counties[18], @51)");
+    _answer_4201.print("county_rate(counties[19], @51)");
+    _answer_4202.print("county_rate(counties[20], @51)");
+    _answer_4203.print("county_rate(counties[21], @51)");
+    _answer_4204.print("county_rate(counties[22], @51)");
+    _answer_4205.print("county_rate(counties[23], @51)");
+    _answer_4206.print("county_rate(counties[24], @51)");
+    _answer_4207.print("county_rate(counties[25], @51)");
+    _answer_4208.print("county_rate(counties[26], @51)");
+    _answer_4209.print("county_rate(counties[27], @51)");
+    _answer_4210.print("county_rate(counties[28], @51)");
+    _answer_4211.print("county_rate(counties[29], @51)");
+    _answer_4212.print("county_rate(counties[30], @51)");
+    _answer_4213.print("county_rate(counties[31], @51)");
+    _answer_4214.print("county_rate(counties[32], @51)");
+    _answer_4215.print("county_rate(counties[33], @51)");
+    _answer_4216.print("county_rate(counties[34], @51)");
+    _answer_4217.print("county_rate(counties[35], @51)");
+    _answer_4218.print("county_rate(counties[36], @51)");
+    _answer_4219.print("county_rate(counties[37], @51)");
+    _answer_4220.print("county_rate(counties[38], @51)");
+    _answer_4221.print("county_rate(counties[39], @51)");
+    _answer_4222.print("county_rate(counties[40], @51)");
+    _answer_4223.print("county_rate(counties[41], @51)");
+    _answer_4224.print("county_rate(counties[42], @51)");
+    _answer_4225.print("county_rate(counties[43], @51)");
+    _answer_4226.print("county_rate(counties[44], @51)");
+    _answer_4227.print("county_rate(counties[45], @51)");
+    _answer_4228.print("county_rate(counties[46], @51)");
+    _answer_4229.print("county_rate(counties[47], @51)");
+    _answer_4230.print("county_rate(counties[48], @51)");
+    _answer_4231.print("county_rate(counties[49], @51)");
+    _answer_4232.print("county_rate(counties[50], @51)");
+    _answer_4233.print("county_rate(counties[51], @51)");
+    _answer_4234.print("county_rate(counties[52], @51)");
+    _answer_4235.print("county_rate(counties[53], @51)");
+    _answer_4236.print("county_rate(counties[54], @51)");
+    _answer_4237.print("county_rate(counties[55], @51)");
+    _answer_4238.print("county_rate(counties[56], @51)");
+    _answer_4239.print("county_rate(counties[57], @51)");
+    _answer_4240.print("county_rate(counties[58], @51)");
+    _answer_4241.print("county_rate(counties[59], @51)");
+    _answer_4242.print("county_rate(counties[60], @51)");
+    _answer_4243.print("county_rate(counties[61], @51)");
+    _answer_4244.print("county_rate(counties[62], @51)");
+    _answer_4245.print("county_rate(counties[63], @51)");
+    _answer_4246.print("county_rate(counties[64], @51)");
+    _answer_4247.print("county_rate(counties[65], @51)");
+    _answer_4248.print("county_rate(counties[66], @51)");
+    _answer_4249.print("county_rate(counties[67], @51)");
+    _answer_4250.print("county_rate(counties[68], @51)");
+    _answer_4251.print("county_rate(counties[69], @51)");
+    _answer_4252.print("county_rate(counties[70], @51)");
+    _answer_4253.print("county_rate(counties[71], @51)");
+    _answer_4254.print("county_rate(counties[72], @51)");
+    _answer_4255.print("county_rate(counties[73], @51)");
+    _answer_4256.print("county_rate(counties[74], @51)");
+    _answer_4257.print("county_rate(counties[75], @51)");
+    _answer_4258.print("county_rate(counties[76], @51)");
+    _answer_4259.print("county_rate(counties[77], @51)");
+    _answer_4260.print("county_rate(counties[78], @51)");
+    _answer_4261.print("county_rate(counties[79], @51)");
+    _answer_4262.print("county_rate(counties[80], @51)");
+    _answer_4263.print("county_rate(counties[81], @51)");
   };
 }
 
