@@ -4,7 +4,7 @@ type Week;
 
 distinct County counties[82];
 distinct Region regions[9];
-distinct Week weeks[29];
+distinct Week weeks[51];
 
 // ----
 // define hyperparameters
