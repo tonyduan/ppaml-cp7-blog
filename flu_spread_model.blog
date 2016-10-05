@@ -1,8 +1,10 @@
 type County;
 type Region;
+type Week;
 
 distinct County counties[82];
 distinct Region regions[9];
+distinct Week weeks[29];
 
 // ----
 // define hyperparameters
@@ -22,43 +24,50 @@ fixed RealMatrix county_map = loadRealMatrix("data_processed/county_map.txt");
 
 fixed RealMatrix covariates1 = loadRealMatrix("data_processed/covariates1.txt");
 fixed RealMatrix covariates2 = loadRealMatrix("data_processed/covariates2.txt");
-fixed RealMatrix corr_cov = loadRealMatrix("data_processed/corr_cov.txt");
-random RealMatrix corr_cov_init ~ loadRealMatrix("data_processed/corr_cov.txt") * tau1;
-random RealMatrix corr_cov_timestep ~ corr_cov * rho;
 
-// ----
-// correlation at each timestep is GMRF over the counties,
-// with mean centered around the previous timestep.
-// ----
-random RealMatrix correlation(Timestep t) ~
-  if t == @0 then
-    PrecisionGaussian(zeros(82, 1), corr_cov_init)
-  else
-    PrecisionGaussian(correlation(prev(t)), corr_cov_timestep);
+fixed RealMatrix D = loadRealMatrix("data_processed/D.txt");
+fixed RealMatrix W = loadRealMatrix("data_processed/W.txt");
 
-random Real noise(County c, Timestep t) ~
-  Gaussian(0.0, 1.0 / tau2);
+// ---
+// correlation has a prior distributed Gaussian with mean zero,
+// variance defined by the diagonal matrix, treated here as a vector
+// ---
+random Real correlation(County c, Week t) ~
+  Gaussian(0.0, D[toInt(c)]);
+
+random Boolean spatial_edge(County c1, Week t1, County c2, Week t2) ~
+  BooleanDistrib(tau1 * exp(rho * correlation(c1, t1) * correlation(c2, t2)));
+
+random Boolean temporal_edge(County c1, Week t1, County c2, Week t2) ~
+  BooleanDistrib(tau1 * exp(correlation(c1, t1) * correlation(c2, t2)));
 
 // ----
 // county rate calculated by logit model.
 // ----
-random Real logit(County c, Timestep t) ~
+random Real noise(County c, Week t) ~
+  Gaussian(0.0, 1.0 / tau2);
+
+random Real logit(County c, Week t) ~
   toReal(beta1 * covariates1[toInt(c)][toInt(t)] +
          beta2 * covariates2[toInt(c)][toInt(t)] +
-         correlation(t)[toInt(c)]) +
+         correlation(c, t)) +
          noise(c, t);
 
-random Real county_rate(County c, Timestep t) ~
+random Real county_rate(County c, Week t) ~
   exp(logit(c, t)) / (1.0 + exp(logit(c, t)));
 
 // ----
 // region rate is the sum over county rates
 //   (make nondeterministic as Gaussian with very small variance)
 // ----
-random Real region_rate(Region r, Timestep t) ~
+random Real region_rate(Region r, Week t) ~
   Gaussian(
     sum({
       (county_rate(c, t) * county_pop[toInt(c)])
       for County c : county_map[toInt(r)][toInt(c)] == 1.0
     }) / region_pop[toInt(r)],
   0.001);
+
+obs spatial_edge(c1, t1, c2, t2) = true for County c1, Week t1, County c2, Week t2 : toInt(t1) + 1 == toInt(t2);
+obs temporal_edge(c1, t1, c2, t2) = true for County c1, Week t1, County c2, Week t2 : W[toInt(c1)][toInt(c2)] == 1.0;
+
