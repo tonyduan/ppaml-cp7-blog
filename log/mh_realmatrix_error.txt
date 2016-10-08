@@ -1,0 +1,46 @@
+In file included from bin/flu_spread_compiled.cpp:42:
+bin/util/util_MCMC.h:31:20: warning: delete called on 'swift::MCMCObject' that is abstract but has non-virtual destructor [-Wdelete-non-virtual-dtor]
+  if (obj != NULL) delete obj;
+                   ^
+In file included from bin/flu_spread_compiled.cpp:41:
+bin/util/MCMC.h:313:7: error: value of type 'typename enable_if2<(is_arma_type<Mat<double> >::value && is_arma_type<Mat<double> >::value), const
+      mtGlue<uword, Mat<double>, Mat<double>, glue_rel_eq> >::result' (aka 'const arma::mtGlue<unsigned long long, arma::Mat<double>,
+      arma::Mat<double>, arma::glue_rel_eq>') is not contextually convertible to 'bool'
+  if (nxt_val == old_val) return ;
+      ^~~~~~~~~~~~~~~~~~
+bin/flu_spread_compiled.cpp:13974:3: note: in instantiation of member function 'swift::BayesVar<arma::Mat<double> >::mh_parent_resample_arg' requested
+      here
+  mh_parent_resample_arg(this);
+  ^
+In file included from bin/flu_spread_compiled.cpp:41:
+bin/util/MCMC.h:232:9: error: value of type 'typename enable_if2<(is_arma_type<Mat<double> >::value && is_arma_type<Mat<double> >::value), const
+      mtGlue<uword, Mat<double>, Mat<double>, glue_rel_noteq> >::result' (aka 'const arma::mtGlue<unsigned long long, arma::Mat<double>,
+      arma::Mat<double>, arma::glue_rel_noteq>') is not contextually convertible to 'bool'
+    if (nxt_val != old_val) {
+        ^~~~~~~~~~~~~~~~~~
+bin/flu_spread_compiled.cpp:13603:20: note: in instantiation of member function 'swift::BayesVar<arma::Mat<double> >::gibbs_resample_arg' requested
+      here
+_Var_county_rates::_Var_county_rates(int _t):t(_t)
+                   ^
+In file included from bin/flu_spread_compiled.cpp:41:
+bin/util/MCMC.h:248:9: error: value of type 'typename enable_if2<(is_arma_type<Mat<double> >::value && is_arma_type<Mat<double> >::value), const
+      mtGlue<uword, Mat<double>, Mat<double>, glue_rel_eq> >::result' (aka 'const arma::mtGlue<unsigned long long, arma::Mat<double>,
+      arma::Mat<double>, arma::glue_rel_eq>') is not contextually convertible to 'bool'
+    if (nxt_val == old_val) {
+        ^~~~~~~~~~~~~~~~~~
+bin/util/MCMC.h:269:7: error: value of type 'typename enable_if2<(is_arma_type<Mat<double> >::value && is_arma_type<Mat<double> >::value), const
+      mtGlue<uword, Mat<double>, Mat<double>, glue_rel_eq> >::result' (aka 'const arma::mtGlue<unsigned long long, arma::Mat<double>,
+      arma::Mat<double>, arma::glue_rel_eq>') is not contextually convertible to 'bool'
+  if (nxt_val == old_val) return ;
+      ^~~~~~~~~~~~~~~~~~
+bin/util/MCMC.h:366:7: error: value of type 'typename enable_if2<(is_arma_type<Mat<double> >::value && is_arma_type<Mat<double> >::value), const
+      mtGlue<uword, Mat<double>, Mat<double>, glue_rel_eq> >::result' (aka 'const arma::mtGlue<unsigned long long, arma::Mat<double>,
+      arma::Mat<double>, arma::glue_rel_eq>') is not contextually convertible to 'bool'
+  if (nxt_val == old_val) return ;
+      ^~~~~~~~~~~~~~~~~~
+bin/flu_spread_compiled.cpp:13603:20: note: in instantiation of member function 'swift::BayesVar<arma::Mat<double> >::mh_symmetric_resample_arg'
+      requested here
+_Var_county_rates::_Var_county_rates(int _t):t(_t)
+                   ^
+1 warning and 5 errors generated.
+make: *** [all] Error 1

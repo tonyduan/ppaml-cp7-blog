@@ -7,8 +7,8 @@ all:
 
 	/Users/tony/Projects/swift/swift \
          -i bin/flu_spread_compiled.blog \
-         -o bin/flu_spread_compiled.cpp
-         # -e MHSampler
+         -o bin/flu_spread_compiled.cpp \
+         -e MHSampler
 
     # -o bin/flu_spread_compiled_liuwest.cpp \
     # awk '/perturb/ {$$0="//"$$0}1' bin/flu_spread_compiled_liuwest.cpp \
