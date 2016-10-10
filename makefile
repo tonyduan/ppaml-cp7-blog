@@ -1,13 +1,13 @@
 default: compile
 
 preprocess_small:
-	python preprocessing.py Small
+	python3 preprocessing.py Small
 
 preprocess_middle:
-	python preprocessing.py Middle
+	python3 preprocessing.py Middle
 
 preprocess_full:
-	python preprocessing.py Full
+	python3 preprocessing.py Full
 
 compile:
 	cat flu_spread_header.blog \
