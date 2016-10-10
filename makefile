@@ -10,7 +10,8 @@ preprocess_full:
 	python preprocessing.py Full
 
 compile:
-	cat flu_spread_model.blog \
+	cat flu_spread_header.blog \
+        flu_spread_model.blog \
         flu_spread_region_rates.blog \
         flu_spread_obs.blog \
         flu_spread_queries.blog > bin/flu_spread_compiled.blog;
