@@ -326,7 +326,8 @@ type Week;
 distinct County counties[{0}];
 distinct Region regions[{1}];
 distinct Week weeks[{2}];
-""").format(len(counties), len(regions), len(dates))
+
+""".format(len(counties), len(regions), len(dates)))
 
 # #### Write observations.
 #
