@@ -127,7 +127,7 @@ for fips_code, blob in tweets_data.items():
     for date in dates:
 
         if not date in blob['No. of Tweets']:
-            cov1 = 0.1 / blob['Population, 2014 estimate'] * 1000)
+            cov1 = 0.1 / blob['Population, 2014 estimate'] * 1000
             cov2 = 0.001 / (1 - 0.001)
         else:
             cov1 = np.log((blob['No. of Tweets'][date] + 0.1) / blob['Population, 2014 estimate'] * 1000)
