@@ -1,5 +1,14 @@
 default: compile
 
+preprocess_small:
+	python preprocessing.py Small
+
+preprocess_middle:
+	python preprocessing.py Middle
+
+preprocess_full:
+	python preprocessing.py Full
+
 compile:
 	cat flu_spread_model.blog \
         flu_spread_region_rate.blog \
@@ -12,17 +21,10 @@ compile:
          -e MHSampler \
          -n 1000000
 
-    # -o bin/flu_spread_compiled_liuwest.cpp \
-    # awk '/perturb/ {$$0="//"$$0}1' bin/flu_spread_compiled_liuwest.cpp \
-        > bin/flu_spread_tmp.cpp;
-    # awk '/int _cur_loop/ {$$0="//"$$0}1' bin/flu_spread_tmp.cpp \
-		> bin/flu_spread_compiled.cpp;
-    # rm bin/flu_spread_tmp.cpp
-
 	g++ -I bin -Ofast -std=c++11 \
 		bin/flu_spread_compiled.cpp \
 		/Users/tony/Projects/swift/src/random/*.cpp \
 		-o flu_spread_compiled -larmadillo;
 
 run:
-	./flu_spread_compiled > out/output_small.txt
+	./flu_spread_compiled > out/output.txt
