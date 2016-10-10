@@ -35,11 +35,20 @@ fixed RealMatrix W = loadRealMatrix("data_processed/W.txt");
 random Real y(County c, Week t) ~
   Gaussian(0.0, D[toInt(c)]);
 
+// ---
+// define spatial edges and temporal edges and observe them to be true.
+// using Metropolis-Hastings or Gibbs Sampling, the actual parameter into
+// the boolean distribution doesn't matter because only likelihoods are
+// considered (thanks Nishant!)
+// ---
 random Boolean spatial_edge(County c1, Week t1, County c2, Week t2) ~
   BooleanDistrib(  exp(tau1 * y(c1, t1) * y(c2, t2))  );
 
 random Boolean temporal_edge(County c1, Week t1, County c2, Week t2) ~
   BooleanDistrib(  exp(tau1 * rho * y(c1, t1) * y(c2, t2))  );
+
+obs temporal_edge(c1, t1, c2, t2) = true for County c1, Week t1, County c2, Week t2 : toInt(t1) + 1 == toInt(t2);
+obs spatial_edge(c1, t1, c2, t2) = true for County c1, Week t1, County c2, Week t2 : W[toInt(c1)][toInt(c2)] == 1.0;
 
 // ----
 // county rate calculated by logit model.
@@ -57,7 +66,7 @@ random Real county_rate(County c, Week t) ~
   exp(logit(c, t)) / (1.0 + exp(logit(c, t)));
 
 // ----
-// region rate is the sum over county rates
+// region rate is the sum over county rates -- set up in preprocessing
 //   (make nondeterministic as Gaussian with very small variance)
 // ----
 /*random Real region_rate(Region r, Week t) ~
@@ -68,179 +77,4 @@ random Real county_rate(County c, Week t) ~
     }) / region_pop[toInt(r)],
   0.1);
 */
-/*
-random RealMatrix county_rates(Week t) ~
-  vstack(
-    county_rate(counties[0], t),
-    county_rate(counties[1], t),
-    county_rate(counties[2], t),
-    county_rate(counties[3], t),
-    county_rate(counties[4], t),
-    county_rate(counties[5], t),
-    county_rate(counties[6], t),
-    county_rate(counties[7], t),
-    county_rate(counties[8], t),
-    county_rate(counties[9], t),
-    county_rate(counties[10], t),
-    county_rate(counties[11], t),
-    county_rate(counties[12], t),
-    county_rate(counties[13], t),
-    county_rate(counties[14], t),
-    county_rate(counties[15], t),
-    county_rate(counties[16], t),
-    county_rate(counties[17], t),
-    county_rate(counties[18], t),
-    county_rate(counties[19], t),
-    county_rate(counties[20], t),
-    county_rate(counties[21], t),
-    county_rate(counties[22], t),
-    county_rate(counties[23], t),
-    county_rate(counties[24], t),
-    county_rate(counties[25], t),
-    county_rate(counties[26], t),
-    county_rate(counties[27], t),
-    county_rate(counties[28], t),
-    county_rate(counties[29], t),
-    county_rate(counties[30], t),
-    county_rate(counties[31], t),
-    county_rate(counties[32], t),
-    county_rate(counties[33], t),
-    county_rate(counties[34], t),
-    county_rate(counties[35], t),
-    county_rate(counties[36], t),
-    county_rate(counties[37], t),
-    county_rate(counties[38], t),
-    county_rate(counties[39], t),
-    county_rate(counties[40], t),
-    county_rate(counties[41], t),
-    county_rate(counties[42], t),
-    county_rate(counties[43], t),
-    county_rate(counties[44], t),
-    county_rate(counties[45], t),
-    county_rate(counties[46], t),
-    county_rate(counties[47], t),
-    county_rate(counties[48], t),
-    county_rate(counties[49], t),
-    county_rate(counties[50], t),
-    county_rate(counties[51], t),
-    county_rate(counties[52], t),
-    county_rate(counties[53], t),
-    county_rate(counties[54], t),
-    county_rate(counties[55], t),
-    county_rate(counties[56], t),
-    county_rate(counties[57], t),
-    county_rate(counties[58], t),
-    county_rate(counties[59], t),
-    county_rate(counties[60], t),
-    county_rate(counties[61], t),
-    county_rate(counties[62], t),
-    county_rate(counties[63], t),
-    county_rate(counties[64], t),
-    county_rate(counties[65], t),
-    county_rate(counties[66], t),
-    county_rate(counties[67], t),
-    county_rate(counties[68], t),
-    county_rate(counties[69], t),
-    county_rate(counties[70], t),
-    county_rate(counties[71], t),
-    county_rate(counties[72], t),
-    county_rate(counties[73], t),
-    county_rate(counties[74], t),
-    county_rate(counties[75], t),
-    county_rate(counties[76], t),
-    county_rate(counties[77], t),
-    county_rate(counties[78], t),
-    county_rate(counties[79], t),
-    county_rate(counties[80], t),
-    county_rate(counties[81], t));
-*/
-random Real region_rate(Region r, Week t) ~
-  Gaussian(
-    accu(county_map[toInt(r)] * vstack(
-    county_rate(counties[0], t),
-    county_rate(counties[1], t),
-    county_rate(counties[2], t),
-    county_rate(counties[3], t),
-    county_rate(counties[4], t),
-    county_rate(counties[5], t),
-    county_rate(counties[6], t),
-    county_rate(counties[7], t),
-    county_rate(counties[8], t),
-    county_rate(counties[9], t),
-    county_rate(counties[10], t),
-    county_rate(counties[11], t),
-    county_rate(counties[12], t),
-    county_rate(counties[13], t),
-    county_rate(counties[14], t),
-    county_rate(counties[15], t),
-    county_rate(counties[16], t),
-    county_rate(counties[17], t),
-    county_rate(counties[18], t),
-    county_rate(counties[19], t),
-    county_rate(counties[20], t),
-    county_rate(counties[21], t),
-    county_rate(counties[22], t),
-    county_rate(counties[23], t),
-    county_rate(counties[24], t),
-    county_rate(counties[25], t),
-    county_rate(counties[26], t),
-    county_rate(counties[27], t),
-    county_rate(counties[28], t),
-    county_rate(counties[29], t),
-    county_rate(counties[30], t),
-    county_rate(counties[31], t),
-    county_rate(counties[32], t),
-    county_rate(counties[33], t),
-    county_rate(counties[34], t),
-    county_rate(counties[35], t),
-    county_rate(counties[36], t),
-    county_rate(counties[37], t),
-    county_rate(counties[38], t),
-    county_rate(counties[39], t),
-    county_rate(counties[40], t),
-    county_rate(counties[41], t),
-    county_rate(counties[42], t),
-    county_rate(counties[43], t),
-    county_rate(counties[44], t),
-    county_rate(counties[45], t),
-    county_rate(counties[46], t),
-    county_rate(counties[47], t),
-    county_rate(counties[48], t),
-    county_rate(counties[49], t),
-    county_rate(counties[50], t),
-    county_rate(counties[51], t),
-    county_rate(counties[52], t),
-    county_rate(counties[53], t),
-    county_rate(counties[54], t),
-    county_rate(counties[55], t),
-    county_rate(counties[56], t),
-    county_rate(counties[57], t),
-    county_rate(counties[58], t),
-    county_rate(counties[59], t),
-    county_rate(counties[60], t),
-    county_rate(counties[61], t),
-    county_rate(counties[62], t),
-    county_rate(counties[63], t),
-    county_rate(counties[64], t),
-    county_rate(counties[65], t),
-    county_rate(counties[66], t),
-    county_rate(counties[67], t),
-    county_rate(counties[68], t),
-    county_rate(counties[69], t),
-    county_rate(counties[70], t),
-    county_rate(counties[71], t),
-    county_rate(counties[72], t),
-    county_rate(counties[73], t),
-    county_rate(counties[74], t),
-    county_rate(counties[75], t),
-    county_rate(counties[76], t),
-    county_rate(counties[77], t),
-    county_rate(counties[78], t),
-    county_rate(counties[79], t),
-    county_rate(counties[80], t),
-    county_rate(counties[81], t))) / region_pop[toInt(r)],
-    0.1);
-
-obs temporal_edge(c1, t1, c2, t2) = true for County c1, Week t1, County c2, Week t2 : toInt(t1) + 1 == toInt(t2);
-obs spatial_edge(c1, t1, c2, t2) = true for County c1, Week t1, County c2, Week t2 : W[toInt(c1)][toInt(c2)] == 1.0;
 

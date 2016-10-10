@@ -1,7 +1,8 @@
-default: all
+default: compile
 
-all:
+compile:
 	cat flu_spread_model.blog \
+        flu_spread_region_rate.blog \
         flu_spread_obs.blog \
         flu_spread_queries.blog > bin/flu_spread_compiled.blog;
 
