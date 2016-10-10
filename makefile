@@ -15,7 +15,7 @@ compile:
         flu_spread_obs.blog \
         flu_spread_queries.blog > bin/flu_spread_compiled.blog;
 
-	/Users/tony/Projects/swift/swift \
+	../swift/swift \
          -i bin/flu_spread_compiled.blog \
          -o bin/flu_spread_compiled.cpp \
          -e MHSampler \
@@ -23,7 +23,7 @@ compile:
 
 	g++ -I bin -Ofast -std=c++11 \
 		bin/flu_spread_compiled.cpp \
-		/Users/tony/Projects/swift/src/random/*.cpp \
+		../swift/src/random/*.cpp \
 		-o flu_spread_compiled -larmadillo;
 
 run:
