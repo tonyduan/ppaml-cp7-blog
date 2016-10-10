@@ -315,6 +315,18 @@ region_file.write("      county_rate(counties[%d], t))) / region_pop[toInt(r)],\
 region_file.write("    %f);\n\n" % region_variance)
 region_file.close()
 
+# #### Write headers for BLOG
+
+header_file = open("flu_spread_header.blog", "w")
+header_file.write("""
+type County;
+type Region;
+type Week;
+
+distinct County counties[{0}];
+distinct Region regions[{1}];
+distinct Week weeks[{2}];
+""").format(len(counties, len(regions), len(dates)))
 
 # #### Write observations.
 #
