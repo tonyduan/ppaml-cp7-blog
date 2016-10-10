@@ -4,18 +4,18 @@
 # ### PPAML Challenge Problem 7
 
 # University of California, Berkeley
-# 
+#
 # Submission for BLOG by Prof. Stuart Russell's group.
 
 # #### Flu spread model
-# 
+#
 # To quickly recap: we observe region-level statistics and want to query for county-level statistic.
-# 
+#
 # We will consider an *undirected model* with pairwise potentials (this is equivalent to a MV Gaussian). The potentials connect neighboring counties in space and identical counties across time (as dictated by hyperparameter $\rho$).
-# 
+#
 # The primary model is built into `flu_spread_model.blog`; the primary purpose of this notebook is to perform pre-processing to get our data into BLOG correctly. We will write the following additional files:
-# 
-# - `flu_spread_region_rate.blog`
+#
+# - `flu_spread_region_rates.blog`
 # - `flu_spread_obs.blog`
 # - `flu_spread_queries.blog`
 
@@ -36,7 +36,7 @@ TRAINING_SIZE = sys.argv[1]
 
 
 # #### Load the data.
-# 
+#
 # Need to make sure to load from the right training data size.
 
 # In[5]:
@@ -49,7 +49,7 @@ county_adjacency    = json.load(open("data/%s/input/county_adjacency_lower48.jso
 
 
 # #### List the dates.
-# 
+#
 # It's important that the dates are in chronological order.<br/>
 # The index of the event is important for writing observations.
 
@@ -71,23 +71,23 @@ print("Number of dates:", len(dates))
 
 
 # #### Compute county statistics.
-# 
+#
 # We need to compute *covariates* and *population* for each county.
-# 
+#
 # $$\begin{align}
 #     N_c & = \texttt{ loaded from data }\\
-#     X_{c,t} & = \begin{bmatrix} 
-#                     \log{(\frac{S_{c,t} + \epsilon_2}{\tilde{N}_c})} & 
-#                     \log{(\frac{V_{c,t} + \epsilon_3}{1-V_{c,t}+\epsilon_3})} 
+#     X_{c,t} & = \begin{bmatrix}
+#                     \log{(\frac{S_{c,t} + \epsilon_2}{\tilde{N}_c})} &
+#                     \log{(\frac{V_{c,t} + \epsilon_3}{1-V_{c,t}+\epsilon_3})}
 #                 \end{bmatrix}^T\\
 # \end{align}$$
-# 
-# Where 
+#
+# Where
 # $$\begin{align}
 #     \epsilon_2 & = 0.1\\
 #     \epsilon_3 & = 0.001\\
 # \end{align}$$
-# 
+#
 # The covariate matrices should be of size $n$ by $d$.<br />
 # The population vector should be of size $n$ by $1$.
 
@@ -101,24 +101,24 @@ fips_to_pop = {}
 # In[9]:
 
 for fips_code, blob in tweets_data.items():
-    
+
     if not 'Vaccination percentage %' in blob.keys():
         continue
-        
+
     for date in dates:
-    
-        cov1 = np.log((blob['No. of Tweets'][date] + 0.1) / blob['Population, 2014 estimate'] * 1000) 
-        cov2 = np.log((blob['Vaccination percentage %'][date] / 100 + 0.001) / 
+
+        cov1 = np.log((blob['No. of Tweets'][date] + 0.1) / blob['Population, 2014 estimate'] * 1000)
+        cov2 = np.log((blob['Vaccination percentage %'][date] / 100 + 0.001) /
                       (1-blob['Vaccination percentage %'][date] / 100 + 0.001))
-        
+
         fips_to_cov1[fips_code].append(cov1)
         fips_to_cov2[fips_code].append(cov2)
-        
+
     fips_to_pop[fips_code] = blob['Population, 2014 estimate']
 
 
 # #### Construct sets of regions and counties.
-# 
+#
 # We extract regions and counties for *only* the relevant counties from the training data.<br />
 
 # In[10]:
@@ -143,9 +143,9 @@ print('Number of counties:', len(counties))
 
 
 # #### Save county data.
-# 
+#
 # Note: we assign an index to each county (somewhat arbitrarily).
-# 
+#
 # We also create (and make sure to use) the following dictionaries:
 # - index_to_county
 # - county_to_index
@@ -172,7 +172,7 @@ for i, fips in index_to_county.items():
 county_pop_matrix = np.array(county_pop_matrix)
 cov1_matrix = np.array(cov1_matrix)
 cov2_matrix = np.array(cov2_matrix)
-    
+
 np.savetxt('data_processed/county_pops.txt', county_pop_matrix)
 np.savetxt('data_processed/covariates1.txt', cov1_matrix)
 np.savetxt('data_processed/covariates2.txt', cov2_matrix)
@@ -186,14 +186,14 @@ print(county_pop_matrix.shape)
 
 
 # #### Map regions to counties.
-# 
+#
 # We construct a resulting matrix $A$ that contains
 # $$A_{i,j} = \begin{cases} 1 & \mbox{if region } i \mbox{ contains county } j\\
 #                           0 & \mbox{otherwise}  \end{cases}$$
-#                                                
+#
 # Also calculate the region population by
 # $$N_r = \sum_{c \in r} N_c$$
-# 
+#
 # The resulting matrix should be of size $m$ by $n$.
 
 # In[16]:
@@ -210,7 +210,7 @@ county_map_matrix = np.zeros((len(regions), len(counties)))
 region_pop_matrix = [0] * len(regions)
 
 for i, r in index_to_region.items():
-    
+
     for fips in regions_to_counties[r]:
         if fips not in county_to_index:
             continue
@@ -230,13 +230,13 @@ print(county_map_matrix.shape)
 
 
 # #### Construct correlation matrices.
-# 
+#
 # Assuming the undirected model, we have a single covariance matrix of size $n$ by $n$ (where $n$ is the number of counties). Construct following precision matrix with hyperparameter $\tau_1 \sim \mbox{Gamma}(3, 0.1)$.
 # $$\Sigma^{-1} = \tau_1 (D_w - W)$$
-# 
+#
 # Therefore the output from this step is a matrix
 # $$\Sigma^{-1} = (D_w - W) + 0.01 I$$
-# 
+#
 # Where $W$ is a symmetric matrix:
 # $$W_{i,j} = \begin{cases} 1 & \mbox{if } i \mbox{ neighbors } j\\ 0 & \mbox{otherwise} \end{cases}$$
 # And $D_w$ is a diagonal matrix:
@@ -248,13 +248,13 @@ print(county_map_matrix.shape)
 W = np.zeros(((len(counties), len(counties))))
 
 for blob in county_adjacency.values():
-    
+
     fips = blob[1]
     neighbors = blob[2].values()
-    
+
     if fips not in county_to_index:
         continue
-        
+
     i = county_to_index[fips]
     for n in neighbors:
         if not n in county_to_index:
@@ -298,26 +298,26 @@ np.savetxt('data_processed/D.txt', np.diag(D))
 
 # In[40]:
 
-region_file = open("flu_model_region_rate.blog", "w")
+region_file = open("flu_spread_region_rates.blog", "w")
 region_variance = 0.0001
 
 
 # In[41]:
 
 region_file.write("""
-random Real region_rate(Region r, Week t) ~ 
+random Real region_rate(Region r, Week t) ~
   Gaussian(
     accu(county_map[toInt(r)] * vstack(
 """)
 for i in range(len(counties) - 1):
     region_file.write("      county_rate(counties[%d], t),\n" % i)
 region_file.write("      county_rate(counties[%d], t))) / region_pop[toInt(r)],\n" % (len(counties) - 1))
-region_file.write("    %f);" % region_variance)
+region_file.write("    %f);\n\n" % region_variance)
 region_file.close()
 
 
 # #### Write observations.
-# 
+#
 # We ignore any entries that are NaN in the training data.
 
 # In[42]:
@@ -328,18 +328,18 @@ obs_file = open('flu_spread_obs.blog', 'w')
 # In[43]:
 
 for i, row in ili_data.iterrows():
-    
+
     for j, region in index_to_region.items():
 
         if pd.isnull(row[region]):
             continue
-            
+
         rate = float(row[region].strip('%')) / 100
         obs_file.write('obs region_rate(regions[%d], weeks[%d]) = %0.4f;\n' % (j, i, rate))
 
 
 # #### Write queries.
-# 
+#
 # Query for every county at every timestep.
 
 # In[44]:
@@ -350,6 +350,6 @@ queries_file = open('flu_spread_queries.blog', 'w')
 # In[45]:
 
 for j, _ in enumerate(dates):
-    for i, county in index_to_county.items():        
+    for i, county in index_to_county.items():
         queries_file.write('query county_rate(counties[%d], weeks[%d]);\n' % (i, j))
 
