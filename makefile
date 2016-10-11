@@ -1,5 +1,8 @@
 default: compile
 
+preprocessor:
+	jupyter nbconvert --to=script preprocessing.ipynb
+
 preprocess_small:
 	python3 preprocessing.py Small
 
@@ -20,7 +23,7 @@ compile:
          -i bin/flu_spread_compiled.blog \
          -o bin/flu_spread_compiled.cpp \
          -e MHSampler \
-         -n 1000000
+         -n 100
 
 	g++ -I bin -Ofast -std=c++11 \
 		bin/flu_spread_compiled.cpp \
