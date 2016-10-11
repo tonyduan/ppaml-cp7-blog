@@ -20,6 +20,8 @@ fixed RealMatrix covariates2 = loadRealMatrix("data_processed/covariates2.txt");
 fixed RealMatrix D = loadRealMatrix("data_processed/D.txt");
 fixed RealMatrix W = loadRealMatrix("data_processed/W.txt");
 
+fixed RealMatrix observations = loadRealMatrix("data_processed/obs.txt");
+
 // ---
 // correlation has a prior distributed Gaussian with mean zero,
 // variance defined by the diagonal matrix, treated here as a vector
@@ -69,4 +71,3 @@ random Real county_rate(County c, Week t) ~
     }) / region_pop[toInt(r)],
   0.1);
 */
-
