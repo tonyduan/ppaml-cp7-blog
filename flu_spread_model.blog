@@ -35,14 +35,26 @@ random Real y(County c, Week t) ~
 // the boolean distribution doesn't matter because only likelihoods are
 // considered (thanks Nishant!)
 // ---
+/*
 random Boolean spatial_edge(County c1, Week t1, County c2, Week t2) ~
   BooleanDistrib(  exp(tau1 * y(c1, t1) * y(c2, t2))  );
 
 random Boolean temporal_edge(County c1, Week t1, County c2, Week t2) ~
   BooleanDistrib(  exp(tau1 * rho * y(c1, t1) * y(c2, t2))  );
 
+// number of temporal edges: # counties * # weeks ~ 8200
+// number of spatial edges: # counties * # counties ~ 6724
 obs temporal_edge(c1, t1, c2, t2) = true for County c1, Week t1, County c2, Week t2 : toInt(t1) + 1 == toInt(t2);
 obs spatial_edge(c1, t1, c2, t2) = true for County c1, Week t1, County c2, Week t2 : W[toInt(c1)][toInt(c2)] == 1.0;
+*/
+random Boolean temporal_edge(Week t1, Week t2, County c) ~
+  BooleanDistrib( exp(tau1 * y(c, t1) * y(c, t2)) );
+
+random Boolean spatial_edge(County c1, County c2, Week t) ~
+  BooleanDistrib( exp(tau1 * rho * y(c1, t) * y(c2, t)) );
+
+obs temporal_edge(t1, t2, c) = true for Week t1, Week t2, County c : toInt(t1) + 1 == toInt(t2);
+obs spatial_edge(c1, c2, t) = true for County c1, County c2, Week t: W[toInt(c1)][toInt(c2)] == 1.0;
 
 // ----
 // county rate calculated by logit model.
@@ -63,11 +75,3 @@ random Real county_rate(County c, Week t) ~
 // region rate is the sum over county rates -- set up in preprocessing
 //   (make nondeterministic as Gaussian with very small variance)
 // ----
-/*random Real region_rate(Region r, Week t) ~
-  Gaussian(
-    sum({
-      (county_rate(c, t) * county_pop[toInt(c)])
-      for County c : county_map[toInt(r)][toInt(c)] == 1.0
-    }) / region_pop[toInt(r)],
-  0.1);
-*/

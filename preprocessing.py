@@ -22,7 +22,7 @@
 # <img style="display:inline;" src="images/gmrf.png" /><img style="display:inline;"  src="images/adjacency.png" />
 # <img style="display:inline;" src="images/model.png" />
 
-# In[172]:
+# In[229]:
 
 import functools
 import json
@@ -35,31 +35,31 @@ from collections import defaultdict
 from datetime import datetime
 
 
-# In[173]:
+# In[233]:
 
 def is_kernel():
-    if 'Jupyter' not in sys.modules:
+    if 'IPython' not in sys.modules:
         return False
     from IPython import get_ipython
     return getattr(get_ipython(), 'kernel', None) is not None
 
 
-# In[174]:
+# In[236]:
 
-if is_kernel():
+if not is_kernel():
     if len(sys.argv) <= 1:
         print("Need to specify training size.")
         sys.exit()
     TRAINING_SIZE = sys.argv[1]
 else:
-    TRAINING_SIZE = 'Small'
+    TRAINING_SIZE = 'Middle'
 
 
 # #### Load the data.
 # 
 # Need to make sure to load from the right training data size.
 
-# In[175]:
+# In[221]:
 
 ili_data            = pd.read_csv("data/%s/input/Flu_ILI.csv" % TRAINING_SIZE)
 tweets_data         = json.load(open("data/%s/input/Flu_Vacc_Tweet_TRAIN.json" % TRAINING_SIZE))
@@ -73,12 +73,12 @@ county_adjacency    = json.load(open("data/%s/input/county_adjacency_lower48.jso
 # It's important that the dates are in chronological order.<br/>
 # The index of the event is important for writing observations.
 
-# In[176]:
+# In[222]:
 
 dates = list(map(lambda s: datetime.strptime(s, "%m/%d/%Y").date().strftime('%m/%d/%Y'), ili_data["Ending"]))
 
 
-# In[177]:
+# In[223]:
 
 print("Number of dates:", len(dates))
 
@@ -104,14 +104,14 @@ print("Number of dates:", len(dates))
 # The covariate matrices should be of size $n$ by $d$.<br />
 # The population vector should be of size $n$ by $1$.
 
-# In[178]:
+# In[224]:
 
 fips_to_cov1 = defaultdict(list)
 fips_to_cov2 = defaultdict(list)
 fips_to_pop = {}
 
 
-# In[179]:
+# In[225]:
 
 for fips_code, blob in tweets_data.items():
     
@@ -138,7 +138,7 @@ for fips_code, blob in tweets_data.items():
 # 
 # We extract regions and counties for *only* the relevant counties from the training data.<br />
 
-# In[180]:
+# In[226]:
 
 regions = set()
 for i, col in enumerate(ili_data.columns):
@@ -146,14 +146,14 @@ for i, col in enumerate(ili_data.columns):
         regions.add(col)
 
 
-# In[181]:
+# In[227]:
 
 counties = set()
 for r in regions:
     counties = counties.union(set(regions_to_counties[r].keys()))
 
 
-# In[182]:
+# In[228]:
 
 print('Number of regions:', len(regions))
 print('Number of counties:', len(counties))
