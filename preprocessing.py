@@ -205,7 +205,7 @@ print(county_pop_matrix.shape)
 # #### Map regions to counties.
 # 
 # We construct a resulting matrix $A$ that contains
-# $$A_{i,j} = \begin{cases} 1 & \mbox{if region } i \mbox{ contains county } j\\
+# $$A_{i,j} = \begin{cases} N_j & \mbox{if region } i \mbox{ contains county } j\\
 #                           0 & \mbox{otherwise}  \end{cases}$$
 #                                                
 # Also calculate the region population by
@@ -213,7 +213,7 @@ print(county_pop_matrix.shape)
 # 
 # The resulting matrix should be of size $m$ by $n$.
 
-# In[186]:
+# In[239]:
 
 region_to_index = {}
 for i, r in enumerate(regions):
@@ -221,7 +221,7 @@ for i, r in enumerate(regions):
 index_to_region = {v: k for k, v in region_to_index.items()}
 
 
-# In[187]:
+# In[240]:
 
 county_map_matrix = np.zeros((len(regions), len(counties)))
 region_pop_matrix = [0] * len(regions)
@@ -231,17 +231,17 @@ for i, r in index_to_region.items():
     for fips in regions_to_counties[r]:
         if fips not in county_to_index:
             continue
-        county_map_matrix[i][county_to_index[fips]] = 1
+        county_map_matrix[i][county_to_index[fips]] = county_pop_matrix[county_to_index[fips]]
         region_pop_matrix[i] += fips_to_pop[fips]
 
 
-# In[188]:
+# In[241]:
 
 np.savetxt('data_processed/county_map.txt', county_map_matrix)
 np.savetxt('data_processed/region_pops.txt', region_pop_matrix)
 
 
-# In[189]:
+# In[242]:
 
 print(county_map_matrix.shape)
 
