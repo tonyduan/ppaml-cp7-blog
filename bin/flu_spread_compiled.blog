@@ -19,7 +19,7 @@ random Real beta2 ~ Gaussian(0.0, 10.0);
 // ----
 // load data
 // ----
-/*fixed RealMatrix county_pop = loadRealMatrix("data_processed/county_pops.txt");*/
+fixed RealMatrix county_pop = loadRealMatrix("data_processed/county_pops.txt");
 fixed RealMatrix region_pop = loadRealMatrix("data_processed/region_pops.txt");
 fixed RealMatrix county_map = loadRealMatrix("data_processed/county_map.txt");
 
@@ -85,7 +85,7 @@ random Real county_rate(County c, Week t) ~
 //   (make nondeterministic as Gaussian with very small variance)
 // ----
 
-random Real region_rate(Region r, Week t) ~
+random Real region_rate(Region r, Week t) ~ 
   Gaussian(
     accu(county_map[toInt(r)] * vstack(
       county_rate(counties[0], t),

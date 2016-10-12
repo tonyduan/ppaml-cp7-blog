@@ -84,9 +84,9 @@ void _init_storage();
 void _init_world();
 void _garbage_collection();
 void _print_answer();
-const int _TOT_LOOP = 100;
-const int _BURN_IN = 50;
-int _tot_round = -50;
+const int _TOT_LOOP = 10000000;
+const int _BURN_IN = 5000000;
+int _tot_round = -5000000;
 const mat __fixed_county_pop = loadRealMatrix("data_processed/county_pops.txt");
 const mat __fixed_region_pop = loadRealMatrix("data_processed/region_pops.txt");
 const mat __fixed_county_map = loadRealMatrix("data_processed/county_map.txt");
@@ -303,16 +303,16 @@ public:
   void mcmc_resample();
 };
 DynamicTable<_Var_region_rate*,2> _mem_region_rate;
-Gamma Gamma140617075157216;
-Gamma Gamma140617075157552;
-Gamma Gamma140617075157888;
-Gaussian Gaussian140617075158224;
-Gaussian Gaussian140617075158560;
-Gaussian Gaussian140617075162208;
-BooleanDistrib BooleanDistrib140617075164208;
-BooleanDistrib BooleanDistrib140617075166032;
-Gaussian Gaussian140617075169360;
-Gaussian Gaussian140617077228048;
+Gamma Gamma41860024;
+Gamma Gamma41860472;
+Gamma Gamma41860872;
+Gaussian Gaussian41861272;
+Gaussian Gaussian41861672;
+Gaussian Gaussian41867304;
+BooleanDistrib BooleanDistrib41870088;
+BooleanDistrib BooleanDistrib41872104;
+Gaussian Gaussian41874856;
+Gaussian Gaussian41927112;
 DynamicTable<Hist<double>*,2> _answer_0;
 void sample();
 
@@ -421,11 +421,11 @@ void _init_storage()
 
   }
 
-  Gamma140617075157216.init(1.05000000,0.50000000);
-  Gamma140617075157552.init(3.00000000,0.10000000);
-  Gamma140617075157888.init(10.00000000,0.10000000);
-  Gaussian140617075158224.init(0.000000,10.00000000);
-  Gaussian140617075158560.init(0.000000,10.00000000);
+  Gamma41860024.init(1.05000000,0.50000000);
+  Gamma41860472.init(3.00000000,0.10000000);
+  Gamma41860872.init(10.00000000,0.10000000);
+  Gaussian41861272.init(0.000000,10.00000000);
+  Gaussian41861672.init(0.000000,10.00000000);
   _answer_0.resize(0,82);
   _answer_0.resize(1,103);
   for (int c = 0;c<82;c++)
@@ -510,20 +510,20 @@ void _Var_rho::clear()
 }
 double _Var_rho::getlikeli()
 {
-  return Gamma140617075157216.loglikeli(val);
+  return Gamma41860024.loglikeli(val);
 }
 double _Var_rho::getcachelikeli()
 {
   auto _t_val = getcache();
-  return Gamma140617075157216.loglikeli(_t_val);
+  return Gamma41860024.loglikeli(_t_val);
 }
 void _Var_rho::sample()
 {
-  val=Gamma140617075157216.gen();
+  val=Gamma41860024.gen();
 }
 void _Var_rho::sample_cache()
 {
-  cache_val=Gamma140617075157216.gen();
+  cache_val=Gamma41860024.gen();
 }
 void _Var_rho::active_edge()
 {}
@@ -553,20 +553,20 @@ void _Var_tau1::clear()
 }
 double _Var_tau1::getlikeli()
 {
-  return Gamma140617075157552.loglikeli(val);
+  return Gamma41860472.loglikeli(val);
 }
 double _Var_tau1::getcachelikeli()
 {
   auto _t_val = getcache();
-  return Gamma140617075157552.loglikeli(_t_val);
+  return Gamma41860472.loglikeli(_t_val);
 }
 void _Var_tau1::sample()
 {
-  val=Gamma140617075157552.gen();
+  val=Gamma41860472.gen();
 }
 void _Var_tau1::sample_cache()
 {
-  cache_val=Gamma140617075157552.gen();
+  cache_val=Gamma41860472.gen();
 }
 void _Var_tau1::active_edge()
 {}
@@ -596,20 +596,20 @@ void _Var_tau2::clear()
 }
 double _Var_tau2::getlikeli()
 {
-  return Gamma140617075157888.loglikeli(val);
+  return Gamma41860872.loglikeli(val);
 }
 double _Var_tau2::getcachelikeli()
 {
   auto _t_val = getcache();
-  return Gamma140617075157888.loglikeli(_t_val);
+  return Gamma41860872.loglikeli(_t_val);
 }
 void _Var_tau2::sample()
 {
-  val=Gamma140617075157888.gen();
+  val=Gamma41860872.gen();
 }
 void _Var_tau2::sample_cache()
 {
-  cache_val=Gamma140617075157888.gen();
+  cache_val=Gamma41860872.gen();
 }
 void _Var_tau2::active_edge()
 {}
@@ -639,20 +639,20 @@ void _Var_beta1::clear()
 }
 double _Var_beta1::getlikeli()
 {
-  return Gaussian140617075158224.loglikeli(val);
+  return Gaussian41861272.loglikeli(val);
 }
 double _Var_beta1::getcachelikeli()
 {
   auto _t_val = getcache();
-  return Gaussian140617075158224.loglikeli(_t_val);
+  return Gaussian41861272.loglikeli(_t_val);
 }
 void _Var_beta1::sample()
 {
-  val=Gaussian140617075158224.gen();
+  val=Gaussian41861272.gen();
 }
 void _Var_beta1::sample_cache()
 {
-  cache_val=Gaussian140617075158224.gen();
+  cache_val=Gaussian41861272.gen();
 }
 void _Var_beta1::active_edge()
 {}
@@ -682,20 +682,20 @@ void _Var_beta2::clear()
 }
 double _Var_beta2::getlikeli()
 {
-  return Gaussian140617075158560.loglikeli(val);
+  return Gaussian41861672.loglikeli(val);
 }
 double _Var_beta2::getcachelikeli()
 {
   auto _t_val = getcache();
-  return Gaussian140617075158560.loglikeli(_t_val);
+  return Gaussian41861672.loglikeli(_t_val);
 }
 void _Var_beta2::sample()
 {
-  val=Gaussian140617075158560.gen();
+  val=Gaussian41861672.gen();
 }
 void _Var_beta2::sample_cache()
 {
-  cache_val=Gaussian140617075158560.gen();
+  cache_val=Gaussian41861672.gen();
 }
 void _Var_beta2::active_edge()
 {}
@@ -725,20 +725,20 @@ void _Var_y::clear()
 }
 double _Var_y::getlikeli()
 {
-  return Gaussian140617075162208.init(0.000000,__fixed_D[c]),Gaussian140617075162208.loglikeli(val);
+  return Gaussian41867304.init(0.000000,__fixed_D[c]),Gaussian41867304.loglikeli(val);
 }
 double _Var_y::getcachelikeli()
 {
   auto _t_val = getcache();
-  return Gaussian140617075162208.init(0.000000,__fixed_D[c]),Gaussian140617075162208.loglikeli(_t_val);
+  return Gaussian41867304.init(0.000000,__fixed_D[c]),Gaussian41867304.loglikeli(_t_val);
 }
 void _Var_y::sample()
 {
-  val=(Gaussian140617075162208.init(0.000000,__fixed_D[c]),Gaussian140617075162208.gen());
+  val=(Gaussian41867304.init(0.000000,__fixed_D[c]),Gaussian41867304.gen());
 }
 void _Var_y::sample_cache()
 {
-  cache_val=(Gaussian140617075162208.init(0.000000,__fixed_D[c]),Gaussian140617075162208.gen());
+  cache_val=(Gaussian41867304.init(0.000000,__fixed_D[c]),Gaussian41867304.gen());
 }
 void _Var_y::active_edge()
 {}
@@ -768,20 +768,20 @@ void _Var_temporal_edge::clear()
 }
 double _Var_temporal_edge::getlikeli()
 {
-  return BooleanDistrib140617075164208.init(exp(_mem_tau1->getval()*_mem_y[c][t1]->getval()*_mem_y[c][t2]->getval())),BooleanDistrib140617075164208.loglikeli(val);
+  return BooleanDistrib41870088.init(exp(_mem_tau1->getval()*_mem_y[c][t1]->getval()*_mem_y[c][t2]->getval())),BooleanDistrib41870088.loglikeli(val);
 }
 double _Var_temporal_edge::getcachelikeli()
 {
   auto _t_val = getcache();
-  return BooleanDistrib140617075164208.init(exp(_mem_tau1->getcache()*_mem_y[c][t1]->getcache()*_mem_y[c][t2]->getcache())),BooleanDistrib140617075164208.loglikeli(_t_val);
+  return BooleanDistrib41870088.init(exp(_mem_tau1->getcache()*_mem_y[c][t1]->getcache()*_mem_y[c][t2]->getcache())),BooleanDistrib41870088.loglikeli(_t_val);
 }
 void _Var_temporal_edge::sample()
 {
-  val=(BooleanDistrib140617075164208.init(exp(_mem_tau1->getval()*_mem_y[c][t1]->getval()*_mem_y[c][t2]->getval())),BooleanDistrib140617075164208.gen());
+  val=(BooleanDistrib41870088.init(exp(_mem_tau1->getval()*_mem_y[c][t1]->getval()*_mem_y[c][t2]->getval())),BooleanDistrib41870088.gen());
 }
 void _Var_temporal_edge::sample_cache()
 {
-  cache_val=(BooleanDistrib140617075164208.init(exp(_mem_tau1->getcache()*_mem_y[c][t1]->getcache()*_mem_y[c][t2]->getcache())),BooleanDistrib140617075164208.gen());
+  cache_val=(BooleanDistrib41870088.init(exp(_mem_tau1->getcache()*_mem_y[c][t1]->getcache()*_mem_y[c][t2]->getcache())),BooleanDistrib41870088.gen());
 }
 void _Var_temporal_edge::active_edge()
 {
@@ -825,20 +825,20 @@ void _Var_spatial_edge::clear()
 }
 double _Var_spatial_edge::getlikeli()
 {
-  return BooleanDistrib140617075166032.init(exp(_mem_tau1->getval()*_mem_rho->getval()*_mem_y[c1][t]->getval()*_mem_y[c2][t]->getval())),BooleanDistrib140617075166032.loglikeli(val);
+  return BooleanDistrib41872104.init(exp(_mem_tau1->getval()*_mem_rho->getval()*_mem_y[c1][t]->getval()*_mem_y[c2][t]->getval())),BooleanDistrib41872104.loglikeli(val);
 }
 double _Var_spatial_edge::getcachelikeli()
 {
   auto _t_val = getcache();
-  return BooleanDistrib140617075166032.init(exp(_mem_tau1->getcache()*_mem_rho->getcache()*_mem_y[c1][t]->getcache()*_mem_y[c2][t]->getcache())),BooleanDistrib140617075166032.loglikeli(_t_val);
+  return BooleanDistrib41872104.init(exp(_mem_tau1->getcache()*_mem_rho->getcache()*_mem_y[c1][t]->getcache()*_mem_y[c2][t]->getcache())),BooleanDistrib41872104.loglikeli(_t_val);
 }
 void _Var_spatial_edge::sample()
 {
-  val=(BooleanDistrib140617075166032.init(exp(_mem_tau1->getval()*_mem_rho->getval()*_mem_y[c1][t]->getval()*_mem_y[c2][t]->getval())),BooleanDistrib140617075166032.gen());
+  val=(BooleanDistrib41872104.init(exp(_mem_tau1->getval()*_mem_rho->getval()*_mem_y[c1][t]->getval()*_mem_y[c2][t]->getval())),BooleanDistrib41872104.gen());
 }
 void _Var_spatial_edge::sample_cache()
 {
-  cache_val=(BooleanDistrib140617075166032.init(exp(_mem_tau1->getcache()*_mem_rho->getcache()*_mem_y[c1][t]->getcache()*_mem_y[c2][t]->getcache())),BooleanDistrib140617075166032.gen());
+  cache_val=(BooleanDistrib41872104.init(exp(_mem_tau1->getcache()*_mem_rho->getcache()*_mem_y[c1][t]->getcache()*_mem_y[c2][t]->getcache())),BooleanDistrib41872104.gen());
 }
 void _Var_spatial_edge::active_edge()
 {
@@ -886,20 +886,20 @@ void _Var_noise::clear()
 }
 double _Var_noise::getlikeli()
 {
-  return Gaussian140617075169360.init(0.000000,1.00000000/_mem_tau2->getval()),Gaussian140617075169360.loglikeli(val);
+  return Gaussian41874856.init(0.000000,1.00000000/_mem_tau2->getval()),Gaussian41874856.loglikeli(val);
 }
 double _Var_noise::getcachelikeli()
 {
   auto _t_val = getcache();
-  return Gaussian140617075169360.init(0.000000,1.00000000/_mem_tau2->getcache()),Gaussian140617075169360.loglikeli(_t_val);
+  return Gaussian41874856.init(0.000000,1.00000000/_mem_tau2->getcache()),Gaussian41874856.loglikeli(_t_val);
 }
 void _Var_noise::sample()
 {
-  val=(Gaussian140617075169360.init(0.000000,1.00000000/_mem_tau2->getval()),Gaussian140617075169360.gen());
+  val=(Gaussian41874856.init(0.000000,1.00000000/_mem_tau2->getval()),Gaussian41874856.gen());
 }
 void _Var_noise::sample_cache()
 {
-  cache_val=(Gaussian140617075169360.init(0.000000,1.00000000/_mem_tau2->getcache()),Gaussian140617075169360.gen());
+  cache_val=(Gaussian41874856.init(0.000000,1.00000000/_mem_tau2->getcache()),Gaussian41874856.gen());
 }
 void _Var_noise::active_edge()
 {
@@ -1045,20 +1045,20 @@ void _Var_region_rate::clear()
 }
 double _Var_region_rate::getlikeli()
 {
-  return Gaussian140617077228048.init(accu(__fixed_county_map[r]*vstack({_mem_county_rate[0][t]->getval(), _mem_county_rate[1][t]->getval(), _mem_county_rate[2][t]->getval(), _mem_county_rate[3][t]->getval(), _mem_county_rate[4][t]->getval(), _mem_county_rate[5][t]->getval(), _mem_county_rate[6][t]->getval(), _mem_county_rate[7][t]->getval(), _mem_county_rate[8][t]->getval(), _mem_county_rate[9][t]->getval(), _mem_county_rate[10][t]->getval(), _mem_county_rate[11][t]->getval(), _mem_county_rate[12][t]->getval(), _mem_county_rate[13][t]->getval(), _mem_county_rate[14][t]->getval(), _mem_county_rate[15][t]->getval(), _mem_county_rate[16][t]->getval(), _mem_county_rate[17][t]->getval(), _mem_county_rate[18][t]->getval(), _mem_county_rate[19][t]->getval(), _mem_county_rate[20][t]->getval(), _mem_county_rate[21][t]->getval(), _mem_county_rate[22][t]->getval(), _mem_county_rate[23][t]->getval(), _mem_county_rate[24][t]->getval(), _mem_county_rate[25][t]->getval(), _mem_county_rate[26][t]->getval(), _mem_county_rate[27][t]->getval(), _mem_county_rate[28][t]->getval(), _mem_county_rate[29][t]->getval(), _mem_county_rate[30][t]->getval(), _mem_county_rate[31][t]->getval(), _mem_county_rate[32][t]->getval(), _mem_county_rate[33][t]->getval(), _mem_county_rate[34][t]->getval(), _mem_county_rate[35][t]->getval(), _mem_county_rate[36][t]->getval(), _mem_county_rate[37][t]->getval(), _mem_county_rate[38][t]->getval(), _mem_county_rate[39][t]->getval(), _mem_county_rate[40][t]->getval(), _mem_county_rate[41][t]->getval(), _mem_county_rate[42][t]->getval(), _mem_county_rate[43][t]->getval(), _mem_county_rate[44][t]->getval(), _mem_county_rate[45][t]->getval(), _mem_county_rate[46][t]->getval(), _mem_county_rate[47][t]->getval(), _mem_county_rate[48][t]->getval(), _mem_county_rate[49][t]->getval(), _mem_county_rate[50][t]->getval(), _mem_county_rate[51][t]->getval(), _mem_county_rate[52][t]->getval(), _mem_county_rate[53][t]->getval(), _mem_county_rate[54][t]->getval(), _mem_county_rate[55][t]->getval(), _mem_county_rate[56][t]->getval(), _mem_county_rate[57][t]->getval(), _mem_county_rate[58][t]->getval(), _mem_county_rate[59][t]->getval(), _mem_county_rate[60][t]->getval(), _mem_county_rate[61][t]->getval(), _mem_county_rate[62][t]->getval(), _mem_county_rate[63][t]->getval(), _mem_county_rate[64][t]->getval(), _mem_county_rate[65][t]->getval(), _mem_county_rate[66][t]->getval(), _mem_county_rate[67][t]->getval(), _mem_county_rate[68][t]->getval(), _mem_county_rate[69][t]->getval(), _mem_county_rate[70][t]->getval(), _mem_county_rate[71][t]->getval(), _mem_county_rate[72][t]->getval(), _mem_county_rate[73][t]->getval(), _mem_county_rate[74][t]->getval(), _mem_county_rate[75][t]->getval(), _mem_county_rate[76][t]->getval(), _mem_county_rate[77][t]->getval(), _mem_county_rate[78][t]->getval(), _mem_county_rate[79][t]->getval(), _mem_county_rate[80][t]->getval(), _mem_county_rate[81][t]->getval()}))/__fixed_region_pop[r],0.00010000),Gaussian140617077228048.loglikeli(val);
+  return Gaussian41927112.init(accu(__fixed_county_map[r]*vstack({_mem_county_rate[0][t]->getval(), _mem_county_rate[1][t]->getval(), _mem_county_rate[2][t]->getval(), _mem_county_rate[3][t]->getval(), _mem_county_rate[4][t]->getval(), _mem_county_rate[5][t]->getval(), _mem_county_rate[6][t]->getval(), _mem_county_rate[7][t]->getval(), _mem_county_rate[8][t]->getval(), _mem_county_rate[9][t]->getval(), _mem_county_rate[10][t]->getval(), _mem_county_rate[11][t]->getval(), _mem_county_rate[12][t]->getval(), _mem_county_rate[13][t]->getval(), _mem_county_rate[14][t]->getval(), _mem_county_rate[15][t]->getval(), _mem_county_rate[16][t]->getval(), _mem_county_rate[17][t]->getval(), _mem_county_rate[18][t]->getval(), _mem_county_rate[19][t]->getval(), _mem_county_rate[20][t]->getval(), _mem_county_rate[21][t]->getval(), _mem_county_rate[22][t]->getval(), _mem_county_rate[23][t]->getval(), _mem_county_rate[24][t]->getval(), _mem_county_rate[25][t]->getval(), _mem_county_rate[26][t]->getval(), _mem_county_rate[27][t]->getval(), _mem_county_rate[28][t]->getval(), _mem_county_rate[29][t]->getval(), _mem_county_rate[30][t]->getval(), _mem_county_rate[31][t]->getval(), _mem_county_rate[32][t]->getval(), _mem_county_rate[33][t]->getval(), _mem_county_rate[34][t]->getval(), _mem_county_rate[35][t]->getval(), _mem_county_rate[36][t]->getval(), _mem_county_rate[37][t]->getval(), _mem_county_rate[38][t]->getval(), _mem_county_rate[39][t]->getval(), _mem_county_rate[40][t]->getval(), _mem_county_rate[41][t]->getval(), _mem_county_rate[42][t]->getval(), _mem_county_rate[43][t]->getval(), _mem_county_rate[44][t]->getval(), _mem_county_rate[45][t]->getval(), _mem_county_rate[46][t]->getval(), _mem_county_rate[47][t]->getval(), _mem_county_rate[48][t]->getval(), _mem_county_rate[49][t]->getval(), _mem_county_rate[50][t]->getval(), _mem_county_rate[51][t]->getval(), _mem_county_rate[52][t]->getval(), _mem_county_rate[53][t]->getval(), _mem_county_rate[54][t]->getval(), _mem_county_rate[55][t]->getval(), _mem_county_rate[56][t]->getval(), _mem_county_rate[57][t]->getval(), _mem_county_rate[58][t]->getval(), _mem_county_rate[59][t]->getval(), _mem_county_rate[60][t]->getval(), _mem_county_rate[61][t]->getval(), _mem_county_rate[62][t]->getval(), _mem_county_rate[63][t]->getval(), _mem_county_rate[64][t]->getval(), _mem_county_rate[65][t]->getval(), _mem_county_rate[66][t]->getval(), _mem_county_rate[67][t]->getval(), _mem_county_rate[68][t]->getval(), _mem_county_rate[69][t]->getval(), _mem_county_rate[70][t]->getval(), _mem_county_rate[71][t]->getval(), _mem_county_rate[72][t]->getval(), _mem_county_rate[73][t]->getval(), _mem_county_rate[74][t]->getval(), _mem_county_rate[75][t]->getval(), _mem_county_rate[76][t]->getval(), _mem_county_rate[77][t]->getval(), _mem_county_rate[78][t]->getval(), _mem_county_rate[79][t]->getval(), _mem_county_rate[80][t]->getval(), _mem_county_rate[81][t]->getval()}))/__fixed_region_pop[r],0.00010000),Gaussian41927112.loglikeli(val);
 }
 double _Var_region_rate::getcachelikeli()
 {
   auto _t_val = getcache();
-  return Gaussian140617077228048.init(accu(__fixed_county_map[r]*vstack({_mem_county_rate[0][t]->getcache(), _mem_county_rate[1][t]->getcache(), _mem_county_rate[2][t]->getcache(), _mem_county_rate[3][t]->getcache(), _mem_county_rate[4][t]->getcache(), _mem_county_rate[5][t]->getcache(), _mem_county_rate[6][t]->getcache(), _mem_county_rate[7][t]->getcache(), _mem_county_rate[8][t]->getcache(), _mem_county_rate[9][t]->getcache(), _mem_county_rate[10][t]->getcache(), _mem_county_rate[11][t]->getcache(), _mem_county_rate[12][t]->getcache(), _mem_county_rate[13][t]->getcache(), _mem_county_rate[14][t]->getcache(), _mem_county_rate[15][t]->getcache(), _mem_county_rate[16][t]->getcache(), _mem_county_rate[17][t]->getcache(), _mem_county_rate[18][t]->getcache(), _mem_county_rate[19][t]->getcache(), _mem_county_rate[20][t]->getcache(), _mem_county_rate[21][t]->getcache(), _mem_county_rate[22][t]->getcache(), _mem_county_rate[23][t]->getcache(), _mem_county_rate[24][t]->getcache(), _mem_county_rate[25][t]->getcache(), _mem_county_rate[26][t]->getcache(), _mem_county_rate[27][t]->getcache(), _mem_county_rate[28][t]->getcache(), _mem_county_rate[29][t]->getcache(), _mem_county_rate[30][t]->getcache(), _mem_county_rate[31][t]->getcache(), _mem_county_rate[32][t]->getcache(), _mem_county_rate[33][t]->getcache(), _mem_county_rate[34][t]->getcache(), _mem_county_rate[35][t]->getcache(), _mem_county_rate[36][t]->getcache(), _mem_county_rate[37][t]->getcache(), _mem_county_rate[38][t]->getcache(), _mem_county_rate[39][t]->getcache(), _mem_county_rate[40][t]->getcache(), _mem_county_rate[41][t]->getcache(), _mem_county_rate[42][t]->getcache(), _mem_county_rate[43][t]->getcache(), _mem_county_rate[44][t]->getcache(), _mem_county_rate[45][t]->getcache(), _mem_county_rate[46][t]->getcache(), _mem_county_rate[47][t]->getcache(), _mem_county_rate[48][t]->getcache(), _mem_county_rate[49][t]->getcache(), _mem_county_rate[50][t]->getcache(), _mem_county_rate[51][t]->getcache(), _mem_county_rate[52][t]->getcache(), _mem_county_rate[53][t]->getcache(), _mem_county_rate[54][t]->getcache(), _mem_county_rate[55][t]->getcache(), _mem_county_rate[56][t]->getcache(), _mem_county_rate[57][t]->getcache(), _mem_county_rate[58][t]->getcache(), _mem_county_rate[59][t]->getcache(), _mem_county_rate[60][t]->getcache(), _mem_county_rate[61][t]->getcache(), _mem_county_rate[62][t]->getcache(), _mem_county_rate[63][t]->getcache(), _mem_county_rate[64][t]->getcache(), _mem_county_rate[65][t]->getcache(), _mem_county_rate[66][t]->getcache(), _mem_county_rate[67][t]->getcache(), _mem_county_rate[68][t]->getcache(), _mem_county_rate[69][t]->getcache(), _mem_county_rate[70][t]->getcache(), _mem_county_rate[71][t]->getcache(), _mem_county_rate[72][t]->getcache(), _mem_county_rate[73][t]->getcache(), _mem_county_rate[74][t]->getcache(), _mem_county_rate[75][t]->getcache(), _mem_county_rate[76][t]->getcache(), _mem_county_rate[77][t]->getcache(), _mem_county_rate[78][t]->getcache(), _mem_county_rate[79][t]->getcache(), _mem_county_rate[80][t]->getcache(), _mem_county_rate[81][t]->getcache()}))/__fixed_region_pop[r],0.00010000),Gaussian140617077228048.loglikeli(_t_val);
+  return Gaussian41927112.init(accu(__fixed_county_map[r]*vstack({_mem_county_rate[0][t]->getcache(), _mem_county_rate[1][t]->getcache(), _mem_county_rate[2][t]->getcache(), _mem_county_rate[3][t]->getcache(), _mem_county_rate[4][t]->getcache(), _mem_county_rate[5][t]->getcache(), _mem_county_rate[6][t]->getcache(), _mem_county_rate[7][t]->getcache(), _mem_county_rate[8][t]->getcache(), _mem_county_rate[9][t]->getcache(), _mem_county_rate[10][t]->getcache(), _mem_county_rate[11][t]->getcache(), _mem_county_rate[12][t]->getcache(), _mem_county_rate[13][t]->getcache(), _mem_county_rate[14][t]->getcache(), _mem_county_rate[15][t]->getcache(), _mem_county_rate[16][t]->getcache(), _mem_county_rate[17][t]->getcache(), _mem_county_rate[18][t]->getcache(), _mem_county_rate[19][t]->getcache(), _mem_county_rate[20][t]->getcache(), _mem_county_rate[21][t]->getcache(), _mem_county_rate[22][t]->getcache(), _mem_county_rate[23][t]->getcache(), _mem_county_rate[24][t]->getcache(), _mem_county_rate[25][t]->getcache(), _mem_county_rate[26][t]->getcache(), _mem_county_rate[27][t]->getcache(), _mem_county_rate[28][t]->getcache(), _mem_county_rate[29][t]->getcache(), _mem_county_rate[30][t]->getcache(), _mem_county_rate[31][t]->getcache(), _mem_county_rate[32][t]->getcache(), _mem_county_rate[33][t]->getcache(), _mem_county_rate[34][t]->getcache(), _mem_county_rate[35][t]->getcache(), _mem_county_rate[36][t]->getcache(), _mem_county_rate[37][t]->getcache(), _mem_county_rate[38][t]->getcache(), _mem_county_rate[39][t]->getcache(), _mem_county_rate[40][t]->getcache(), _mem_county_rate[41][t]->getcache(), _mem_county_rate[42][t]->getcache(), _mem_county_rate[43][t]->getcache(), _mem_county_rate[44][t]->getcache(), _mem_county_rate[45][t]->getcache(), _mem_county_rate[46][t]->getcache(), _mem_county_rate[47][t]->getcache(), _mem_county_rate[48][t]->getcache(), _mem_county_rate[49][t]->getcache(), _mem_county_rate[50][t]->getcache(), _mem_county_rate[51][t]->getcache(), _mem_county_rate[52][t]->getcache(), _mem_county_rate[53][t]->getcache(), _mem_county_rate[54][t]->getcache(), _mem_county_rate[55][t]->getcache(), _mem_county_rate[56][t]->getcache(), _mem_county_rate[57][t]->getcache(), _mem_county_rate[58][t]->getcache(), _mem_county_rate[59][t]->getcache(), _mem_county_rate[60][t]->getcache(), _mem_county_rate[61][t]->getcache(), _mem_county_rate[62][t]->getcache(), _mem_county_rate[63][t]->getcache(), _mem_county_rate[64][t]->getcache(), _mem_county_rate[65][t]->getcache(), _mem_county_rate[66][t]->getcache(), _mem_county_rate[67][t]->getcache(), _mem_county_rate[68][t]->getcache(), _mem_county_rate[69][t]->getcache(), _mem_county_rate[70][t]->getcache(), _mem_county_rate[71][t]->getcache(), _mem_county_rate[72][t]->getcache(), _mem_county_rate[73][t]->getcache(), _mem_county_rate[74][t]->getcache(), _mem_county_rate[75][t]->getcache(), _mem_county_rate[76][t]->getcache(), _mem_county_rate[77][t]->getcache(), _mem_county_rate[78][t]->getcache(), _mem_county_rate[79][t]->getcache(), _mem_county_rate[80][t]->getcache(), _mem_county_rate[81][t]->getcache()}))/__fixed_region_pop[r],0.00010000),Gaussian41927112.loglikeli(_t_val);
 }
 void _Var_region_rate::sample()
 {
-  val=(Gaussian140617077228048.init(accu(__fixed_county_map[r]*vstack({_mem_county_rate[0][t]->getval(), _mem_county_rate[1][t]->getval(), _mem_county_rate[2][t]->getval(), _mem_county_rate[3][t]->getval(), _mem_county_rate[4][t]->getval(), _mem_county_rate[5][t]->getval(), _mem_county_rate[6][t]->getval(), _mem_county_rate[7][t]->getval(), _mem_county_rate[8][t]->getval(), _mem_county_rate[9][t]->getval(), _mem_county_rate[10][t]->getval(), _mem_county_rate[11][t]->getval(), _mem_county_rate[12][t]->getval(), _mem_county_rate[13][t]->getval(), _mem_county_rate[14][t]->getval(), _mem_county_rate[15][t]->getval(), _mem_county_rate[16][t]->getval(), _mem_county_rate[17][t]->getval(), _mem_county_rate[18][t]->getval(), _mem_county_rate[19][t]->getval(), _mem_county_rate[20][t]->getval(), _mem_county_rate[21][t]->getval(), _mem_county_rate[22][t]->getval(), _mem_county_rate[23][t]->getval(), _mem_county_rate[24][t]->getval(), _mem_county_rate[25][t]->getval(), _mem_county_rate[26][t]->getval(), _mem_county_rate[27][t]->getval(), _mem_county_rate[28][t]->getval(), _mem_county_rate[29][t]->getval(), _mem_county_rate[30][t]->getval(), _mem_county_rate[31][t]->getval(), _mem_county_rate[32][t]->getval(), _mem_county_rate[33][t]->getval(), _mem_county_rate[34][t]->getval(), _mem_county_rate[35][t]->getval(), _mem_county_rate[36][t]->getval(), _mem_county_rate[37][t]->getval(), _mem_county_rate[38][t]->getval(), _mem_county_rate[39][t]->getval(), _mem_county_rate[40][t]->getval(), _mem_county_rate[41][t]->getval(), _mem_county_rate[42][t]->getval(), _mem_county_rate[43][t]->getval(), _mem_county_rate[44][t]->getval(), _mem_county_rate[45][t]->getval(), _mem_county_rate[46][t]->getval(), _mem_county_rate[47][t]->getval(), _mem_county_rate[48][t]->getval(), _mem_county_rate[49][t]->getval(), _mem_county_rate[50][t]->getval(), _mem_county_rate[51][t]->getval(), _mem_county_rate[52][t]->getval(), _mem_county_rate[53][t]->getval(), _mem_county_rate[54][t]->getval(), _mem_county_rate[55][t]->getval(), _mem_county_rate[56][t]->getval(), _mem_county_rate[57][t]->getval(), _mem_county_rate[58][t]->getval(), _mem_county_rate[59][t]->getval(), _mem_county_rate[60][t]->getval(), _mem_county_rate[61][t]->getval(), _mem_county_rate[62][t]->getval(), _mem_county_rate[63][t]->getval(), _mem_county_rate[64][t]->getval(), _mem_county_rate[65][t]->getval(), _mem_county_rate[66][t]->getval(), _mem_county_rate[67][t]->getval(), _mem_county_rate[68][t]->getval(), _mem_county_rate[69][t]->getval(), _mem_county_rate[70][t]->getval(), _mem_county_rate[71][t]->getval(), _mem_county_rate[72][t]->getval(), _mem_county_rate[73][t]->getval(), _mem_county_rate[74][t]->getval(), _mem_county_rate[75][t]->getval(), _mem_county_rate[76][t]->getval(), _mem_county_rate[77][t]->getval(), _mem_county_rate[78][t]->getval(), _mem_county_rate[79][t]->getval(), _mem_county_rate[80][t]->getval(), _mem_county_rate[81][t]->getval()}))/__fixed_region_pop[r],0.00010000),Gaussian140617077228048.gen());
+  val=(Gaussian41927112.init(accu(__fixed_county_map[r]*vstack({_mem_county_rate[0][t]->getval(), _mem_county_rate[1][t]->getval(), _mem_county_rate[2][t]->getval(), _mem_county_rate[3][t]->getval(), _mem_county_rate[4][t]->getval(), _mem_county_rate[5][t]->getval(), _mem_county_rate[6][t]->getval(), _mem_county_rate[7][t]->getval(), _mem_county_rate[8][t]->getval(), _mem_county_rate[9][t]->getval(), _mem_county_rate[10][t]->getval(), _mem_county_rate[11][t]->getval(), _mem_county_rate[12][t]->getval(), _mem_county_rate[13][t]->getval(), _mem_county_rate[14][t]->getval(), _mem_county_rate[15][t]->getval(), _mem_county_rate[16][t]->getval(), _mem_county_rate[17][t]->getval(), _mem_county_rate[18][t]->getval(), _mem_county_rate[19][t]->getval(), _mem_county_rate[20][t]->getval(), _mem_county_rate[21][t]->getval(), _mem_county_rate[22][t]->getval(), _mem_county_rate[23][t]->getval(), _mem_county_rate[24][t]->getval(), _mem_county_rate[25][t]->getval(), _mem_county_rate[26][t]->getval(), _mem_county_rate[27][t]->getval(), _mem_county_rate[28][t]->getval(), _mem_county_rate[29][t]->getval(), _mem_county_rate[30][t]->getval(), _mem_county_rate[31][t]->getval(), _mem_county_rate[32][t]->getval(), _mem_county_rate[33][t]->getval(), _mem_county_rate[34][t]->getval(), _mem_county_rate[35][t]->getval(), _mem_county_rate[36][t]->getval(), _mem_county_rate[37][t]->getval(), _mem_county_rate[38][t]->getval(), _mem_county_rate[39][t]->getval(), _mem_county_rate[40][t]->getval(), _mem_county_rate[41][t]->getval(), _mem_county_rate[42][t]->getval(), _mem_county_rate[43][t]->getval(), _mem_county_rate[44][t]->getval(), _mem_county_rate[45][t]->getval(), _mem_county_rate[46][t]->getval(), _mem_county_rate[47][t]->getval(), _mem_county_rate[48][t]->getval(), _mem_county_rate[49][t]->getval(), _mem_county_rate[50][t]->getval(), _mem_county_rate[51][t]->getval(), _mem_county_rate[52][t]->getval(), _mem_county_rate[53][t]->getval(), _mem_county_rate[54][t]->getval(), _mem_county_rate[55][t]->getval(), _mem_county_rate[56][t]->getval(), _mem_county_rate[57][t]->getval(), _mem_county_rate[58][t]->getval(), _mem_county_rate[59][t]->getval(), _mem_county_rate[60][t]->getval(), _mem_county_rate[61][t]->getval(), _mem_county_rate[62][t]->getval(), _mem_county_rate[63][t]->getval(), _mem_county_rate[64][t]->getval(), _mem_county_rate[65][t]->getval(), _mem_county_rate[66][t]->getval(), _mem_county_rate[67][t]->getval(), _mem_county_rate[68][t]->getval(), _mem_county_rate[69][t]->getval(), _mem_county_rate[70][t]->getval(), _mem_county_rate[71][t]->getval(), _mem_county_rate[72][t]->getval(), _mem_county_rate[73][t]->getval(), _mem_county_rate[74][t]->getval(), _mem_county_rate[75][t]->getval(), _mem_county_rate[76][t]->getval(), _mem_county_rate[77][t]->getval(), _mem_county_rate[78][t]->getval(), _mem_county_rate[79][t]->getval(), _mem_county_rate[80][t]->getval(), _mem_county_rate[81][t]->getval()}))/__fixed_region_pop[r],0.00010000),Gaussian41927112.gen());
 }
 void _Var_region_rate::sample_cache()
 {
-  cache_val=(Gaussian140617077228048.init(accu(__fixed_county_map[r]*vstack({_mem_county_rate[0][t]->getcache(), _mem_county_rate[1][t]->getcache(), _mem_county_rate[2][t]->getcache(), _mem_county_rate[3][t]->getcache(), _mem_county_rate[4][t]->getcache(), _mem_county_rate[5][t]->getcache(), _mem_county_rate[6][t]->getcache(), _mem_county_rate[7][t]->getcache(), _mem_county_rate[8][t]->getcache(), _mem_county_rate[9][t]->getcache(), _mem_county_rate[10][t]->getcache(), _mem_county_rate[11][t]->getcache(), _mem_county_rate[12][t]->getcache(), _mem_county_rate[13][t]->getcache(), _mem_county_rate[14][t]->getcache(), _mem_county_rate[15][t]->getcache(), _mem_county_rate[16][t]->getcache(), _mem_county_rate[17][t]->getcache(), _mem_county_rate[18][t]->getcache(), _mem_county_rate[19][t]->getcache(), _mem_county_rate[20][t]->getcache(), _mem_county_rate[21][t]->getcache(), _mem_county_rate[22][t]->getcache(), _mem_county_rate[23][t]->getcache(), _mem_county_rate[24][t]->getcache(), _mem_county_rate[25][t]->getcache(), _mem_county_rate[26][t]->getcache(), _mem_county_rate[27][t]->getcache(), _mem_county_rate[28][t]->getcache(), _mem_county_rate[29][t]->getcache(), _mem_county_rate[30][t]->getcache(), _mem_county_rate[31][t]->getcache(), _mem_county_rate[32][t]->getcache(), _mem_county_rate[33][t]->getcache(), _mem_county_rate[34][t]->getcache(), _mem_county_rate[35][t]->getcache(), _mem_county_rate[36][t]->getcache(), _mem_county_rate[37][t]->getcache(), _mem_county_rate[38][t]->getcache(), _mem_county_rate[39][t]->getcache(), _mem_county_rate[40][t]->getcache(), _mem_county_rate[41][t]->getcache(), _mem_county_rate[42][t]->getcache(), _mem_county_rate[43][t]->getcache(), _mem_county_rate[44][t]->getcache(), _mem_county_rate[45][t]->getcache(), _mem_county_rate[46][t]->getcache(), _mem_county_rate[47][t]->getcache(), _mem_county_rate[48][t]->getcache(), _mem_county_rate[49][t]->getcache(), _mem_county_rate[50][t]->getcache(), _mem_county_rate[51][t]->getcache(), _mem_county_rate[52][t]->getcache(), _mem_county_rate[53][t]->getcache(), _mem_county_rate[54][t]->getcache(), _mem_county_rate[55][t]->getcache(), _mem_county_rate[56][t]->getcache(), _mem_county_rate[57][t]->getcache(), _mem_county_rate[58][t]->getcache(), _mem_county_rate[59][t]->getcache(), _mem_county_rate[60][t]->getcache(), _mem_county_rate[61][t]->getcache(), _mem_county_rate[62][t]->getcache(), _mem_county_rate[63][t]->getcache(), _mem_county_rate[64][t]->getcache(), _mem_county_rate[65][t]->getcache(), _mem_county_rate[66][t]->getcache(), _mem_county_rate[67][t]->getcache(), _mem_county_rate[68][t]->getcache(), _mem_county_rate[69][t]->getcache(), _mem_county_rate[70][t]->getcache(), _mem_county_rate[71][t]->getcache(), _mem_county_rate[72][t]->getcache(), _mem_county_rate[73][t]->getcache(), _mem_county_rate[74][t]->getcache(), _mem_county_rate[75][t]->getcache(), _mem_county_rate[76][t]->getcache(), _mem_county_rate[77][t]->getcache(), _mem_county_rate[78][t]->getcache(), _mem_county_rate[79][t]->getcache(), _mem_county_rate[80][t]->getcache(), _mem_county_rate[81][t]->getcache()}))/__fixed_region_pop[r],0.00010000),Gaussian140617077228048.gen());
+  cache_val=(Gaussian41927112.init(accu(__fixed_county_map[r]*vstack({_mem_county_rate[0][t]->getcache(), _mem_county_rate[1][t]->getcache(), _mem_county_rate[2][t]->getcache(), _mem_county_rate[3][t]->getcache(), _mem_county_rate[4][t]->getcache(), _mem_county_rate[5][t]->getcache(), _mem_county_rate[6][t]->getcache(), _mem_county_rate[7][t]->getcache(), _mem_county_rate[8][t]->getcache(), _mem_county_rate[9][t]->getcache(), _mem_county_rate[10][t]->getcache(), _mem_county_rate[11][t]->getcache(), _mem_county_rate[12][t]->getcache(), _mem_county_rate[13][t]->getcache(), _mem_county_rate[14][t]->getcache(), _mem_county_rate[15][t]->getcache(), _mem_county_rate[16][t]->getcache(), _mem_county_rate[17][t]->getcache(), _mem_county_rate[18][t]->getcache(), _mem_county_rate[19][t]->getcache(), _mem_county_rate[20][t]->getcache(), _mem_county_rate[21][t]->getcache(), _mem_county_rate[22][t]->getcache(), _mem_county_rate[23][t]->getcache(), _mem_county_rate[24][t]->getcache(), _mem_county_rate[25][t]->getcache(), _mem_county_rate[26][t]->getcache(), _mem_county_rate[27][t]->getcache(), _mem_county_rate[28][t]->getcache(), _mem_county_rate[29][t]->getcache(), _mem_county_rate[30][t]->getcache(), _mem_county_rate[31][t]->getcache(), _mem_county_rate[32][t]->getcache(), _mem_county_rate[33][t]->getcache(), _mem_county_rate[34][t]->getcache(), _mem_county_rate[35][t]->getcache(), _mem_county_rate[36][t]->getcache(), _mem_county_rate[37][t]->getcache(), _mem_county_rate[38][t]->getcache(), _mem_county_rate[39][t]->getcache(), _mem_county_rate[40][t]->getcache(), _mem_county_rate[41][t]->getcache(), _mem_county_rate[42][t]->getcache(), _mem_county_rate[43][t]->getcache(), _mem_county_rate[44][t]->getcache(), _mem_county_rate[45][t]->getcache(), _mem_county_rate[46][t]->getcache(), _mem_county_rate[47][t]->getcache(), _mem_county_rate[48][t]->getcache(), _mem_county_rate[49][t]->getcache(), _mem_county_rate[50][t]->getcache(), _mem_county_rate[51][t]->getcache(), _mem_county_rate[52][t]->getcache(), _mem_county_rate[53][t]->getcache(), _mem_county_rate[54][t]->getcache(), _mem_county_rate[55][t]->getcache(), _mem_county_rate[56][t]->getcache(), _mem_county_rate[57][t]->getcache(), _mem_county_rate[58][t]->getcache(), _mem_county_rate[59][t]->getcache(), _mem_county_rate[60][t]->getcache(), _mem_county_rate[61][t]->getcache(), _mem_county_rate[62][t]->getcache(), _mem_county_rate[63][t]->getcache(), _mem_county_rate[64][t]->getcache(), _mem_county_rate[65][t]->getcache(), _mem_county_rate[66][t]->getcache(), _mem_county_rate[67][t]->getcache(), _mem_county_rate[68][t]->getcache(), _mem_county_rate[69][t]->getcache(), _mem_county_rate[70][t]->getcache(), _mem_county_rate[71][t]->getcache(), _mem_county_rate[72][t]->getcache(), _mem_county_rate[73][t]->getcache(), _mem_county_rate[74][t]->getcache(), _mem_county_rate[75][t]->getcache(), _mem_county_rate[76][t]->getcache(), _mem_county_rate[77][t]->getcache(), _mem_county_rate[78][t]->getcache(), _mem_county_rate[79][t]->getcache(), _mem_county_rate[80][t]->getcache(), _mem_county_rate[81][t]->getcache()}))/__fixed_region_pop[r],0.00010000),Gaussian41927112.gen());
 }
 void _Var_region_rate::active_edge()
 {
@@ -1419,7 +1419,7 @@ int main()
   __start_time=std::chrono::system_clock::now();
   swift::sample();
   __elapsed_seconds=std::chrono::system_clock::now()-__start_time;
-  printf("\nsample time: %fs (#iter = %d)\n",__elapsed_seconds.count(),100);
+  printf("\nsample time: %fs (#iter = %d)\n",__elapsed_seconds.count(),10000000);
   swift::_print_answer();
   swift::_garbage_collection();
 }
