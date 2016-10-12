@@ -86,3 +86,6 @@ random Real region_rate(Region r, Week t) ~
       county_rate(counties[81], t))) / region_pop[toInt(r)],
     0.000100);
 
+
+obs region_rate(r, t) = observations[toInt(t)][toInt(r)] for Region r, Week t : observations[toInt(t)][toInt(r)] != 0.0;
+query county_rate(c, t) for County c, Week t;

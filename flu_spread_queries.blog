@@ -1,2 +1,0 @@
-
-query county_rate(c, t) for County c, Week t;

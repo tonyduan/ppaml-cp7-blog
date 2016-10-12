@@ -19,9 +19,8 @@ random Real beta2 ~ Gaussian(0.0, 10.0);
 // ----
 // load data
 // ----
-fixed RealMatrix county_pop = loadRealMatrix("data_processed/county_pops.txt");
-fixed RealMatrix region_pop = loadRealMatrix("data_processed/region_pops.txt");
 fixed RealMatrix county_map = loadRealMatrix("data_processed/county_map.txt");
+fixed RealMatrix region_pop = loadRealMatrix("data_processed/region_pops.txt");
 
 fixed RealMatrix covariates1 = loadRealMatrix("data_processed/covariates1.txt");
 fixed RealMatrix covariates2 = loadRealMatrix("data_processed/covariates2.txt");
@@ -44,18 +43,6 @@ random Real y(County c, Week t) ~
 // the boolean distribution doesn't matter because only likelihoods are
 // considered (thanks Nishant!)
 // ---
-/*
-random Boolean spatial_edge(County c1, Week t1, County c2, Week t2) ~
-  BooleanDistrib(  exp(tau1 * y(c1, t1) * y(c2, t2))  );
-
-random Boolean temporal_edge(County c1, Week t1, County c2, Week t2) ~
-  BooleanDistrib(  exp(tau1 * rho * y(c1, t1) * y(c2, t2))  );
-
-// number of temporal edges: # counties * # weeks ~ 8200
-// number of spatial edges: # counties * # counties ~ 6724
-obs temporal_edge(c1, t1, c2, t2) = true for County c1, Week t1, County c2, Week t2 : toInt(t1) + 1 == toInt(t2);
-obs spatial_edge(c1, t1, c2, t2) = true for County c1, Week t1, County c2, Week t2 : W[toInt(c1)][toInt(c2)] == 1.0;
-*/
 random Boolean temporal_edge(Week t1, Week t2, County c) ~
   BooleanDistrib( exp(tau1 * y(c, t1) * y(c, t2)) );
 
@@ -174,6 +161,4 @@ random Real region_rate(Region r, Week t) ~
 
 
 obs region_rate(r, t) = observations[toInt(t)][toInt(r)] for Region r, Week t : observations[toInt(t)][toInt(r)] != 0.0;
-
-
 query county_rate(c, t) for County c, Week t;

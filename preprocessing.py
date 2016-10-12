@@ -190,7 +190,7 @@ county_pop_matrix = np.array(county_pop_matrix)
 cov1_matrix = np.array(cov1_matrix)
 cov2_matrix = np.array(cov2_matrix)
     
-np.savetxt('data_processed/county_pops.txt', county_pop_matrix)
+# np.savetxt('data_processed/county_pops.txt', county_pop_matrix)
 np.savetxt('data_processed/covariates1.txt', cov1_matrix)
 np.savetxt('data_processed/covariates2.txt', cov2_matrix)
 
@@ -329,28 +329,6 @@ distinct Week weeks[{2}];
 header_file.close()
 
 
-# #### Write region-level rates BLOG code
-
-# In[205]:
-
-region_file = open("flu_spread_region_rates.blog", "w")
-region_variance = 0.0001
-
-
-# In[206]:
-
-region_file.write("""
-random Real region_rate(Region r, Week t) ~ 
-  Gaussian(
-    accu(county_map[toInt(r)] * vstack(
-""")
-for i in range(len(counties) - 1):
-    region_file.write("      county_rate(counties[%d], t),\n" % i)
-region_file.write("      county_rate(counties[%d], t))) / region_pop[toInt(r)],\n" % (len(counties) - 1))
-region_file.write("    %f);\n\n" % region_variance)
-region_file.close()
-
-
 # #### Write observations.
 # 
 # We ignore any entries that are NaN in the training data.
@@ -379,39 +357,28 @@ for i, row in ili_data.iterrows():
 np.savetxt("data_processed/obs.txt", obs)
 
 
-# In[202]:
+# #### Write region-level rates BLOG code, observations, and queries.
 
-obs_file = open("flu_spread_obs.blog", "w")
-obs_file.write("""
-obs region_rate(r, t) = observations[toInt(t)][toInt(r)] for Region r, Week t : observations[toInt(t)][toInt(r)] != 0.0;
+# In[244]:
 
+footer_file = open("flu_spread_footer.blog", "w")
+region_variance = 0.0001
+
+
+# In[245]:
+
+footer_file.write("""
+random Real region_rate(Region r, Week t) ~ 
+  Gaussian(
+    accu(county_map[toInt(r)] * vstack(
 """)
-obs_file.close()
-
-
-# #### Write queries.
-# 
-# Query for every county at every timestep.
-
-# In[207]:
-
-queries_file = open('flu_spread_queries.blog', 'w')
-queries_file.write("""
+for i in range(len(counties) - 1):
+    footer_file.write("      county_rate(counties[%d], t),\n" % i)
+footer_file.write("      county_rate(counties[%d], t))) / region_pop[toInt(r)],\n" % (len(counties) - 1))
+footer_file.write("    %f);\n\n" % region_variance)
+footer_file.write("""
+obs region_rate(r, t) = observations[toInt(t)][toInt(r)] for Region r, Week t : observations[toInt(t)][toInt(r)] != 0.0;
 query county_rate(c, t) for County c, Week t;
 """)
-queries_file.close()
-
-
-# In[204]:
-
-"""
-for j, _ in enumerate(dates):
-    for i, county in index_to_county.items():        
-        queries_file.write('query county_rate(counties[%d], weeks[%d]);\n' % (i, j))
-"""
-
-
-# In[ ]:
-
-
+footer_file.close()
 
