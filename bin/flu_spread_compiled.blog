@@ -37,19 +37,23 @@ fixed RealMatrix observations = loadRealMatrix("data_processed/obs.txt");
 random Real y(County c, Week t) ~
   Gaussian(0.0, D[toInt(c)]);
 
+// Utility methods for converting ints to objects
+fixed County toCounty(Integer i) = i;
+fixed Week toWeek(Integer i) = i;
+
 // ---
 // define spatial edges and temporal edges and observe them to be true.
 // using Metropolis-Hastings or Gibbs Sampling, the actual parameter into
 // the boolean distribution doesn't matter because only likelihoods are
 // considered (thanks Nishant!)
 // ---
-random Boolean temporal_edge(Week t1, Week t2, County c) ~
-  BooleanDistrib( exp(tau1 * y(c, t1) * y(c, t2)) );
+random Boolean temporal_edge(Week t, County c) ~ 
+  BooleanDistrib( exp(tau1 * y(c, t) * y(c, toWeek(toInt(t)-1))) );
 
 random Boolean spatial_edge(County c1, County c2, Week t) ~
   BooleanDistrib( exp(tau1 * rho * y(c1, t) * y(c2, t)) );
 
-obs temporal_edge(t1, t2, c) = true for Week t1, Week t2, County c : toInt(t1) + 1 == toInt(t2);
+obs temporal_edge(t, c) = true for Week t, County c : toInt(t) > 0;
 obs spatial_edge(c1, c2, t) = true for County c1, County c2, Week t: W[toInt(c1)][toInt(c2)] == 1.0;
 
 // ----
