@@ -1,7 +1,8 @@
 default: compile
 
-preprocessor:
+processors:
 	jupyter nbconvert --to=script preprocessing.ipynb
+	jupyter nbconvert --to=script postprocessing.ipynb
 
 preprocess_small:
 	python3 preprocessing.py Small
@@ -12,6 +13,9 @@ preprocess_middle:
 preprocess_full:
 	python3 preprocessing.py Full
 
+postprocess_small:
+	python3 postprocessing.py out/output_small.txt
+
 compile:
 	cat flu_spread_header.blog \
         flu_spread_model.blog \
@@ -20,8 +24,8 @@ compile:
 	../swift/swift \
          -i bin/flu_spread_compiled.blog \
          -o bin/flu_spread_compiled.cpp \
-         -e MHSampler \
-         -n 10000000
+         -e GibbsSampler \
+         -n 1000000
 
 	g++ -I bin -Ofast -std=c++11 \
 		bin/flu_spread_compiled.cpp \

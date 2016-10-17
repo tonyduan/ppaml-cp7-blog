@@ -22,12 +22,13 @@
 # <img style="display:inline;" src="images/gmrf.png" /><img style="display:inline;"  src="images/adjacency.png" />
 # <img style="display:inline;" src="images/model.png" />
 
-# In[229]:
+# In[265]:
 
 import functools
 import json
 import numpy as np
 import pandas as pd
+import pickle
 import re
 import sys
 
@@ -381,4 +382,23 @@ obs region_rate(r, t) = observations[toInt(t)][toInt(r)] for Region r, Week t : 
 query county_rate(c, t) for County c, Week t;
 """)
 footer_file.close()
+
+
+# #### Save necessary data for post-processing.
+
+# In[275]:
+
+with open("log/dates.pickle", "wb") as outfile:
+    pickle.dump(dates, outfile)
+
+
+# In[276]:
+
+with open("log/index_to_county.pickle", "wb") as outfile:
+    pickle.dump(index_to_county, outfile)
+
+
+# In[ ]:
+
+
 

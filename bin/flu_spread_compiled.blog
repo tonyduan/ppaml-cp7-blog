@@ -31,23 +31,24 @@ fixed RealMatrix W = loadRealMatrix("data_processed/W.txt");
 fixed RealMatrix observations = loadRealMatrix("data_processed/obs.txt");
 
 // ---
+// (hack) utility function to convert integer to a week.
+// ---
+fixed Week toWeek(Integer i) = i;
+
+// ---
 // correlation has a prior distributed Gaussian with mean zero,
-// variance defined by the diagonal matrix, treated here as a vector
+// variance defined by the diagonal matrix.
 // ---
 random Real y(County c, Week t) ~
   Gaussian(0.0, D[toInt(c)]);
-
-// Utility methods for converting ints to objects
-fixed County toCounty(Integer i) = i;
-fixed Week toWeek(Integer i) = i;
 
 // ---
 // define spatial edges and temporal edges and observe them to be true.
 // using Metropolis-Hastings or Gibbs Sampling, the actual parameter into
 // the boolean distribution doesn't matter because only likelihoods are
-// considered (thanks Nishant!)
+// considered (thanks Nishant!).
 // ---
-random Boolean temporal_edge(Week t, County c) ~ 
+random Boolean temporal_edge(Week t, County c) ~
   BooleanDistrib( exp(tau1 * y(c, t) * y(c, toWeek(toInt(t)-1))) );
 
 random Boolean spatial_edge(County c1, County c2, Week t) ~
@@ -57,7 +58,7 @@ obs temporal_edge(t, c) = true for Week t, County c : toInt(t) > 0;
 obs spatial_edge(c1, c2, t) = true for County c1, County c2, Week t: W[toInt(c1)][toInt(c2)] == 1.0;
 
 // ----
-// county rate calculated by logit model.
+// county rate is calculated by logit model.
 // ----
 random Real noise(County c, Week t) ~
   Gaussian(0.0, 1.0 / tau2);
