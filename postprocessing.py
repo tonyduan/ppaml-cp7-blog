@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[73]:
+# In[1]:
 
 import json
 import pickle
@@ -10,7 +10,7 @@ import sys
 from collections import defaultdict
 
 
-# In[19]:
+# In[2]:
 
 def is_kernel():
     if 'IPython' not in sys.modules:
@@ -19,7 +19,7 @@ def is_kernel():
     return getattr(get_ipython(), 'kernel', None) is not None
 
 
-# In[20]:
+# In[3]:
 
 if not is_kernel():
     if len(sys.argv) <= 1:
@@ -32,7 +32,7 @@ else:
 
 # #### Parse out the county-level flu rates.
 
-# In[59]:
+# In[13]:
 
 pattern = r"query : county_rate\(County\[(\d+)\], Week\[(\d+)\]\)\n{2}Mean = (\d+\.\d+)\s"
 
@@ -40,20 +40,33 @@ with open(OUTPUT_FILE, "r") as output_file:
     searches = re.findall(pattern, output_file.read())
 
 
-# In[60]:
+# In[18]:
+
+pattern = r"query : county_rate\(County\[(\d+)\], Week\[(\d+)\]\)\n{2}Mean = -(\d+\.\d+)\s"
+
+with open(OUTPUT_FILE, "r") as output_file:
+    neg_searches = re.findall(pattern, output_file.read())
+
+
+# In[19]:
+
+searches = searches + neg_searches
+
+
+# In[5]:
 
 predictions = {}
 for q in searches:
     predictions[int(q[0]), int(q[1])] = float(q[2])
 
 
-# In[61]:
+# In[6]:
 
 with open("log/index_to_county.pickle", "rb") as picklefile:
     index_to_county = pickle.load(picklefile)
 
 
-# In[62]:
+# In[7]:
 
 with open("log/dates.pickle", "rb") as picklefile:
     dates = pickle.load(picklefile)
@@ -82,6 +95,8 @@ for (i, fips) in index_to_county.items():
 with open("out/CountyWeeklyILI.json", "w") as jsonfile:
     jsonfile.write(json.dumps(output_dict))
 
+
+# #### Evaluate
 
 # In[ ]:
 
