@@ -117,7 +117,7 @@ eval_data = []
 
 # In[208]:
 
-with open("data/Small/eval/Flu_ILI_TRUTH.csv", "r") as csvfile:
+with open("data/%s/eval/Flu_ILI_TRUTH.csv" % INPUT_SIZE, "r") as csvfile:
     reader = csv.DictReader(csvfile)
     for row in reader:
         eval_data.append(row)

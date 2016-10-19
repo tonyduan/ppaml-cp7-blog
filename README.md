@@ -13,28 +13,27 @@ Make sure that the directory hierarchy looks something like:
 
     /swift
     /ppaml-blog-cp7
-      /bin
-      /out
-      /data
+      readme.md
+      ...
 
 That is, the `swift` directory is one level up from this readme file.
 
 Then run the inference code for the dataset of your choice; pick one of:
 
-    make run_small
-    make run_middle
-    make run_full
+    make run_small      # writes to out/Small/CountyWeeklyILI.json
+    make run_middle       # writes to out/Middle/CountyWeeklyILI.json
+    make run_full         # writes to out/Full/CountyWeeklyILI.json
 
-Output will be in corresponding file:
-
-    out/Small/CountyWeeklyILI.json
-    out/Middle/CountyWeeklyILI.json
-    out/Full/CountyWeeklyILI.json
-
-Total loss (as calculated by my evaluation script) will be printed as well.
+Total loss (as calculated by our evaluation script) will be printed as well.
 
 ## Details
 
-By default, runs the Metropolis-Hastings algorithm with 10 million samples.
+By default, runs the Metropolis-Hastings algorithm with 1 million samples.
 
 Our setup script works on Amazon EC2 Ubuntu 14.04.
+
+Requirements are approximately:
+
+- Small dataset: 2 GB RAM
+- Middle dataset: 8 GB RAM
+- Full dataset: 80 GB RAM
