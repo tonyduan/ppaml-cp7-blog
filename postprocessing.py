@@ -1,16 +1,18 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[184]:
 
+import csv
 import json
+import numpy as np
 import pickle
 import re
 import sys
 from collections import defaultdict
 
 
-# In[2]:
+# In[185]:
 
 def is_kernel():
     if 'IPython' not in sys.modules:
@@ -19,67 +21,77 @@ def is_kernel():
     return getattr(get_ipython(), 'kernel', None) is not None
 
 
-# In[3]:
+# In[186]:
 
 if not is_kernel():
     if len(sys.argv) <= 1:
-        print("Need to specify output file.")
+        print("Need to specify input size.")
         sys.exit()
-    OUTPUT_FILE = sys.argv[1]
+    INPUT_SIZE = sys.argv[1]
 else:
-    OUTPUT_FILE = 'out/output_small.txt'
+    INPUT_SIZE = "Small"
 
 
 # #### Parse out the county-level flu rates.
 
-# In[13]:
+# In[187]:
 
-pattern = r"query : county_rate\(County\[(\d+)\], Week\[(\d+)\]\)\n{2}Mean = (\d+\.\d+)\s"
-
-with open(OUTPUT_FILE, "r") as output_file:
-    searches = re.findall(pattern, output_file.read())
+OUTPUT_FILE = "out/output_%s.txt" % INPUT_SIZE.lower()
 
 
-# In[18]:
+# In[197]:
 
-pattern = r"query : county_rate\(County\[(\d+)\], Week\[(\d+)\]\)\n{2}Mean = -(\d+\.\d+)\s"
+pos_pattern = r"query : county_rate\(County\[(\d+)\], Week\[(\d+)\]\)\n{2}Mean = (\d+\.\d+)\s"
+neg_pattern = r"query : county_rate\(County\[(\d+)\], Week\[(\d+)\]\)\n{2}Mean = -(\d+\.\d+)\s"
 
 with open(OUTPUT_FILE, "r") as output_file:
-    neg_searches = re.findall(pattern, output_file.read())
+    pos_searches = re.findall(pos_pattern, output_file.read())
+    output_file.seek(0)
+    neg_searches = re.findall(neg_pattern, output_file.read())
+    
+searches = pos_searches + neg_searches
 
 
-# In[19]:
-
-searches = searches + neg_searches
-
-
-# In[5]:
+# In[199]:
 
 predictions = {}
 for q in searches:
     predictions[int(q[0]), int(q[1])] = float(q[2])
 
 
-# In[6]:
+# In[200]:
+
+for k, v in predictions.items():
+    if v < 0:
+        predictions[k] = 0
+
+
+# In[201]:
 
 with open("log/index_to_county.pickle", "rb") as picklefile:
     index_to_county = pickle.load(picklefile)
 
 
-# In[7]:
+# In[202]:
 
 with open("log/dates.pickle", "rb") as picklefile:
     dates = pickle.load(picklefile)
 
 
+# In[203]:
+
+with open("log/index_to_region.pickle", "rb") as picklefile:
+    index_to_region = pickle.load(picklefile)
+
+
 # #### Write output JSON.
 
-# In[70]:
+# In[204]:
 
 output_dict = {}
 
 
-# In[71]:
+# In[205]:
 
 for (i, fips) in index_to_county.items():
     county_dict = {
@@ -90,13 +102,69 @@ for (i, fips) in index_to_county.items():
     output_dict[fips] = county_dict
 
 
-# In[77]:
+# In[206]:
 
-with open("out/CountyWeeklyILI.json", "w") as jsonfile:
+with open("out/%s/CountyWeeklyILI.json" % INPUT_SIZE, "w") as jsonfile:
     jsonfile.write(json.dumps(output_dict))
 
 
 # #### Evaluate
+
+# In[207]:
+
+eval_data = []
+
+
+# In[208]:
+
+with open("data/Small/eval/Flu_ILI_TRUTH.csv", "r") as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+        eval_data.append(row)
+
+
+# In[210]:
+
+county_map_matrix = np.loadtxt("./data_processed/county_map.txt")
+region_pop_matrix = np.loadtxt("./data_processed/region_pops.txt")
+
+
+# In[211]:
+
+print(county_map_matrix.shape)
+print(region_pop_matrix.shape)
+
+
+# In[212]:
+
+loss = 0.0
+
+
+# In[213]:
+
+for t, date in enumerate(dates):
+    county_vector = [predictions[(i, t)] for i in index_to_county.keys()]
+    region_rates = np.dot(county_map_matrix, county_vector) / np.sum(county_map_matrix, axis = 1)
+    
+    for i, predicted_rate in enumerate(region_rates):
+        if eval_data[t][index_to_region[i]] != 'NaN':
+            loss += region_pop_matrix[i] * (predicted_rate * 100 - float(eval_data[t][index_to_region[i]][0:-1]))**2
+
+
+# In[214]:
+
+print("Total loss:", loss)
+
+
+# In[215]:
+
+print("MSE:", loss / np.sum(region_pop_matrix) / np.sum(len(dates)))
+
+
+# In[220]:
+
+print("RMSE:", (loss / np.sum(region_pop_matrix) / np.sum(len(dates)))**0.5)
+
 
 # In[ ]:
 

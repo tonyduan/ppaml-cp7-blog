@@ -4,17 +4,23 @@ processors:
 	jupyter nbconvert --to=script preprocessing.ipynb
 	jupyter nbconvert --to=script postprocessing.ipynb
 
-preprocess_small:
+run_small:
 	python3 preprocessing.py Small
+	make compile
+	./flu_spread_compiled > out/output_small.txt
+	python3 postprocessing.py Small
 
-preprocess_middle:
+run_middle:
 	python3 preprocessing.py Middle
+	make compile
+	./flu_spread_compiled > out/output_middle.txt
+	python3 postprocessing.py Middle
 
-preprocess_full:
+run_full:
 	python3 preprocessing.py Full
-
-postprocess_small:
-	python3 postprocessing.py out/output_small.txt
+	make compile
+	./flu_spread_compiled > out/output_middle.txt
+	python3 postprocessing.py Full
 
 compile:
 	cat flu_spread_header.blog \
@@ -31,6 +37,3 @@ compile:
 		bin/flu_spread_compiled.cpp \
 		../swift/src/random/*.cpp \
 		-o flu_spread_compiled -larmadillo;
-
-run:
-	./flu_spread_compiled > out/output.txt

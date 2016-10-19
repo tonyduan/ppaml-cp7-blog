@@ -22,7 +22,7 @@
 # <img style="display:inline;" src="images/gmrf.png" /><img style="display:inline;"  src="images/adjacency.png" />
 # <img style="display:inline;" src="images/model.png" />
 
-# In[265]:
+# In[298]:
 
 import functools
 import json
@@ -36,7 +36,7 @@ from collections import defaultdict
 from datetime import datetime
 
 
-# In[233]:
+# In[299]:
 
 def is_kernel():
     if 'IPython' not in sys.modules:
@@ -45,7 +45,7 @@ def is_kernel():
     return getattr(get_ipython(), 'kernel', None) is not None
 
 
-# In[236]:
+# In[300]:
 
 if not is_kernel():
     if len(sys.argv) <= 1:
@@ -53,14 +53,14 @@ if not is_kernel():
         sys.exit()
     TRAINING_SIZE = sys.argv[1]
 else:
-    TRAINING_SIZE = 'Middle'
+    TRAINING_SIZE = 'Small'
 
 
 # #### Load the data.
 # 
 # Need to make sure to load from the right training data size.
 
-# In[221]:
+# In[301]:
 
 ili_data            = pd.read_csv("data/%s/input/Flu_ILI.csv" % TRAINING_SIZE)
 tweets_data         = json.load(open("data/%s/input/Flu_Vacc_Tweet_TRAIN.json" % TRAINING_SIZE))
@@ -74,12 +74,12 @@ county_adjacency    = json.load(open("data/%s/input/county_adjacency_lower48.jso
 # It's important that the dates are in chronological order.<br/>
 # The index of the event is important for writing observations.
 
-# In[222]:
+# In[302]:
 
 dates = list(map(lambda s: datetime.strptime(s, "%m/%d/%Y").date().strftime('%m/%d/%Y'), ili_data["Ending"]))
 
 
-# In[223]:
+# In[303]:
 
 print("Number of dates:", len(dates))
 
@@ -105,14 +105,14 @@ print("Number of dates:", len(dates))
 # The covariate matrices should be of size $n$ by $d$.<br />
 # The population vector should be of size $n$ by $1$.
 
-# In[224]:
+# In[304]:
 
 fips_to_cov1 = defaultdict(list)
 fips_to_cov2 = defaultdict(list)
 fips_to_pop = {}
 
 
-# In[225]:
+# In[305]:
 
 for fips_code, blob in tweets_data.items():
     
@@ -139,7 +139,7 @@ for fips_code, blob in tweets_data.items():
 # 
 # We extract regions and counties for *only* the relevant counties from the training data.<br />
 
-# In[226]:
+# In[306]:
 
 regions = set()
 for i, col in enumerate(ili_data.columns):
@@ -147,14 +147,14 @@ for i, col in enumerate(ili_data.columns):
         regions.add(col)
 
 
-# In[227]:
+# In[307]:
 
 counties = set()
 for r in regions:
     counties = counties.union(set(regions_to_counties[r].keys()))
 
 
-# In[228]:
+# In[308]:
 
 print('Number of regions:', len(regions))
 print('Number of counties:', len(counties))
@@ -168,7 +168,7 @@ print('Number of counties:', len(counties))
 # - index_to_county
 # - county_to_index
 
-# In[183]:
+# In[309]:
 
 county_to_index = {}
 for i, fips in enumerate(counties):
@@ -176,7 +176,7 @@ for i, fips in enumerate(counties):
 index_to_county = {v: k for k, v in county_to_index.items()}
 
 
-# In[184]:
+# In[310]:
 
 county_pop_matrix = []
 cov1_matrix = []
@@ -190,13 +190,12 @@ for i, fips in index_to_county.items():
 county_pop_matrix = np.array(county_pop_matrix)
 cov1_matrix = np.array(cov1_matrix)
 cov2_matrix = np.array(cov2_matrix)
-    
-# np.savetxt('data_processed/county_pops.txt', county_pop_matrix)
+
 np.savetxt('data_processed/covariates1.txt', cov1_matrix)
 np.savetxt('data_processed/covariates2.txt', cov2_matrix)
 
 
-# In[185]:
+# In[311]:
 
 print(cov1_matrix.shape)
 print(cov2_matrix.shape)
@@ -214,7 +213,7 @@ print(county_pop_matrix.shape)
 # 
 # The resulting matrix should be of size $m$ by $n$.
 
-# In[239]:
+# In[312]:
 
 region_to_index = {}
 for i, r in enumerate(regions):
@@ -222,7 +221,7 @@ for i, r in enumerate(regions):
 index_to_region = {v: k for k, v in region_to_index.items()}
 
 
-# In[240]:
+# In[313]:
 
 county_map_matrix = np.zeros((len(regions), len(counties)))
 region_pop_matrix = [0] * len(regions)
@@ -236,13 +235,13 @@ for i, r in index_to_region.items():
         region_pop_matrix[i] += fips_to_pop[fips]
 
 
-# In[241]:
+# In[314]:
 
 np.savetxt('data_processed/county_map.txt', county_map_matrix)
 np.savetxt('data_processed/region_pops.txt', region_pop_matrix)
 
 
-# In[242]:
+# In[315]:
 
 print(county_map_matrix.shape)
 
@@ -261,7 +260,7 @@ print(county_map_matrix.shape)
 # $$Dw_{i,i} = \sum_j W_{i,j}$$
 # And $I$ is meant for regularization to ensure the matrix is positive definite.
 
-# In[190]:
+# In[316]:
 
 W = np.zeros(((len(counties), len(counties))))
 
@@ -284,12 +283,12 @@ for blob in county_adjacency.values():
         W[j][i] = 1
 
 
-# In[191]:
+# In[317]:
 
 np.savetxt("data_processed/W.txt", W)
 
 
-# In[192]:
+# In[318]:
 
 D = np.zeros(((len(counties), len(counties))))
 
@@ -297,24 +296,19 @@ for i in range(len(counties)):
     D[i,i] = np.sum(W[i,:])
 
 
-# In[193]:
+# In[319]:
 
 print(D)
 
 
-# In[194]:
+# In[320]:
 
 np.savetxt('data_processed/D.txt', np.diag(D))
 
 
-# In[195]:
-
-# np.savetxt('data_processed/corr_cov.txt', np.eye(len(counties)))
-
-
 # #### Write headers for BLOG code
 
-# In[196]:
+# In[321]:
 
 header_file = open("flu_spread_header.blog", "w")
 header_file.write("""
@@ -334,12 +328,12 @@ header_file.close()
 # 
 # We ignore any entries that are NaN in the training data.
 
-# In[199]:
+# In[322]:
 
 obs = np.zeros((len(dates), len(regions)))
 
 
-# In[200]:
+# In[323]:
 
 for i, row in ili_data.iterrows():
     
@@ -350,23 +344,22 @@ for i, row in ili_data.iterrows():
             
         rate = float(row[region].strip('%')) / 100
         obs[i][j] = rate
-#         obs_file.write('obs region_rate(regions[%d], weeks[%d]) = %0.4f;\n' % (j, i, rate))
 
 
-# In[201]:
+# In[324]:
 
 np.savetxt("data_processed/obs.txt", obs)
 
 
 # #### Write region-level rates BLOG code, observations, and queries.
 
-# In[244]:
+# In[325]:
 
 footer_file = open("flu_spread_footer.blog", "w")
 region_variance = 0.0001
 
 
-# In[245]:
+# In[326]:
 
 footer_file.write("""
 random Real region_rate(Region r, Week t) ~ 
@@ -386,16 +379,22 @@ footer_file.close()
 
 # #### Save necessary data for post-processing.
 
-# In[275]:
+# In[327]:
 
 with open("log/dates.pickle", "wb") as outfile:
     pickle.dump(dates, outfile)
 
 
-# In[276]:
+# In[328]:
 
 with open("log/index_to_county.pickle", "wb") as outfile:
     pickle.dump(index_to_county, outfile)
+
+
+# In[329]:
+
+with open("log/index_to_region.pickle", "wb") as outfile:
+    pickle.dump(index_to_region, outfile)
 
 
 # In[ ]:
