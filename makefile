@@ -19,7 +19,7 @@ run_middle:
 run_full:
 	python3 preprocessing.py Full
 	make compile
-	./flu_spread_compiled > out/output_middle.txt
+	./flu_spread_compiled > out/output_full.txt
 	python3 postprocessing.py Full
 
 compile:

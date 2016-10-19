@@ -29,12 +29,12 @@ Total loss (as calculated by our evaluation script) will be printed as well.
 
 ## Details
 
-By default, runs the Metropolis-Hastings algorithm with 1 million samples.
+By default, runs the Metropolis-Hastings algorithm.
 
 Our setup script works on Amazon EC2 Ubuntu 14.04.
 
 Requirements are approximately:
 
-- Small dataset: 2 GB RAM
-- Middle dataset: 8 GB RAM
+- Small dataset: 2 GB RAM. Runs 5 million samples.
+- Middle dataset: 8 GB RAM. Runs 50 million samples.
 - Full dataset: 80 GB RAM
