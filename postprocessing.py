@@ -64,6 +64,8 @@ for q in searches:
 for k, v in predictions.items():
     if v < 0:
         predictions[k] = 0
+    if v > 0.5:
+        predictions[k] = 0
 
 
 # In[201]:

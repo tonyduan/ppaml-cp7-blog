@@ -25,6 +25,7 @@ git pull origin quantify-query:quantify-query
 git checkout quantify-query
 make compile
 cd ..
+mv swift ..
 
 # install requirements
 
