@@ -1,6 +1,7 @@
 # CP7 Submission for BLOG
 
 University of California, Berkeley
+
 Submission for BLOG by Prof. Stuart Russell's group.
 
 ## Instructions
@@ -20,7 +21,7 @@ That is, the `swift` directory is one level up from this readme file.
 
 Then run the inference code for the dataset of your choice; pick one of:
 
-    make run_small      # writes to out/Small/CountyWeeklyILI.json
+     make run_small      # writes to out/Small/CountyWeeklyILI.json
     make run_middle       # writes to out/Middle/CountyWeeklyILI.json
     make run_full         # writes to out/Full/CountyWeeklyILI.json
 
