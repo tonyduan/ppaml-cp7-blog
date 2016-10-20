@@ -31,7 +31,8 @@ compile:
          -i bin/flu_spread_compiled.blog \
          -o bin/flu_spread_compiled.cpp \
          -e GibbsSampler \
-         -n 1000000
+         -n 1000000 \
+		 --burn-in 999995
 
 	g++ -I bin -Ofast -std=c++11 \
 		bin/flu_spread_compiled.cpp \

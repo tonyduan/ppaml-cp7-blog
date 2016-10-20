@@ -1,9 +1,0 @@
-
-type County;
-type Region;
-type Week;
-
-distinct County counties[82];
-distinct Region regions[9];
-distinct Week weeks[103];
-

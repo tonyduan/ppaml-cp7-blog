@@ -5,6 +5,7 @@
 sudo apt-get update
 sudo apt-get install git g++ cmake libopenblas-dev liblapack-dev libarpack++2-dev unrar
 sudo apt-get install python3 python3-pip
+pip3 install -r requirements.txt
 
 # extract and configure armadillo
 

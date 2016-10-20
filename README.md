@@ -10,31 +10,39 @@ To install BLOG, Python3, and the C++ Armadillo library, run the setup script.
 
     ./setup.sh
 
-Make sure that the directory hierarchy looks something like:
+Make sure that the directory hierarchy looks like:
 
     /swift
     /ppaml-blog-cp7
       readme.md
       ...
 
-That is, the `swift` directory is one level up from this readme file.
+That is, the `swift` repository is one level up from this readme file.
 
-Then run the inference code for the dataset of your choice; pick one of:
+Then run the inference code. Example usage:
 
-    make run_small        # writes to out/Small/CountyWeeklyILI.json
-    make run_middle       # writes to out/Middle/CountyWeeklyILI.json
-    make run_full         # writes to out/Full/CountyWeeklyILI.json
+    ./run.sh config/solution-smoketest input/Small results/Small results/Small/log.txt
 
-Total loss (as calculated by our evaluation script) will be printed as well.
+Total loss as calculated by our evaluation script will be logged.
+
+## Solutions
+
+We ran our code for the Small and Middle datasets and the corresponding solutions can be found in the `solns` folder.
 
 ## Details
 
-By default, runs the Metropolis-Hastings algorithm.
+Using our config, runs the Metropolis-Hastings algorithm with local Gaussian proposal, using 10 million samples.
 
 Our setup script works on Amazon EC2 Ubuntu 14.04.
 
 Requirements are approximately:
 
-- Small dataset: 2 GB RAM. Runs 5 million samples.
-- Middle dataset: 8 GB RAM. Runs 50 million samples.
-- Full dataset: 80 GB RAM
+- Small dataset: 2 GB RAM.
+- Middle dataset: 8 GB RAM.
+- Full dataset: 80 GB RAM.
+
+## Miscellaneous Notes
+
+- the `makefile` submitted was used for internal testing purposes.
+- compiled BLOG code will be written to the `bin` folder.
+- due to the way our preprocessing code works, need to ensure the input folder is not `data/Full`.
