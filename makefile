@@ -32,7 +32,9 @@ compile:
          -o bin/flu_spread_compiled.cpp \
          -e GibbsSampler \
          -n 1000000 \
-		 --burn-in 999995
+         --burn-in 999995
+
+	sed -i '.bk' 's/accu(__fixed_county_map\[r\]\*/dot(__fixed_county_map.row(r),/g' bin/flu_spread_compiled.cpp
 
 	g++ -I bin -Ofast -std=c++11 \
 		bin/flu_spread_compiled.cpp \
