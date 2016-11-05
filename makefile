@@ -30,7 +30,7 @@ compile:
 	../swift/swift \
          -i bin/flu_spread_compiled.blog \
          -o bin/flu_spread_compiled.cpp \
-         -e GibbsSampler \
+         -e MHSampler \
          -n 70000000 \
          --burn-in 69999995
 
