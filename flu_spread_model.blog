@@ -56,7 +56,7 @@ random Real noise(County c, Week t) ~
 
 random Real logit(County c, Week t) ~
   toReal(beta1 * covariates1[toInt(c)][toInt(t)] +
-/*         beta2 * covariates2[toInt(c)][toInt(t)] +*/
+         beta2 * covariates2[toInt(c)][toInt(t)] +
          y(c, t));
 /*         noise(c, t);*/
 
