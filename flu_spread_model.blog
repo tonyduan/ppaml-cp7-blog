@@ -56,9 +56,9 @@ random Real noise(County c, Week t) ~
 
 random Real logit(County c, Week t) ~
   toReal(beta1 * covariates1[toInt(c)][toInt(t)] +
-         beta2 * covariates2[toInt(c)][toInt(t)] +
-         y(c, t));
-/*         noise(c, t);*/
+/*         beta2 * covariates2[toInt(c)][toInt(t)] +*/
+         y(c, t)) +
+         noise(c, t);
 
 random Real county_rate(County c, Week t) ~
   exp(logit(c, t)) / (1.0 + exp(logit(c, t)));
