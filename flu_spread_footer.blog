@@ -84,7 +84,7 @@ random Real region_rate(Region r, Week t) ~
       county_rate(counties[79], t),
       county_rate(counties[80], t),
       county_rate(counties[81], t))) / region_pop[toInt(r)],
-    0.010000);
+    0.000100);
 
 
 obs region_rate(r, t) = observations[toInt(t)][toInt(r)] for Region r, Week t : observations[toInt(t)][toInt(r)] != 0.0;
