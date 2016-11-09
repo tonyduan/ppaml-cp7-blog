@@ -4,7 +4,7 @@
 random Real rho ~ Gamma(0.5, 0.1);
 random Real tau1 ~ Gamma(3.0, 0.1);
 /*random Real tau2 ~ Gamma(10.0, 0.1);*/
-random Real beta1 ~ Gaussian(0.0, 0.1);
+random Real beta1 ~ Gaussian(0.0,2.5);
 /*random Real beta2 ~ Gaussian(0.0, 0.5);*/
 
 // ----
@@ -62,7 +62,7 @@ obs spatial_edge(c1, c2, t) = true for County c1, County c2, Week t: W[toInt(c1)
 random Real logit(County c, Week t) ~
   Gaussian(toReal(beta1 * covariates1[toInt(c)][toInt(t)] +
 /*         beta2 * covariates2[toInt(c)][toInt(t)] +*/
-                  y(c, t)), 0.01);
+                  y(c, t)), 0.1);
 /*         noise(c, t);*/
 
 /*random Real county_rate(County c, Week t) ~*/
