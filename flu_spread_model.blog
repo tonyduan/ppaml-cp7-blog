@@ -3,9 +3,9 @@
 // ----
 random Real rho ~ Gamma(0.5, 0.1);
 random Real tau1 ~ Gamma(3.0, 0.1);
-random Real tau2 ~ Gamma(10.0, 0.1);
-random Real beta1 ~ Gaussian(0.0, 10.0);
-random Real beta2 ~ Gaussian(0.0, 10.0);
+/*random Real tau2 ~ Gamma(10.0, 0.1);*/
+random Real beta1 ~ Gaussian(0.0, 0.1);
+/*random Real beta2 ~ Gaussian(0.0, 0.5);*/
 
 // ----
 // load data
@@ -22,12 +22,17 @@ fixed RealMatrix W = loadRealMatrix("data_processed/W.txt");
 fixed RealMatrix observations = loadRealMatrix("data_processed/obs.txt");
 
 // ---
-// (hack) utility function to convert integer to a week.
+// utility function to convert integer to a week.
 // ---
 fixed Week toWeek(Integer i) = i;
 
 // ---
-// correlation has a prior distributed Gaussian with mean zero,
+// utility function to calculate sigmoid.
+// ---
+fixed Real sigmoid(Real value) = 1.0 / (1.0 + exp(-1.0 * value));
+
+// ---
+// spatio-temporal correlation has a prior distributed Gaussian with mean zero,
 // variance defined by the diagonal matrix.
 // ---
 random Real y(County c, Week t) ~
@@ -51,17 +56,17 @@ obs spatial_edge(c1, c2, t) = true for County c1, County c2, Week t: W[toInt(c1)
 // ----
 // county rate is calculated by logit model.
 // ----
-random Real noise(County c, Week t) ~
-  Gaussian(0.0, 1.0 / tau2);
+/*random Real noise(County c, Week t) ~*/
+/*  Gaussian(0.0, 1.0 / tau2);*/
 
 random Real logit(County c, Week t) ~
-  toReal(beta1 * covariates1[toInt(c)][toInt(t)] +
+  Gaussian(toReal(beta1 * covariates1[toInt(c)][toInt(t)] +
 /*         beta2 * covariates2[toInt(c)][toInt(t)] +*/
-         y(c, t)) +
-         noise(c, t);
+                  y(c, t)), 0.01);
+/*         noise(c, t);*/
 
-random Real county_rate(County c, Week t) ~
-  exp(logit(c, t)) / (1.0 + exp(logit(c, t)));
+/*random Real county_rate(County c, Week t) ~*/
+/*  exp(logit(c, t)) / (1.0 + exp(logit(c, t)));*/
 
 // ----
 // region rate is the sum over county rates -- set up in preprocessing
