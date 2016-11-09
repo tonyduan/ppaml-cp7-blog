@@ -13,7 +13,7 @@ distinct Week weeks[103];
 random Real rho ~ Gamma(0.5, 0.1);
 random Real tau1 ~ Gamma(3.0, 0.1);
 /*random Real tau2 ~ Gamma(10.0, 0.1);*/
-random Real beta1 ~ Gaussian(0.0, 10.0);
+random Real beta1 ~ Gaussian(0.0,2.5);
 /*random Real beta2 ~ Gaussian(0.0, 0.5);*/
 
 // ----
