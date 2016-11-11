@@ -30,11 +30,11 @@ compile:
 	../swift/swift \
          -i bin/flu_spread_compiled.blog \
          -o bin/flu_spread_compiled.cpp \
-		 -e MHSampler \
-         -n 10000 \
-         --burn-in 9995
+		 -e GibbsSampler \
+         -n 30000000 \
+         --burn-in 29999900
 
-	sed -i '.bk' 's/accu(__fixed_county_map\[r\]\*/dot(__fixed_county_map.row(r),/g' bin/flu_spread_compiled.cpp
+	sed -i 's/accu(__fixed_county_map\[r\]\*/dot(__fixed_county_map.row(r),/g' bin/flu_spread_compiled.cpp
 
 	g++ -I bin -Ofast -std=c++11 \
 		bin/flu_spread_compiled.cpp \

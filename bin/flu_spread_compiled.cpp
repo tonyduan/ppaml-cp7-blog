@@ -29,7 +29,6 @@
 #include "random/Geometric.h"
 #include "random/Poisson.h"
 #include "random/InvGamma.h"
-#include "random/TruncatedGauss.h"
 #include "random/UniformChoice.h"
 #include "random/UniformInt.h"
 #include "random/UniformReal.h"
@@ -47,7 +46,6 @@
 #include "random/DiagGaussian.h"
 #include "random/Dirichlet.h"
 #include "random/Discrete.h"
-#include "random/InvWishart.h"
 #include "random/MultivarGaussian.h"
 #include "random/MultivarGaussianIndep.h"
 #include "random/Multinomial.h"
@@ -83,9 +81,9 @@ void _init_storage();
 void _init_world();
 void _garbage_collection();
 void _print_answer();
-const int _TOT_LOOP = 10000;
-const int _BURN_IN = 9995;
-int _tot_round = -9995;
+const int _TOT_LOOP = 30000000;
+const int _BURN_IN = 29999900;
+int _tot_round = -29999900;
 const mat __fixed_county_map = loadRealMatrix("data_processed/county_map.txt");
 const mat __fixed_region_pop = loadRealMatrix("data_processed/region_pops.txt");
 const mat __fixed_covariates1 = loadRealMatrix("data_processed/covariates1.txt");
@@ -109,6 +107,7 @@ public:
   void active_edge();
   void remove_edge();
   void mcmc_resample();
+  void conjugacy_analysis(double&);
 };
 _Var_rho* _mem_rho;
 class _Var_tau1: public BayesVar<double> {
@@ -125,6 +124,7 @@ public:
   void active_edge();
   void remove_edge();
   void mcmc_resample();
+  void conjugacy_analysis(double&);
 };
 _Var_tau1* _mem_tau1;
 class _Var_beta1: public BayesVar<double> {
@@ -141,6 +141,7 @@ public:
   void active_edge();
   void remove_edge();
   void mcmc_resample();
+  void conjugacy_analysis(double&);
 };
 _Var_beta1* _mem_beta1;
 class _Var_beta2: public BayesVar<double> {
@@ -157,6 +158,7 @@ public:
   void active_edge();
   void remove_edge();
   void mcmc_resample();
+  void conjugacy_analysis(double&);
 };
 _Var_beta2* _mem_beta2;
 class _Var_y: public BayesVar<double> {
@@ -175,6 +177,7 @@ public:
   void active_edge();
   void remove_edge();
   void mcmc_resample();
+  void conjugacy_analysis(double&);
 };
 DynamicTable<_Var_y*,2> _mem_y;
 class _Var_temporal_edge: public BayesVar<char> {
@@ -193,6 +196,7 @@ public:
   void active_edge();
   void remove_edge();
   void mcmc_resample();
+  void conjugacy_analysis(char&);
 };
 DynamicTable<_Var_temporal_edge*,2> _mem_temporal_edge;
 class _Var_spatial_edge: public BayesVar<char> {
@@ -212,6 +216,7 @@ public:
   void active_edge();
   void remove_edge();
   void mcmc_resample();
+  void conjugacy_analysis(char&);
 };
 DynamicTable<_Var_spatial_edge*,3> _mem_spatial_edge;
 class _Var_logit: public BayesVar<double> {
@@ -230,6 +235,7 @@ public:
   void active_edge();
   void remove_edge();
   void mcmc_resample();
+  void conjugacy_analysis(double&);
 };
 DynamicTable<_Var_logit*,2> _mem_logit;
 class _Var_region_rate: public BayesVar<double> {
@@ -248,17 +254,18 @@ public:
   void active_edge();
   void remove_edge();
   void mcmc_resample();
+  void conjugacy_analysis(double&);
 };
 DynamicTable<_Var_region_rate*,2> _mem_region_rate;
-Gamma Gamma140391421593120;
-Gamma Gamma140391421593456;
-Gaussian Gaussian140391421593792;
-Gaussian Gaussian140391421594128;
-Gaussian Gaussian140391421598672;
-BooleanDistrib BooleanDistrib140391421600800;
-BooleanDistrib BooleanDistrib140391421602832;
-Gaussian Gaussian140391421605248;
-Gaussian Gaussian140391421610400;
+Gamma Gamma41046400;
+Gamma Gamma41046768;
+Gaussian Gaussian41047120;
+Gaussian Gaussian41047504;
+Gaussian Gaussian41053456;
+BooleanDistrib BooleanDistrib41056048;
+BooleanDistrib BooleanDistrib41058512;
+Gaussian Gaussian41063456;
+Gaussian Gaussian41121248;
 Hist<double> _answer_0 = Hist<double>(false, 20);
 Hist<double> _answer_1 = Hist<double>(false, 20);
 DynamicTable<Hist<double>*,2> _answer_2;
@@ -343,10 +350,10 @@ void _init_storage()
 
   }
 
-  Gamma140391421593120.init(1.05000000,0.50000000);
-  Gamma140391421593456.init(3.00000000,0.10000000);
-  Gaussian140391421593792.init(0.000000,5.00000000);
-  Gaussian140391421594128.init(0.000000,5.00000000);
+  Gamma41046400.init(1.05000000,0.50000000);
+  Gamma41046768.init(3.00000000,0.10000000);
+  Gaussian41047120.init(0.000000,2.50000000);
+  Gaussian41047504.init(0.000000,2.50000000);
   _answer_2.resize(0,82);
   _answer_2.resize(1,103);
   for (int c = 0;c<82;c++)
@@ -435,20 +442,20 @@ void _Var_rho::clear()
 }
 double _Var_rho::getlikeli()
 {
-  return Gamma140391421593120.loglikeli(val);
+  return Gamma41046400.loglikeli(val);
 }
 double _Var_rho::getcachelikeli()
 {
   auto _t_val = getcache();
-  return Gamma140391421593120.loglikeli(_t_val);
+  return Gamma41046400.loglikeli(_t_val);
 }
 void _Var_rho::sample()
 {
-  val=Gamma140391421593120.gen();
+  val=Gamma41046400.gen();
 }
 void _Var_rho::sample_cache()
 {
-  cache_val=Gamma140391421593120.gen();
+  cache_val=Gamma41046400.gen();
 }
 void _Var_rho::active_edge()
 {}
@@ -456,8 +463,10 @@ void _Var_rho::remove_edge()
 {}
 void _Var_rho::mcmc_resample()
 {
-  mh_parent_resample_arg(this);
+  mh_symmetric_resample_arg(this,_gaussian_prop);
 }
+void _Var_rho::conjugacy_analysis(double& _nxt_val)
+{}
 _Var_tau1::_Var_tau1()
 {}
 string _Var_tau1::getname()
@@ -478,20 +487,20 @@ void _Var_tau1::clear()
 }
 double _Var_tau1::getlikeli()
 {
-  return Gamma140391421593456.loglikeli(val);
+  return Gamma41046768.loglikeli(val);
 }
 double _Var_tau1::getcachelikeli()
 {
   auto _t_val = getcache();
-  return Gamma140391421593456.loglikeli(_t_val);
+  return Gamma41046768.loglikeli(_t_val);
 }
 void _Var_tau1::sample()
 {
-  val=Gamma140391421593456.gen();
+  val=Gamma41046768.gen();
 }
 void _Var_tau1::sample_cache()
 {
-  cache_val=Gamma140391421593456.gen();
+  cache_val=Gamma41046768.gen();
 }
 void _Var_tau1::active_edge()
 {}
@@ -499,8 +508,10 @@ void _Var_tau1::remove_edge()
 {}
 void _Var_tau1::mcmc_resample()
 {
-  mh_parent_resample_arg(this);
+  mh_symmetric_resample_arg(this,_gaussian_prop);
 }
+void _Var_tau1::conjugacy_analysis(double& _nxt_val)
+{}
 _Var_beta1::_Var_beta1()
 {}
 string _Var_beta1::getname()
@@ -521,20 +532,20 @@ void _Var_beta1::clear()
 }
 double _Var_beta1::getlikeli()
 {
-  return Gaussian140391421593792.loglikeli(val);
+  return Gaussian41047120.loglikeli(val);
 }
 double _Var_beta1::getcachelikeli()
 {
   auto _t_val = getcache();
-  return Gaussian140391421593792.loglikeli(_t_val);
+  return Gaussian41047120.loglikeli(_t_val);
 }
 void _Var_beta1::sample()
 {
-  val=Gaussian140391421593792.gen();
+  val=Gaussian41047120.gen();
 }
 void _Var_beta1::sample_cache()
 {
-  cache_val=Gaussian140391421593792.gen();
+  cache_val=Gaussian41047120.gen();
 }
 void _Var_beta1::active_edge()
 {}
@@ -542,8 +553,10 @@ void _Var_beta1::remove_edge()
 {}
 void _Var_beta1::mcmc_resample()
 {
-  mh_parent_resample_arg(this);
+  mh_symmetric_resample_arg(this,_gaussian_prop);
 }
+void _Var_beta1::conjugacy_analysis(double& _nxt_val)
+{}
 _Var_beta2::_Var_beta2()
 {}
 string _Var_beta2::getname()
@@ -564,20 +577,20 @@ void _Var_beta2::clear()
 }
 double _Var_beta2::getlikeli()
 {
-  return Gaussian140391421594128.loglikeli(val);
+  return Gaussian41047504.loglikeli(val);
 }
 double _Var_beta2::getcachelikeli()
 {
   auto _t_val = getcache();
-  return Gaussian140391421594128.loglikeli(_t_val);
+  return Gaussian41047504.loglikeli(_t_val);
 }
 void _Var_beta2::sample()
 {
-  val=Gaussian140391421594128.gen();
+  val=Gaussian41047504.gen();
 }
 void _Var_beta2::sample_cache()
 {
-  cache_val=Gaussian140391421594128.gen();
+  cache_val=Gaussian41047504.gen();
 }
 void _Var_beta2::active_edge()
 {}
@@ -585,8 +598,10 @@ void _Var_beta2::remove_edge()
 {}
 void _Var_beta2::mcmc_resample()
 {
-  mh_parent_resample_arg(this);
+  mh_symmetric_resample_arg(this,_gaussian_prop);
 }
+void _Var_beta2::conjugacy_analysis(double& _nxt_val)
+{}
 _Var_y::_Var_y(int _c, int _t):c(_c),t(_t)
 {}
 string _Var_y::getname()
@@ -607,20 +622,20 @@ void _Var_y::clear()
 }
 double _Var_y::getlikeli()
 {
-  return Gaussian140391421598672.init(0.000000,__fixed_D[c]),Gaussian140391421598672.loglikeli(val);
+  return Gaussian41053456.init(0.000000,__fixed_D[c]),Gaussian41053456.loglikeli(val);
 }
 double _Var_y::getcachelikeli()
 {
   auto _t_val = getcache();
-  return Gaussian140391421598672.init(0.000000,__fixed_D[c]),Gaussian140391421598672.loglikeli(_t_val);
+  return Gaussian41053456.init(0.000000,__fixed_D[c]),Gaussian41053456.loglikeli(_t_val);
 }
 void _Var_y::sample()
 {
-  val=(Gaussian140391421598672.init(0.000000,__fixed_D[c]),Gaussian140391421598672.gen());
+  val=(Gaussian41053456.init(0.000000,__fixed_D[c]),Gaussian41053456.gen());
 }
 void _Var_y::sample_cache()
 {
-  cache_val=(Gaussian140391421598672.init(0.000000,__fixed_D[c]),Gaussian140391421598672.gen());
+  cache_val=(Gaussian41053456.init(0.000000,__fixed_D[c]),Gaussian41053456.gen());
 }
 void _Var_y::active_edge()
 {}
@@ -628,8 +643,10 @@ void _Var_y::remove_edge()
 {}
 void _Var_y::mcmc_resample()
 {
-  mh_parent_resample_arg(this);
+  mh_symmetric_resample_arg(this,_gaussian_prop);
 }
+void _Var_y::conjugacy_analysis(double& _nxt_val)
+{}
 _Var_temporal_edge::_Var_temporal_edge(int _t, int _c):t(_t),c(_c)
 {}
 string _Var_temporal_edge::getname()
@@ -650,20 +667,20 @@ void _Var_temporal_edge::clear()
 }
 double _Var_temporal_edge::getlikeli()
 {
-  return BooleanDistrib140391421600800.init(exp(_mem_tau1->getval()*_mem_y[c][t]->getval()*_mem_y[c][__fixed_toWeek(t-1)]->getval())),BooleanDistrib140391421600800.loglikeli(val);
+  return BooleanDistrib41056048.init(exp(_mem_tau1->getval()*_mem_y[c][t]->getval()*_mem_y[c][__fixed_toWeek(t-1)]->getval())),BooleanDistrib41056048.loglikeli(val);
 }
 double _Var_temporal_edge::getcachelikeli()
 {
   auto _t_val = getcache();
-  return BooleanDistrib140391421600800.init(exp(_mem_tau1->getcache()*_mem_y[c][t]->getcache()*_mem_y[c][__fixed_toWeek(t-1)]->getcache())),BooleanDistrib140391421600800.loglikeli(_t_val);
+  return BooleanDistrib41056048.init(exp(_mem_tau1->getcache()*_mem_y[c][t]->getcache()*_mem_y[c][__fixed_toWeek(t-1)]->getcache())),BooleanDistrib41056048.loglikeli(_t_val);
 }
 void _Var_temporal_edge::sample()
 {
-  val=(BooleanDistrib140391421600800.init(exp(_mem_tau1->getval()*_mem_y[c][t]->getval()*_mem_y[c][__fixed_toWeek(t-1)]->getval())),BooleanDistrib140391421600800.gen());
+  val=(BooleanDistrib41056048.init(exp(_mem_tau1->getval()*_mem_y[c][t]->getval()*_mem_y[c][__fixed_toWeek(t-1)]->getval())),BooleanDistrib41056048.gen());
 }
 void _Var_temporal_edge::sample_cache()
 {
-  cache_val=(BooleanDistrib140391421600800.init(exp(_mem_tau1->getcache()*_mem_y[c][t]->getcache()*_mem_y[c][__fixed_toWeek(t-1)]->getcache())),BooleanDistrib140391421600800.gen());
+  cache_val=(BooleanDistrib41056048.init(exp(_mem_tau1->getcache()*_mem_y[c][t]->getcache()*_mem_y[c][__fixed_toWeek(t-1)]->getcache())),BooleanDistrib41056048.gen());
 }
 void _Var_temporal_edge::active_edge()
 {
@@ -687,6 +704,8 @@ void _Var_temporal_edge::mcmc_resample()
 {
   mh_parent_resample_arg(this);
 }
+void _Var_temporal_edge::conjugacy_analysis(char& _nxt_val)
+{}
 _Var_spatial_edge::_Var_spatial_edge(int _c1, int _c2, int _t):c1(_c1),c2(_c2),t(_t)
 {}
 string _Var_spatial_edge::getname()
@@ -707,20 +726,20 @@ void _Var_spatial_edge::clear()
 }
 double _Var_spatial_edge::getlikeli()
 {
-  return BooleanDistrib140391421602832.init(exp(_mem_tau1->getval()*_mem_rho->getval()*_mem_y[c1][t]->getval()*_mem_y[c2][t]->getval())),BooleanDistrib140391421602832.loglikeli(val);
+  return BooleanDistrib41058512.init(exp(_mem_tau1->getval()*_mem_rho->getval()*_mem_y[c1][t]->getval()*_mem_y[c2][t]->getval())),BooleanDistrib41058512.loglikeli(val);
 }
 double _Var_spatial_edge::getcachelikeli()
 {
   auto _t_val = getcache();
-  return BooleanDistrib140391421602832.init(exp(_mem_tau1->getcache()*_mem_rho->getcache()*_mem_y[c1][t]->getcache()*_mem_y[c2][t]->getcache())),BooleanDistrib140391421602832.loglikeli(_t_val);
+  return BooleanDistrib41058512.init(exp(_mem_tau1->getcache()*_mem_rho->getcache()*_mem_y[c1][t]->getcache()*_mem_y[c2][t]->getcache())),BooleanDistrib41058512.loglikeli(_t_val);
 }
 void _Var_spatial_edge::sample()
 {
-  val=(BooleanDistrib140391421602832.init(exp(_mem_tau1->getval()*_mem_rho->getval()*_mem_y[c1][t]->getval()*_mem_y[c2][t]->getval())),BooleanDistrib140391421602832.gen());
+  val=(BooleanDistrib41058512.init(exp(_mem_tau1->getval()*_mem_rho->getval()*_mem_y[c1][t]->getval()*_mem_y[c2][t]->getval())),BooleanDistrib41058512.gen());
 }
 void _Var_spatial_edge::sample_cache()
 {
-  cache_val=(BooleanDistrib140391421602832.init(exp(_mem_tau1->getcache()*_mem_rho->getcache()*_mem_y[c1][t]->getcache()*_mem_y[c2][t]->getcache())),BooleanDistrib140391421602832.gen());
+  cache_val=(BooleanDistrib41058512.init(exp(_mem_tau1->getcache()*_mem_rho->getcache()*_mem_y[c1][t]->getcache()*_mem_y[c2][t]->getcache())),BooleanDistrib41058512.gen());
 }
 void _Var_spatial_edge::active_edge()
 {
@@ -748,6 +767,8 @@ void _Var_spatial_edge::mcmc_resample()
 {
   mh_parent_resample_arg(this);
 }
+void _Var_spatial_edge::conjugacy_analysis(char& _nxt_val)
+{}
 _Var_logit::_Var_logit(int _c, int _t):c(_c),t(_t)
 {}
 string _Var_logit::getname()
@@ -768,20 +789,20 @@ void _Var_logit::clear()
 }
 double _Var_logit::getlikeli()
 {
-  return Gaussian140391421605248.init(_mem_beta1->getval()*__fixed_covariates1(c,t)+_mem_beta2->getval()*__fixed_covariates2(c,t)+_mem_y[c][t]->getval(),0.00500000),Gaussian140391421605248.loglikeli(val);
+  return Gaussian41063456.init(_mem_beta1->getval()*__fixed_covariates1(c,t)+_mem_beta2->getval()*__fixed_covariates2(c,t)+_mem_y[c][t]->getval(),0.00500000),Gaussian41063456.loglikeli(val);
 }
 double _Var_logit::getcachelikeli()
 {
   auto _t_val = getcache();
-  return Gaussian140391421605248.init(_mem_beta1->getcache()*__fixed_covariates1(c,t)+_mem_beta2->getcache()*__fixed_covariates2(c,t)+_mem_y[c][t]->getcache(),0.00500000),Gaussian140391421605248.loglikeli(_t_val);
+  return Gaussian41063456.init(_mem_beta1->getcache()*__fixed_covariates1(c,t)+_mem_beta2->getcache()*__fixed_covariates2(c,t)+_mem_y[c][t]->getcache(),0.00500000),Gaussian41063456.loglikeli(_t_val);
 }
 void _Var_logit::sample()
 {
-  val=(Gaussian140391421605248.init(_mem_beta1->getval()*__fixed_covariates1(c,t)+_mem_beta2->getval()*__fixed_covariates2(c,t)+_mem_y[c][t]->getval(),0.00500000),Gaussian140391421605248.gen());
+  val=(Gaussian41063456.init(_mem_beta1->getval()*__fixed_covariates1(c,t)+_mem_beta2->getval()*__fixed_covariates2(c,t)+_mem_y[c][t]->getval(),0.00500000),Gaussian41063456.gen());
 }
 void _Var_logit::sample_cache()
 {
-  cache_val=(Gaussian140391421605248.init(_mem_beta1->getcache()*__fixed_covariates1(c,t)+_mem_beta2->getcache()*__fixed_covariates2(c,t)+_mem_y[c][t]->getcache(),0.00500000),Gaussian140391421605248.gen());
+  cache_val=(Gaussian41063456.init(_mem_beta1->getcache()*__fixed_covariates1(c,t)+_mem_beta2->getcache()*__fixed_covariates2(c,t)+_mem_y[c][t]->getcache(),0.00500000),Gaussian41063456.gen());
 }
 void _Var_logit::active_edge()
 {
@@ -803,8 +824,10 @@ void _Var_logit::remove_edge()
 }
 void _Var_logit::mcmc_resample()
 {
-  mh_parent_resample_arg(this);
+  mh_symmetric_resample_arg(this,_gaussian_prop);
 }
+void _Var_logit::conjugacy_analysis(double& _nxt_val)
+{}
 _Var_region_rate::_Var_region_rate(int _r, int _t):r(_r),t(_t)
 {}
 string _Var_region_rate::getname()
@@ -825,20 +848,20 @@ void _Var_region_rate::clear()
 }
 double _Var_region_rate::getlikeli()
 {
-  return Gaussian140391421610400.init(dot(__fixed_county_map.row(r),vstack({__fixed_sigmoid(_mem_logit[0][t]->getval()), __fixed_sigmoid(_mem_logit[1][t]->getval()), __fixed_sigmoid(_mem_logit[2][t]->getval()), __fixed_sigmoid(_mem_logit[3][t]->getval()), __fixed_sigmoid(_mem_logit[4][t]->getval()), __fixed_sigmoid(_mem_logit[5][t]->getval()), __fixed_sigmoid(_mem_logit[6][t]->getval()), __fixed_sigmoid(_mem_logit[7][t]->getval()), __fixed_sigmoid(_mem_logit[8][t]->getval()), __fixed_sigmoid(_mem_logit[9][t]->getval()), __fixed_sigmoid(_mem_logit[10][t]->getval()), __fixed_sigmoid(_mem_logit[11][t]->getval()), __fixed_sigmoid(_mem_logit[12][t]->getval()), __fixed_sigmoid(_mem_logit[13][t]->getval()), __fixed_sigmoid(_mem_logit[14][t]->getval()), __fixed_sigmoid(_mem_logit[15][t]->getval()), __fixed_sigmoid(_mem_logit[16][t]->getval()), __fixed_sigmoid(_mem_logit[17][t]->getval()), __fixed_sigmoid(_mem_logit[18][t]->getval()), __fixed_sigmoid(_mem_logit[19][t]->getval()), __fixed_sigmoid(_mem_logit[20][t]->getval()), __fixed_sigmoid(_mem_logit[21][t]->getval()), __fixed_sigmoid(_mem_logit[22][t]->getval()), __fixed_sigmoid(_mem_logit[23][t]->getval()), __fixed_sigmoid(_mem_logit[24][t]->getval()), __fixed_sigmoid(_mem_logit[25][t]->getval()), __fixed_sigmoid(_mem_logit[26][t]->getval()), __fixed_sigmoid(_mem_logit[27][t]->getval()), __fixed_sigmoid(_mem_logit[28][t]->getval()), __fixed_sigmoid(_mem_logit[29][t]->getval()), __fixed_sigmoid(_mem_logit[30][t]->getval()), __fixed_sigmoid(_mem_logit[31][t]->getval()), __fixed_sigmoid(_mem_logit[32][t]->getval()), __fixed_sigmoid(_mem_logit[33][t]->getval()), __fixed_sigmoid(_mem_logit[34][t]->getval()), __fixed_sigmoid(_mem_logit[35][t]->getval()), __fixed_sigmoid(_mem_logit[36][t]->getval()), __fixed_sigmoid(_mem_logit[37][t]->getval()), __fixed_sigmoid(_mem_logit[38][t]->getval()), __fixed_sigmoid(_mem_logit[39][t]->getval()), __fixed_sigmoid(_mem_logit[40][t]->getval()), __fixed_sigmoid(_mem_logit[41][t]->getval()), __fixed_sigmoid(_mem_logit[42][t]->getval()), __fixed_sigmoid(_mem_logit[43][t]->getval()), __fixed_sigmoid(_mem_logit[44][t]->getval()), __fixed_sigmoid(_mem_logit[45][t]->getval()), __fixed_sigmoid(_mem_logit[46][t]->getval()), __fixed_sigmoid(_mem_logit[47][t]->getval()), __fixed_sigmoid(_mem_logit[48][t]->getval()), __fixed_sigmoid(_mem_logit[49][t]->getval()), __fixed_sigmoid(_mem_logit[50][t]->getval()), __fixed_sigmoid(_mem_logit[51][t]->getval()), __fixed_sigmoid(_mem_logit[52][t]->getval()), __fixed_sigmoid(_mem_logit[53][t]->getval()), __fixed_sigmoid(_mem_logit[54][t]->getval()), __fixed_sigmoid(_mem_logit[55][t]->getval()), __fixed_sigmoid(_mem_logit[56][t]->getval()), __fixed_sigmoid(_mem_logit[57][t]->getval()), __fixed_sigmoid(_mem_logit[58][t]->getval()), __fixed_sigmoid(_mem_logit[59][t]->getval()), __fixed_sigmoid(_mem_logit[60][t]->getval()), __fixed_sigmoid(_mem_logit[61][t]->getval()), __fixed_sigmoid(_mem_logit[62][t]->getval()), __fixed_sigmoid(_mem_logit[63][t]->getval()), __fixed_sigmoid(_mem_logit[64][t]->getval()), __fixed_sigmoid(_mem_logit[65][t]->getval()), __fixed_sigmoid(_mem_logit[66][t]->getval()), __fixed_sigmoid(_mem_logit[67][t]->getval()), __fixed_sigmoid(_mem_logit[68][t]->getval()), __fixed_sigmoid(_mem_logit[69][t]->getval()), __fixed_sigmoid(_mem_logit[70][t]->getval()), __fixed_sigmoid(_mem_logit[71][t]->getval()), __fixed_sigmoid(_mem_logit[72][t]->getval()), __fixed_sigmoid(_mem_logit[73][t]->getval()), __fixed_sigmoid(_mem_logit[74][t]->getval()), __fixed_sigmoid(_mem_logit[75][t]->getval()), __fixed_sigmoid(_mem_logit[76][t]->getval()), __fixed_sigmoid(_mem_logit[77][t]->getval()), __fixed_sigmoid(_mem_logit[78][t]->getval()), __fixed_sigmoid(_mem_logit[79][t]->getval()), __fixed_sigmoid(_mem_logit[80][t]->getval()), __fixed_sigmoid(_mem_logit[81][t]->getval())}))/__fixed_region_pop[r],0.00500000),Gaussian140391421610400.loglikeli(val);
+  return Gaussian41121248.init(dot(__fixed_county_map.row(r),vstack({__fixed_sigmoid(_mem_logit[0][t]->getval()), __fixed_sigmoid(_mem_logit[1][t]->getval()), __fixed_sigmoid(_mem_logit[2][t]->getval()), __fixed_sigmoid(_mem_logit[3][t]->getval()), __fixed_sigmoid(_mem_logit[4][t]->getval()), __fixed_sigmoid(_mem_logit[5][t]->getval()), __fixed_sigmoid(_mem_logit[6][t]->getval()), __fixed_sigmoid(_mem_logit[7][t]->getval()), __fixed_sigmoid(_mem_logit[8][t]->getval()), __fixed_sigmoid(_mem_logit[9][t]->getval()), __fixed_sigmoid(_mem_logit[10][t]->getval()), __fixed_sigmoid(_mem_logit[11][t]->getval()), __fixed_sigmoid(_mem_logit[12][t]->getval()), __fixed_sigmoid(_mem_logit[13][t]->getval()), __fixed_sigmoid(_mem_logit[14][t]->getval()), __fixed_sigmoid(_mem_logit[15][t]->getval()), __fixed_sigmoid(_mem_logit[16][t]->getval()), __fixed_sigmoid(_mem_logit[17][t]->getval()), __fixed_sigmoid(_mem_logit[18][t]->getval()), __fixed_sigmoid(_mem_logit[19][t]->getval()), __fixed_sigmoid(_mem_logit[20][t]->getval()), __fixed_sigmoid(_mem_logit[21][t]->getval()), __fixed_sigmoid(_mem_logit[22][t]->getval()), __fixed_sigmoid(_mem_logit[23][t]->getval()), __fixed_sigmoid(_mem_logit[24][t]->getval()), __fixed_sigmoid(_mem_logit[25][t]->getval()), __fixed_sigmoid(_mem_logit[26][t]->getval()), __fixed_sigmoid(_mem_logit[27][t]->getval()), __fixed_sigmoid(_mem_logit[28][t]->getval()), __fixed_sigmoid(_mem_logit[29][t]->getval()), __fixed_sigmoid(_mem_logit[30][t]->getval()), __fixed_sigmoid(_mem_logit[31][t]->getval()), __fixed_sigmoid(_mem_logit[32][t]->getval()), __fixed_sigmoid(_mem_logit[33][t]->getval()), __fixed_sigmoid(_mem_logit[34][t]->getval()), __fixed_sigmoid(_mem_logit[35][t]->getval()), __fixed_sigmoid(_mem_logit[36][t]->getval()), __fixed_sigmoid(_mem_logit[37][t]->getval()), __fixed_sigmoid(_mem_logit[38][t]->getval()), __fixed_sigmoid(_mem_logit[39][t]->getval()), __fixed_sigmoid(_mem_logit[40][t]->getval()), __fixed_sigmoid(_mem_logit[41][t]->getval()), __fixed_sigmoid(_mem_logit[42][t]->getval()), __fixed_sigmoid(_mem_logit[43][t]->getval()), __fixed_sigmoid(_mem_logit[44][t]->getval()), __fixed_sigmoid(_mem_logit[45][t]->getval()), __fixed_sigmoid(_mem_logit[46][t]->getval()), __fixed_sigmoid(_mem_logit[47][t]->getval()), __fixed_sigmoid(_mem_logit[48][t]->getval()), __fixed_sigmoid(_mem_logit[49][t]->getval()), __fixed_sigmoid(_mem_logit[50][t]->getval()), __fixed_sigmoid(_mem_logit[51][t]->getval()), __fixed_sigmoid(_mem_logit[52][t]->getval()), __fixed_sigmoid(_mem_logit[53][t]->getval()), __fixed_sigmoid(_mem_logit[54][t]->getval()), __fixed_sigmoid(_mem_logit[55][t]->getval()), __fixed_sigmoid(_mem_logit[56][t]->getval()), __fixed_sigmoid(_mem_logit[57][t]->getval()), __fixed_sigmoid(_mem_logit[58][t]->getval()), __fixed_sigmoid(_mem_logit[59][t]->getval()), __fixed_sigmoid(_mem_logit[60][t]->getval()), __fixed_sigmoid(_mem_logit[61][t]->getval()), __fixed_sigmoid(_mem_logit[62][t]->getval()), __fixed_sigmoid(_mem_logit[63][t]->getval()), __fixed_sigmoid(_mem_logit[64][t]->getval()), __fixed_sigmoid(_mem_logit[65][t]->getval()), __fixed_sigmoid(_mem_logit[66][t]->getval()), __fixed_sigmoid(_mem_logit[67][t]->getval()), __fixed_sigmoid(_mem_logit[68][t]->getval()), __fixed_sigmoid(_mem_logit[69][t]->getval()), __fixed_sigmoid(_mem_logit[70][t]->getval()), __fixed_sigmoid(_mem_logit[71][t]->getval()), __fixed_sigmoid(_mem_logit[72][t]->getval()), __fixed_sigmoid(_mem_logit[73][t]->getval()), __fixed_sigmoid(_mem_logit[74][t]->getval()), __fixed_sigmoid(_mem_logit[75][t]->getval()), __fixed_sigmoid(_mem_logit[76][t]->getval()), __fixed_sigmoid(_mem_logit[77][t]->getval()), __fixed_sigmoid(_mem_logit[78][t]->getval()), __fixed_sigmoid(_mem_logit[79][t]->getval()), __fixed_sigmoid(_mem_logit[80][t]->getval()), __fixed_sigmoid(_mem_logit[81][t]->getval())}))/__fixed_region_pop[r],0.00500000),Gaussian41121248.loglikeli(val);
 }
 double _Var_region_rate::getcachelikeli()
 {
   auto _t_val = getcache();
-  return Gaussian140391421610400.init(dot(__fixed_county_map.row(r),vstack({__fixed_sigmoid(_mem_logit[0][t]->getcache()), __fixed_sigmoid(_mem_logit[1][t]->getcache()), __fixed_sigmoid(_mem_logit[2][t]->getcache()), __fixed_sigmoid(_mem_logit[3][t]->getcache()), __fixed_sigmoid(_mem_logit[4][t]->getcache()), __fixed_sigmoid(_mem_logit[5][t]->getcache()), __fixed_sigmoid(_mem_logit[6][t]->getcache()), __fixed_sigmoid(_mem_logit[7][t]->getcache()), __fixed_sigmoid(_mem_logit[8][t]->getcache()), __fixed_sigmoid(_mem_logit[9][t]->getcache()), __fixed_sigmoid(_mem_logit[10][t]->getcache()), __fixed_sigmoid(_mem_logit[11][t]->getcache()), __fixed_sigmoid(_mem_logit[12][t]->getcache()), __fixed_sigmoid(_mem_logit[13][t]->getcache()), __fixed_sigmoid(_mem_logit[14][t]->getcache()), __fixed_sigmoid(_mem_logit[15][t]->getcache()), __fixed_sigmoid(_mem_logit[16][t]->getcache()), __fixed_sigmoid(_mem_logit[17][t]->getcache()), __fixed_sigmoid(_mem_logit[18][t]->getcache()), __fixed_sigmoid(_mem_logit[19][t]->getcache()), __fixed_sigmoid(_mem_logit[20][t]->getcache()), __fixed_sigmoid(_mem_logit[21][t]->getcache()), __fixed_sigmoid(_mem_logit[22][t]->getcache()), __fixed_sigmoid(_mem_logit[23][t]->getcache()), __fixed_sigmoid(_mem_logit[24][t]->getcache()), __fixed_sigmoid(_mem_logit[25][t]->getcache()), __fixed_sigmoid(_mem_logit[26][t]->getcache()), __fixed_sigmoid(_mem_logit[27][t]->getcache()), __fixed_sigmoid(_mem_logit[28][t]->getcache()), __fixed_sigmoid(_mem_logit[29][t]->getcache()), __fixed_sigmoid(_mem_logit[30][t]->getcache()), __fixed_sigmoid(_mem_logit[31][t]->getcache()), __fixed_sigmoid(_mem_logit[32][t]->getcache()), __fixed_sigmoid(_mem_logit[33][t]->getcache()), __fixed_sigmoid(_mem_logit[34][t]->getcache()), __fixed_sigmoid(_mem_logit[35][t]->getcache()), __fixed_sigmoid(_mem_logit[36][t]->getcache()), __fixed_sigmoid(_mem_logit[37][t]->getcache()), __fixed_sigmoid(_mem_logit[38][t]->getcache()), __fixed_sigmoid(_mem_logit[39][t]->getcache()), __fixed_sigmoid(_mem_logit[40][t]->getcache()), __fixed_sigmoid(_mem_logit[41][t]->getcache()), __fixed_sigmoid(_mem_logit[42][t]->getcache()), __fixed_sigmoid(_mem_logit[43][t]->getcache()), __fixed_sigmoid(_mem_logit[44][t]->getcache()), __fixed_sigmoid(_mem_logit[45][t]->getcache()), __fixed_sigmoid(_mem_logit[46][t]->getcache()), __fixed_sigmoid(_mem_logit[47][t]->getcache()), __fixed_sigmoid(_mem_logit[48][t]->getcache()), __fixed_sigmoid(_mem_logit[49][t]->getcache()), __fixed_sigmoid(_mem_logit[50][t]->getcache()), __fixed_sigmoid(_mem_logit[51][t]->getcache()), __fixed_sigmoid(_mem_logit[52][t]->getcache()), __fixed_sigmoid(_mem_logit[53][t]->getcache()), __fixed_sigmoid(_mem_logit[54][t]->getcache()), __fixed_sigmoid(_mem_logit[55][t]->getcache()), __fixed_sigmoid(_mem_logit[56][t]->getcache()), __fixed_sigmoid(_mem_logit[57][t]->getcache()), __fixed_sigmoid(_mem_logit[58][t]->getcache()), __fixed_sigmoid(_mem_logit[59][t]->getcache()), __fixed_sigmoid(_mem_logit[60][t]->getcache()), __fixed_sigmoid(_mem_logit[61][t]->getcache()), __fixed_sigmoid(_mem_logit[62][t]->getcache()), __fixed_sigmoid(_mem_logit[63][t]->getcache()), __fixed_sigmoid(_mem_logit[64][t]->getcache()), __fixed_sigmoid(_mem_logit[65][t]->getcache()), __fixed_sigmoid(_mem_logit[66][t]->getcache()), __fixed_sigmoid(_mem_logit[67][t]->getcache()), __fixed_sigmoid(_mem_logit[68][t]->getcache()), __fixed_sigmoid(_mem_logit[69][t]->getcache()), __fixed_sigmoid(_mem_logit[70][t]->getcache()), __fixed_sigmoid(_mem_logit[71][t]->getcache()), __fixed_sigmoid(_mem_logit[72][t]->getcache()), __fixed_sigmoid(_mem_logit[73][t]->getcache()), __fixed_sigmoid(_mem_logit[74][t]->getcache()), __fixed_sigmoid(_mem_logit[75][t]->getcache()), __fixed_sigmoid(_mem_logit[76][t]->getcache()), __fixed_sigmoid(_mem_logit[77][t]->getcache()), __fixed_sigmoid(_mem_logit[78][t]->getcache()), __fixed_sigmoid(_mem_logit[79][t]->getcache()), __fixed_sigmoid(_mem_logit[80][t]->getcache()), __fixed_sigmoid(_mem_logit[81][t]->getcache())}))/__fixed_region_pop[r],0.00500000),Gaussian140391421610400.loglikeli(_t_val);
+  return Gaussian41121248.init(dot(__fixed_county_map.row(r),vstack({__fixed_sigmoid(_mem_logit[0][t]->getcache()), __fixed_sigmoid(_mem_logit[1][t]->getcache()), __fixed_sigmoid(_mem_logit[2][t]->getcache()), __fixed_sigmoid(_mem_logit[3][t]->getcache()), __fixed_sigmoid(_mem_logit[4][t]->getcache()), __fixed_sigmoid(_mem_logit[5][t]->getcache()), __fixed_sigmoid(_mem_logit[6][t]->getcache()), __fixed_sigmoid(_mem_logit[7][t]->getcache()), __fixed_sigmoid(_mem_logit[8][t]->getcache()), __fixed_sigmoid(_mem_logit[9][t]->getcache()), __fixed_sigmoid(_mem_logit[10][t]->getcache()), __fixed_sigmoid(_mem_logit[11][t]->getcache()), __fixed_sigmoid(_mem_logit[12][t]->getcache()), __fixed_sigmoid(_mem_logit[13][t]->getcache()), __fixed_sigmoid(_mem_logit[14][t]->getcache()), __fixed_sigmoid(_mem_logit[15][t]->getcache()), __fixed_sigmoid(_mem_logit[16][t]->getcache()), __fixed_sigmoid(_mem_logit[17][t]->getcache()), __fixed_sigmoid(_mem_logit[18][t]->getcache()), __fixed_sigmoid(_mem_logit[19][t]->getcache()), __fixed_sigmoid(_mem_logit[20][t]->getcache()), __fixed_sigmoid(_mem_logit[21][t]->getcache()), __fixed_sigmoid(_mem_logit[22][t]->getcache()), __fixed_sigmoid(_mem_logit[23][t]->getcache()), __fixed_sigmoid(_mem_logit[24][t]->getcache()), __fixed_sigmoid(_mem_logit[25][t]->getcache()), __fixed_sigmoid(_mem_logit[26][t]->getcache()), __fixed_sigmoid(_mem_logit[27][t]->getcache()), __fixed_sigmoid(_mem_logit[28][t]->getcache()), __fixed_sigmoid(_mem_logit[29][t]->getcache()), __fixed_sigmoid(_mem_logit[30][t]->getcache()), __fixed_sigmoid(_mem_logit[31][t]->getcache()), __fixed_sigmoid(_mem_logit[32][t]->getcache()), __fixed_sigmoid(_mem_logit[33][t]->getcache()), __fixed_sigmoid(_mem_logit[34][t]->getcache()), __fixed_sigmoid(_mem_logit[35][t]->getcache()), __fixed_sigmoid(_mem_logit[36][t]->getcache()), __fixed_sigmoid(_mem_logit[37][t]->getcache()), __fixed_sigmoid(_mem_logit[38][t]->getcache()), __fixed_sigmoid(_mem_logit[39][t]->getcache()), __fixed_sigmoid(_mem_logit[40][t]->getcache()), __fixed_sigmoid(_mem_logit[41][t]->getcache()), __fixed_sigmoid(_mem_logit[42][t]->getcache()), __fixed_sigmoid(_mem_logit[43][t]->getcache()), __fixed_sigmoid(_mem_logit[44][t]->getcache()), __fixed_sigmoid(_mem_logit[45][t]->getcache()), __fixed_sigmoid(_mem_logit[46][t]->getcache()), __fixed_sigmoid(_mem_logit[47][t]->getcache()), __fixed_sigmoid(_mem_logit[48][t]->getcache()), __fixed_sigmoid(_mem_logit[49][t]->getcache()), __fixed_sigmoid(_mem_logit[50][t]->getcache()), __fixed_sigmoid(_mem_logit[51][t]->getcache()), __fixed_sigmoid(_mem_logit[52][t]->getcache()), __fixed_sigmoid(_mem_logit[53][t]->getcache()), __fixed_sigmoid(_mem_logit[54][t]->getcache()), __fixed_sigmoid(_mem_logit[55][t]->getcache()), __fixed_sigmoid(_mem_logit[56][t]->getcache()), __fixed_sigmoid(_mem_logit[57][t]->getcache()), __fixed_sigmoid(_mem_logit[58][t]->getcache()), __fixed_sigmoid(_mem_logit[59][t]->getcache()), __fixed_sigmoid(_mem_logit[60][t]->getcache()), __fixed_sigmoid(_mem_logit[61][t]->getcache()), __fixed_sigmoid(_mem_logit[62][t]->getcache()), __fixed_sigmoid(_mem_logit[63][t]->getcache()), __fixed_sigmoid(_mem_logit[64][t]->getcache()), __fixed_sigmoid(_mem_logit[65][t]->getcache()), __fixed_sigmoid(_mem_logit[66][t]->getcache()), __fixed_sigmoid(_mem_logit[67][t]->getcache()), __fixed_sigmoid(_mem_logit[68][t]->getcache()), __fixed_sigmoid(_mem_logit[69][t]->getcache()), __fixed_sigmoid(_mem_logit[70][t]->getcache()), __fixed_sigmoid(_mem_logit[71][t]->getcache()), __fixed_sigmoid(_mem_logit[72][t]->getcache()), __fixed_sigmoid(_mem_logit[73][t]->getcache()), __fixed_sigmoid(_mem_logit[74][t]->getcache()), __fixed_sigmoid(_mem_logit[75][t]->getcache()), __fixed_sigmoid(_mem_logit[76][t]->getcache()), __fixed_sigmoid(_mem_logit[77][t]->getcache()), __fixed_sigmoid(_mem_logit[78][t]->getcache()), __fixed_sigmoid(_mem_logit[79][t]->getcache()), __fixed_sigmoid(_mem_logit[80][t]->getcache()), __fixed_sigmoid(_mem_logit[81][t]->getcache())}))/__fixed_region_pop[r],0.00500000),Gaussian41121248.loglikeli(_t_val);
 }
 void _Var_region_rate::sample()
 {
-  val=(Gaussian140391421610400.init(dot(__fixed_county_map.row(r),vstack({__fixed_sigmoid(_mem_logit[0][t]->getval()), __fixed_sigmoid(_mem_logit[1][t]->getval()), __fixed_sigmoid(_mem_logit[2][t]->getval()), __fixed_sigmoid(_mem_logit[3][t]->getval()), __fixed_sigmoid(_mem_logit[4][t]->getval()), __fixed_sigmoid(_mem_logit[5][t]->getval()), __fixed_sigmoid(_mem_logit[6][t]->getval()), __fixed_sigmoid(_mem_logit[7][t]->getval()), __fixed_sigmoid(_mem_logit[8][t]->getval()), __fixed_sigmoid(_mem_logit[9][t]->getval()), __fixed_sigmoid(_mem_logit[10][t]->getval()), __fixed_sigmoid(_mem_logit[11][t]->getval()), __fixed_sigmoid(_mem_logit[12][t]->getval()), __fixed_sigmoid(_mem_logit[13][t]->getval()), __fixed_sigmoid(_mem_logit[14][t]->getval()), __fixed_sigmoid(_mem_logit[15][t]->getval()), __fixed_sigmoid(_mem_logit[16][t]->getval()), __fixed_sigmoid(_mem_logit[17][t]->getval()), __fixed_sigmoid(_mem_logit[18][t]->getval()), __fixed_sigmoid(_mem_logit[19][t]->getval()), __fixed_sigmoid(_mem_logit[20][t]->getval()), __fixed_sigmoid(_mem_logit[21][t]->getval()), __fixed_sigmoid(_mem_logit[22][t]->getval()), __fixed_sigmoid(_mem_logit[23][t]->getval()), __fixed_sigmoid(_mem_logit[24][t]->getval()), __fixed_sigmoid(_mem_logit[25][t]->getval()), __fixed_sigmoid(_mem_logit[26][t]->getval()), __fixed_sigmoid(_mem_logit[27][t]->getval()), __fixed_sigmoid(_mem_logit[28][t]->getval()), __fixed_sigmoid(_mem_logit[29][t]->getval()), __fixed_sigmoid(_mem_logit[30][t]->getval()), __fixed_sigmoid(_mem_logit[31][t]->getval()), __fixed_sigmoid(_mem_logit[32][t]->getval()), __fixed_sigmoid(_mem_logit[33][t]->getval()), __fixed_sigmoid(_mem_logit[34][t]->getval()), __fixed_sigmoid(_mem_logit[35][t]->getval()), __fixed_sigmoid(_mem_logit[36][t]->getval()), __fixed_sigmoid(_mem_logit[37][t]->getval()), __fixed_sigmoid(_mem_logit[38][t]->getval()), __fixed_sigmoid(_mem_logit[39][t]->getval()), __fixed_sigmoid(_mem_logit[40][t]->getval()), __fixed_sigmoid(_mem_logit[41][t]->getval()), __fixed_sigmoid(_mem_logit[42][t]->getval()), __fixed_sigmoid(_mem_logit[43][t]->getval()), __fixed_sigmoid(_mem_logit[44][t]->getval()), __fixed_sigmoid(_mem_logit[45][t]->getval()), __fixed_sigmoid(_mem_logit[46][t]->getval()), __fixed_sigmoid(_mem_logit[47][t]->getval()), __fixed_sigmoid(_mem_logit[48][t]->getval()), __fixed_sigmoid(_mem_logit[49][t]->getval()), __fixed_sigmoid(_mem_logit[50][t]->getval()), __fixed_sigmoid(_mem_logit[51][t]->getval()), __fixed_sigmoid(_mem_logit[52][t]->getval()), __fixed_sigmoid(_mem_logit[53][t]->getval()), __fixed_sigmoid(_mem_logit[54][t]->getval()), __fixed_sigmoid(_mem_logit[55][t]->getval()), __fixed_sigmoid(_mem_logit[56][t]->getval()), __fixed_sigmoid(_mem_logit[57][t]->getval()), __fixed_sigmoid(_mem_logit[58][t]->getval()), __fixed_sigmoid(_mem_logit[59][t]->getval()), __fixed_sigmoid(_mem_logit[60][t]->getval()), __fixed_sigmoid(_mem_logit[61][t]->getval()), __fixed_sigmoid(_mem_logit[62][t]->getval()), __fixed_sigmoid(_mem_logit[63][t]->getval()), __fixed_sigmoid(_mem_logit[64][t]->getval()), __fixed_sigmoid(_mem_logit[65][t]->getval()), __fixed_sigmoid(_mem_logit[66][t]->getval()), __fixed_sigmoid(_mem_logit[67][t]->getval()), __fixed_sigmoid(_mem_logit[68][t]->getval()), __fixed_sigmoid(_mem_logit[69][t]->getval()), __fixed_sigmoid(_mem_logit[70][t]->getval()), __fixed_sigmoid(_mem_logit[71][t]->getval()), __fixed_sigmoid(_mem_logit[72][t]->getval()), __fixed_sigmoid(_mem_logit[73][t]->getval()), __fixed_sigmoid(_mem_logit[74][t]->getval()), __fixed_sigmoid(_mem_logit[75][t]->getval()), __fixed_sigmoid(_mem_logit[76][t]->getval()), __fixed_sigmoid(_mem_logit[77][t]->getval()), __fixed_sigmoid(_mem_logit[78][t]->getval()), __fixed_sigmoid(_mem_logit[79][t]->getval()), __fixed_sigmoid(_mem_logit[80][t]->getval()), __fixed_sigmoid(_mem_logit[81][t]->getval())}))/__fixed_region_pop[r],0.00500000),Gaussian140391421610400.gen());
+  val=(Gaussian41121248.init(dot(__fixed_county_map.row(r),vstack({__fixed_sigmoid(_mem_logit[0][t]->getval()), __fixed_sigmoid(_mem_logit[1][t]->getval()), __fixed_sigmoid(_mem_logit[2][t]->getval()), __fixed_sigmoid(_mem_logit[3][t]->getval()), __fixed_sigmoid(_mem_logit[4][t]->getval()), __fixed_sigmoid(_mem_logit[5][t]->getval()), __fixed_sigmoid(_mem_logit[6][t]->getval()), __fixed_sigmoid(_mem_logit[7][t]->getval()), __fixed_sigmoid(_mem_logit[8][t]->getval()), __fixed_sigmoid(_mem_logit[9][t]->getval()), __fixed_sigmoid(_mem_logit[10][t]->getval()), __fixed_sigmoid(_mem_logit[11][t]->getval()), __fixed_sigmoid(_mem_logit[12][t]->getval()), __fixed_sigmoid(_mem_logit[13][t]->getval()), __fixed_sigmoid(_mem_logit[14][t]->getval()), __fixed_sigmoid(_mem_logit[15][t]->getval()), __fixed_sigmoid(_mem_logit[16][t]->getval()), __fixed_sigmoid(_mem_logit[17][t]->getval()), __fixed_sigmoid(_mem_logit[18][t]->getval()), __fixed_sigmoid(_mem_logit[19][t]->getval()), __fixed_sigmoid(_mem_logit[20][t]->getval()), __fixed_sigmoid(_mem_logit[21][t]->getval()), __fixed_sigmoid(_mem_logit[22][t]->getval()), __fixed_sigmoid(_mem_logit[23][t]->getval()), __fixed_sigmoid(_mem_logit[24][t]->getval()), __fixed_sigmoid(_mem_logit[25][t]->getval()), __fixed_sigmoid(_mem_logit[26][t]->getval()), __fixed_sigmoid(_mem_logit[27][t]->getval()), __fixed_sigmoid(_mem_logit[28][t]->getval()), __fixed_sigmoid(_mem_logit[29][t]->getval()), __fixed_sigmoid(_mem_logit[30][t]->getval()), __fixed_sigmoid(_mem_logit[31][t]->getval()), __fixed_sigmoid(_mem_logit[32][t]->getval()), __fixed_sigmoid(_mem_logit[33][t]->getval()), __fixed_sigmoid(_mem_logit[34][t]->getval()), __fixed_sigmoid(_mem_logit[35][t]->getval()), __fixed_sigmoid(_mem_logit[36][t]->getval()), __fixed_sigmoid(_mem_logit[37][t]->getval()), __fixed_sigmoid(_mem_logit[38][t]->getval()), __fixed_sigmoid(_mem_logit[39][t]->getval()), __fixed_sigmoid(_mem_logit[40][t]->getval()), __fixed_sigmoid(_mem_logit[41][t]->getval()), __fixed_sigmoid(_mem_logit[42][t]->getval()), __fixed_sigmoid(_mem_logit[43][t]->getval()), __fixed_sigmoid(_mem_logit[44][t]->getval()), __fixed_sigmoid(_mem_logit[45][t]->getval()), __fixed_sigmoid(_mem_logit[46][t]->getval()), __fixed_sigmoid(_mem_logit[47][t]->getval()), __fixed_sigmoid(_mem_logit[48][t]->getval()), __fixed_sigmoid(_mem_logit[49][t]->getval()), __fixed_sigmoid(_mem_logit[50][t]->getval()), __fixed_sigmoid(_mem_logit[51][t]->getval()), __fixed_sigmoid(_mem_logit[52][t]->getval()), __fixed_sigmoid(_mem_logit[53][t]->getval()), __fixed_sigmoid(_mem_logit[54][t]->getval()), __fixed_sigmoid(_mem_logit[55][t]->getval()), __fixed_sigmoid(_mem_logit[56][t]->getval()), __fixed_sigmoid(_mem_logit[57][t]->getval()), __fixed_sigmoid(_mem_logit[58][t]->getval()), __fixed_sigmoid(_mem_logit[59][t]->getval()), __fixed_sigmoid(_mem_logit[60][t]->getval()), __fixed_sigmoid(_mem_logit[61][t]->getval()), __fixed_sigmoid(_mem_logit[62][t]->getval()), __fixed_sigmoid(_mem_logit[63][t]->getval()), __fixed_sigmoid(_mem_logit[64][t]->getval()), __fixed_sigmoid(_mem_logit[65][t]->getval()), __fixed_sigmoid(_mem_logit[66][t]->getval()), __fixed_sigmoid(_mem_logit[67][t]->getval()), __fixed_sigmoid(_mem_logit[68][t]->getval()), __fixed_sigmoid(_mem_logit[69][t]->getval()), __fixed_sigmoid(_mem_logit[70][t]->getval()), __fixed_sigmoid(_mem_logit[71][t]->getval()), __fixed_sigmoid(_mem_logit[72][t]->getval()), __fixed_sigmoid(_mem_logit[73][t]->getval()), __fixed_sigmoid(_mem_logit[74][t]->getval()), __fixed_sigmoid(_mem_logit[75][t]->getval()), __fixed_sigmoid(_mem_logit[76][t]->getval()), __fixed_sigmoid(_mem_logit[77][t]->getval()), __fixed_sigmoid(_mem_logit[78][t]->getval()), __fixed_sigmoid(_mem_logit[79][t]->getval()), __fixed_sigmoid(_mem_logit[80][t]->getval()), __fixed_sigmoid(_mem_logit[81][t]->getval())}))/__fixed_region_pop[r],0.00500000),Gaussian41121248.gen());
 }
 void _Var_region_rate::sample_cache()
 {
-  cache_val=(Gaussian140391421610400.init(dot(__fixed_county_map.row(r),vstack({__fixed_sigmoid(_mem_logit[0][t]->getcache()), __fixed_sigmoid(_mem_logit[1][t]->getcache()), __fixed_sigmoid(_mem_logit[2][t]->getcache()), __fixed_sigmoid(_mem_logit[3][t]->getcache()), __fixed_sigmoid(_mem_logit[4][t]->getcache()), __fixed_sigmoid(_mem_logit[5][t]->getcache()), __fixed_sigmoid(_mem_logit[6][t]->getcache()), __fixed_sigmoid(_mem_logit[7][t]->getcache()), __fixed_sigmoid(_mem_logit[8][t]->getcache()), __fixed_sigmoid(_mem_logit[9][t]->getcache()), __fixed_sigmoid(_mem_logit[10][t]->getcache()), __fixed_sigmoid(_mem_logit[11][t]->getcache()), __fixed_sigmoid(_mem_logit[12][t]->getcache()), __fixed_sigmoid(_mem_logit[13][t]->getcache()), __fixed_sigmoid(_mem_logit[14][t]->getcache()), __fixed_sigmoid(_mem_logit[15][t]->getcache()), __fixed_sigmoid(_mem_logit[16][t]->getcache()), __fixed_sigmoid(_mem_logit[17][t]->getcache()), __fixed_sigmoid(_mem_logit[18][t]->getcache()), __fixed_sigmoid(_mem_logit[19][t]->getcache()), __fixed_sigmoid(_mem_logit[20][t]->getcache()), __fixed_sigmoid(_mem_logit[21][t]->getcache()), __fixed_sigmoid(_mem_logit[22][t]->getcache()), __fixed_sigmoid(_mem_logit[23][t]->getcache()), __fixed_sigmoid(_mem_logit[24][t]->getcache()), __fixed_sigmoid(_mem_logit[25][t]->getcache()), __fixed_sigmoid(_mem_logit[26][t]->getcache()), __fixed_sigmoid(_mem_logit[27][t]->getcache()), __fixed_sigmoid(_mem_logit[28][t]->getcache()), __fixed_sigmoid(_mem_logit[29][t]->getcache()), __fixed_sigmoid(_mem_logit[30][t]->getcache()), __fixed_sigmoid(_mem_logit[31][t]->getcache()), __fixed_sigmoid(_mem_logit[32][t]->getcache()), __fixed_sigmoid(_mem_logit[33][t]->getcache()), __fixed_sigmoid(_mem_logit[34][t]->getcache()), __fixed_sigmoid(_mem_logit[35][t]->getcache()), __fixed_sigmoid(_mem_logit[36][t]->getcache()), __fixed_sigmoid(_mem_logit[37][t]->getcache()), __fixed_sigmoid(_mem_logit[38][t]->getcache()), __fixed_sigmoid(_mem_logit[39][t]->getcache()), __fixed_sigmoid(_mem_logit[40][t]->getcache()), __fixed_sigmoid(_mem_logit[41][t]->getcache()), __fixed_sigmoid(_mem_logit[42][t]->getcache()), __fixed_sigmoid(_mem_logit[43][t]->getcache()), __fixed_sigmoid(_mem_logit[44][t]->getcache()), __fixed_sigmoid(_mem_logit[45][t]->getcache()), __fixed_sigmoid(_mem_logit[46][t]->getcache()), __fixed_sigmoid(_mem_logit[47][t]->getcache()), __fixed_sigmoid(_mem_logit[48][t]->getcache()), __fixed_sigmoid(_mem_logit[49][t]->getcache()), __fixed_sigmoid(_mem_logit[50][t]->getcache()), __fixed_sigmoid(_mem_logit[51][t]->getcache()), __fixed_sigmoid(_mem_logit[52][t]->getcache()), __fixed_sigmoid(_mem_logit[53][t]->getcache()), __fixed_sigmoid(_mem_logit[54][t]->getcache()), __fixed_sigmoid(_mem_logit[55][t]->getcache()), __fixed_sigmoid(_mem_logit[56][t]->getcache()), __fixed_sigmoid(_mem_logit[57][t]->getcache()), __fixed_sigmoid(_mem_logit[58][t]->getcache()), __fixed_sigmoid(_mem_logit[59][t]->getcache()), __fixed_sigmoid(_mem_logit[60][t]->getcache()), __fixed_sigmoid(_mem_logit[61][t]->getcache()), __fixed_sigmoid(_mem_logit[62][t]->getcache()), __fixed_sigmoid(_mem_logit[63][t]->getcache()), __fixed_sigmoid(_mem_logit[64][t]->getcache()), __fixed_sigmoid(_mem_logit[65][t]->getcache()), __fixed_sigmoid(_mem_logit[66][t]->getcache()), __fixed_sigmoid(_mem_logit[67][t]->getcache()), __fixed_sigmoid(_mem_logit[68][t]->getcache()), __fixed_sigmoid(_mem_logit[69][t]->getcache()), __fixed_sigmoid(_mem_logit[70][t]->getcache()), __fixed_sigmoid(_mem_logit[71][t]->getcache()), __fixed_sigmoid(_mem_logit[72][t]->getcache()), __fixed_sigmoid(_mem_logit[73][t]->getcache()), __fixed_sigmoid(_mem_logit[74][t]->getcache()), __fixed_sigmoid(_mem_logit[75][t]->getcache()), __fixed_sigmoid(_mem_logit[76][t]->getcache()), __fixed_sigmoid(_mem_logit[77][t]->getcache()), __fixed_sigmoid(_mem_logit[78][t]->getcache()), __fixed_sigmoid(_mem_logit[79][t]->getcache()), __fixed_sigmoid(_mem_logit[80][t]->getcache()), __fixed_sigmoid(_mem_logit[81][t]->getcache())}))/__fixed_region_pop[r],0.00500000),Gaussian140391421610400.gen());
+  cache_val=(Gaussian41121248.init(dot(__fixed_county_map.row(r),vstack({__fixed_sigmoid(_mem_logit[0][t]->getcache()), __fixed_sigmoid(_mem_logit[1][t]->getcache()), __fixed_sigmoid(_mem_logit[2][t]->getcache()), __fixed_sigmoid(_mem_logit[3][t]->getcache()), __fixed_sigmoid(_mem_logit[4][t]->getcache()), __fixed_sigmoid(_mem_logit[5][t]->getcache()), __fixed_sigmoid(_mem_logit[6][t]->getcache()), __fixed_sigmoid(_mem_logit[7][t]->getcache()), __fixed_sigmoid(_mem_logit[8][t]->getcache()), __fixed_sigmoid(_mem_logit[9][t]->getcache()), __fixed_sigmoid(_mem_logit[10][t]->getcache()), __fixed_sigmoid(_mem_logit[11][t]->getcache()), __fixed_sigmoid(_mem_logit[12][t]->getcache()), __fixed_sigmoid(_mem_logit[13][t]->getcache()), __fixed_sigmoid(_mem_logit[14][t]->getcache()), __fixed_sigmoid(_mem_logit[15][t]->getcache()), __fixed_sigmoid(_mem_logit[16][t]->getcache()), __fixed_sigmoid(_mem_logit[17][t]->getcache()), __fixed_sigmoid(_mem_logit[18][t]->getcache()), __fixed_sigmoid(_mem_logit[19][t]->getcache()), __fixed_sigmoid(_mem_logit[20][t]->getcache()), __fixed_sigmoid(_mem_logit[21][t]->getcache()), __fixed_sigmoid(_mem_logit[22][t]->getcache()), __fixed_sigmoid(_mem_logit[23][t]->getcache()), __fixed_sigmoid(_mem_logit[24][t]->getcache()), __fixed_sigmoid(_mem_logit[25][t]->getcache()), __fixed_sigmoid(_mem_logit[26][t]->getcache()), __fixed_sigmoid(_mem_logit[27][t]->getcache()), __fixed_sigmoid(_mem_logit[28][t]->getcache()), __fixed_sigmoid(_mem_logit[29][t]->getcache()), __fixed_sigmoid(_mem_logit[30][t]->getcache()), __fixed_sigmoid(_mem_logit[31][t]->getcache()), __fixed_sigmoid(_mem_logit[32][t]->getcache()), __fixed_sigmoid(_mem_logit[33][t]->getcache()), __fixed_sigmoid(_mem_logit[34][t]->getcache()), __fixed_sigmoid(_mem_logit[35][t]->getcache()), __fixed_sigmoid(_mem_logit[36][t]->getcache()), __fixed_sigmoid(_mem_logit[37][t]->getcache()), __fixed_sigmoid(_mem_logit[38][t]->getcache()), __fixed_sigmoid(_mem_logit[39][t]->getcache()), __fixed_sigmoid(_mem_logit[40][t]->getcache()), __fixed_sigmoid(_mem_logit[41][t]->getcache()), __fixed_sigmoid(_mem_logit[42][t]->getcache()), __fixed_sigmoid(_mem_logit[43][t]->getcache()), __fixed_sigmoid(_mem_logit[44][t]->getcache()), __fixed_sigmoid(_mem_logit[45][t]->getcache()), __fixed_sigmoid(_mem_logit[46][t]->getcache()), __fixed_sigmoid(_mem_logit[47][t]->getcache()), __fixed_sigmoid(_mem_logit[48][t]->getcache()), __fixed_sigmoid(_mem_logit[49][t]->getcache()), __fixed_sigmoid(_mem_logit[50][t]->getcache()), __fixed_sigmoid(_mem_logit[51][t]->getcache()), __fixed_sigmoid(_mem_logit[52][t]->getcache()), __fixed_sigmoid(_mem_logit[53][t]->getcache()), __fixed_sigmoid(_mem_logit[54][t]->getcache()), __fixed_sigmoid(_mem_logit[55][t]->getcache()), __fixed_sigmoid(_mem_logit[56][t]->getcache()), __fixed_sigmoid(_mem_logit[57][t]->getcache()), __fixed_sigmoid(_mem_logit[58][t]->getcache()), __fixed_sigmoid(_mem_logit[59][t]->getcache()), __fixed_sigmoid(_mem_logit[60][t]->getcache()), __fixed_sigmoid(_mem_logit[61][t]->getcache()), __fixed_sigmoid(_mem_logit[62][t]->getcache()), __fixed_sigmoid(_mem_logit[63][t]->getcache()), __fixed_sigmoid(_mem_logit[64][t]->getcache()), __fixed_sigmoid(_mem_logit[65][t]->getcache()), __fixed_sigmoid(_mem_logit[66][t]->getcache()), __fixed_sigmoid(_mem_logit[67][t]->getcache()), __fixed_sigmoid(_mem_logit[68][t]->getcache()), __fixed_sigmoid(_mem_logit[69][t]->getcache()), __fixed_sigmoid(_mem_logit[70][t]->getcache()), __fixed_sigmoid(_mem_logit[71][t]->getcache()), __fixed_sigmoid(_mem_logit[72][t]->getcache()), __fixed_sigmoid(_mem_logit[73][t]->getcache()), __fixed_sigmoid(_mem_logit[74][t]->getcache()), __fixed_sigmoid(_mem_logit[75][t]->getcache()), __fixed_sigmoid(_mem_logit[76][t]->getcache()), __fixed_sigmoid(_mem_logit[77][t]->getcache()), __fixed_sigmoid(_mem_logit[78][t]->getcache()), __fixed_sigmoid(_mem_logit[79][t]->getcache()), __fixed_sigmoid(_mem_logit[80][t]->getcache()), __fixed_sigmoid(_mem_logit[81][t]->getcache())}))/__fixed_region_pop[r],0.00500000),Gaussian41121248.gen());
 }
 void _Var_region_rate::active_edge()
 {
@@ -1176,8 +1199,10 @@ void _Var_region_rate::remove_edge()
 }
 void _Var_region_rate::mcmc_resample()
 {
-  mh_parent_resample_arg(this);
+  mh_symmetric_resample_arg(this,_gaussian_prop);
 }
+void _Var_region_rate::conjugacy_analysis(double& _nxt_val)
+{}
 void sample()
 {
   for (_cur_loop=1;_cur_loop<=_TOT_LOOP;_cur_loop++)
@@ -1199,7 +1224,7 @@ int main()
   __start_time=std::chrono::system_clock::now();
   swift::sample();
   __elapsed_seconds=std::chrono::system_clock::now()-__start_time;
-  printf("\nsample time: %fs (#iter = %d)\n",__elapsed_seconds.count(),10000);
+  printf("\nsample time: %fs (#iter = %d)\n",__elapsed_seconds.count(),30000000);
   swift::_print_answer();
   swift::_garbage_collection();
 }
