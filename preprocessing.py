@@ -358,12 +358,13 @@ row
 
 # #### Write region-level rates BLOG code, observations, and queries.
 
-# In[87]:
+# In[1]:
 
 footer_file = open("flu_spread_footer.blog", "w")
-region_variance = 0.01
+region_variance = 0.005
 
-# In[88]:
+
+# In[3]:
 
 footer_file.write("""
 random Real region_rate(Region r, Week t) ~
@@ -375,9 +376,12 @@ for i in range(len(counties) - 1):
 footer_file.write("      sigmoid(logit(counties[%d], t)))) / region_pop[toInt(r)],\n" % (len(counties) - 1))
 footer_file.write("    %f);\n\n" % region_variance)
 footer_file.write("""
+
 obs region_rate(r, t) = observations[toInt(t)][toInt(r)] for Region r, Week t;
+
 query beta1;
-query y(c, t) for County c, Week t;
+query beta2;
+
 query logit(c, t) for County c, Week t;
 """)
 footer_file.close()

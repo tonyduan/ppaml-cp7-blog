@@ -84,10 +84,13 @@ random Real region_rate(Region r, Week t) ~
       sigmoid(logit(counties[79], t)),
       sigmoid(logit(counties[80], t)),
       sigmoid(logit(counties[81], t)))) / region_pop[toInt(r)],
-    0.010000);
+    0.005000);
+
 
 
 obs region_rate(r, t) = observations[toInt(t)][toInt(r)] for Region r, Week t;
+
 query beta1;
-query y(c, t) for County c, Week t;
+query beta2;
+
 query logit(c, t) for County c, Week t;
