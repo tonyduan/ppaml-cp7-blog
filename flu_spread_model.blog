@@ -65,7 +65,7 @@ random Real logit(County c, Week t) ~
   Gaussian(toReal(
                   beta1 * covariates1[toInt(c)][toInt(t)] +
                   beta2 * covariates2[toInt(c)][toInt(t)] +
-                  y(c, t)), 0.005);
+                  y(c, t)), 0.5);
 
 /*random Real county_rate(County c, Week t) ~*/
 /*  exp(logit(c, t)) / (1.0 + exp(logit(c, t)));*/

@@ -361,7 +361,7 @@ row
 # In[1]:
 
 footer_file = open("flu_spread_footer.blog", "w")
-region_variance = 0.005
+region_variance = 0.05
 
 
 # In[3]:
