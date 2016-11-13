@@ -1,5 +1,5 @@
 
-random Real region_rate(Region r, Week t) ~
+random Real region_rate(Region r, Week t) ~ 
   Gaussian(
     accu(county_map[toInt(r)] * vstack(
       sigmoid(logit(counties[0], t)),
@@ -84,13 +84,16 @@ random Real region_rate(Region r, Week t) ~
       sigmoid(logit(counties[79], t)),
       sigmoid(logit(counties[80], t)),
       sigmoid(logit(counties[81], t)))) / region_pop[toInt(r)],
-    0.050000);
+    0.005000);
 
 
 
 obs region_rate(r, t) = observations[toInt(t)][toInt(r)] for Region r, Week t;
 
+query tau1;
+query rho;
 query beta1;
 query beta2;
 
+query y(c, t) for County c, Week t;
 query logit(c, t) for County c, Week t;

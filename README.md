@@ -31,9 +31,14 @@ We ran our code for the Small and Middle datasets and the corresponding solution
 
 ## Details
 
-Using our config, runs the Metropolis-Hastings algorithm with local Gaussian proposal, using 10 million samples.
+Using our config, runs the Metropolis-Hastings algorithm.
 
 Our setup script works on Amazon EC2 Ubuntu 14.04.
+
+Configuration is:
+
+- Small dataset: 16896 random variables, 2M samples
+- Medium dataset: 
 
 Requirements are approximately:
 
