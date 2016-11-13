@@ -47,8 +47,8 @@ fixed County toCounty(Integer i) = i;
 fixed Real sigmoid(Real value) = 1.0 / (1.0 + exp(-1.0 * value));
 
 // ---
-// spatio-temporal correlation has a prior distributed Gaussian with mean 
-// at the logit of the region rate (from observations), and with 
+// spatio-temporal correlation has a prior distributed Gaussian with mean
+// at the logit of the region rate (from observations), and with
 // variance defined by the diagonal matrix.
 // ---
 random Real y(County c, Week t) ~
@@ -62,11 +62,11 @@ random Real y(County c, Week t) ~
 // ---
 random Boolean temporal_edge(Week t, County c) ~
   BooleanDistrib( exp(tau1 * y(c, t) * y(c, toWeek(toInt(t)-1))) );
-  
-random Boolean spatial_edge(Week t, SpatialPair p) ~ 
-  BooleanDistrib( exp(tau1 * 
-                      rho * 
-                      y(toCounty(toInt(spatial_obs[toInt(p)][0])), t) * 
+
+random Boolean spatial_edge(Week t, SpatialPair p) ~
+  BooleanDistrib( exp(tau1 *
+                      rho *
+                      y(toCounty(toInt(spatial_obs[toInt(p)][0])), t) *
                       y(toCounty(toInt(spatial_obs[toInt(p)][1])), t)   ) );
 
 obs temporal_edge(t, c) = true for Week t, County c : toInt(t) > 0;
@@ -78,7 +78,7 @@ obs spatial_edge(t, p) = true for Week t, SpatialPair p;
 random Real logit(County c, Week t) ~
   Gaussian(toReal(beta1 * covariates1[toInt(c)][toInt(t)] +
                   beta2 * covariates2[toInt(c)][toInt(t)] +
-                  y(c, t)), 0.0000000001);
+                  y(c, t)), 0.0001);
 
 // ----
 // region rate is the sum over county rates -- set up in preprocessing
