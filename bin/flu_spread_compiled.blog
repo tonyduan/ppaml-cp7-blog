@@ -14,10 +14,10 @@ distinct SpatialPair spatial_pairs[432];
 // ----
 random Real rho ~ Gamma(1.05, 0.5);
 random Real tau1 ~ Gamma(3.0, 0.1);
-/*random Real beta1 ~ TruncatedGauss(0.1, 0.1, 0.0, 0.5);*/
-/*random Real beta2 ~ TruncatedGauss(0.1, 0.1, 0.0, 0.5);*/
-fixed Real beta1 = 0;
-fixed Real beta2 = 0;
+random Real beta1 ~ TruncatedGauss(0.1, 0.1, 0.0, 0.5);
+random Real beta2 ~ TruncatedGauss(0.1, 0.1, 0.0, 0.5);
+/*fixed Real beta1 = 0;*/
+/*fixed Real beta2 = 0;*/
 
 // ----
 // load data
@@ -78,7 +78,7 @@ obs spatial_edge(t, p) = true for Week t, SpatialPair p;
 random Real logit(County c, Week t) ~
   Gaussian(toReal(beta1 * covariates1[toInt(c)][toInt(t)] +
                   beta2 * covariates2[toInt(c)][toInt(t)] +
-                  y(c, t)), 0.000000001);
+                  y(c, t)), 0.0000000001);
 
 // ----
 // region rate is the sum over county rates -- set up in preprocessing
