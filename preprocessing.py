@@ -22,7 +22,7 @@
 # <img style="display:inline;" src="images/gmrf.png" /><img style="display:inline;"  src="images/adjacency.png" />
 # <img style="display:inline;" src="images/model.png" />
 
-# In[338]:
+# In[1]:
 
 import functools
 import json
@@ -36,7 +36,7 @@ from collections import defaultdict
 from datetime import datetime
 
 
-# In[339]:
+# In[2]:
 
 def is_kernel():
     if 'IPython' not in sys.modules:
@@ -45,7 +45,7 @@ def is_kernel():
     return getattr(get_ipython(), 'kernel', None) is not None
 
 
-# In[340]:
+# In[3]:
 
 if not is_kernel():
     if len(sys.argv) <= 1:
@@ -60,7 +60,7 @@ else:
 # 
 # Need to make sure to load from the right training data size.
 
-# In[341]:
+# In[4]:
 
 ili_data            = pd.read_csv("data/%s/input/Flu_ILI.csv" % TRAINING_SIZE)
 tweets_data         = json.load(open("data/%s/input/Flu_Vacc_Tweet_TRAIN.json" % TRAINING_SIZE))
@@ -74,12 +74,12 @@ county_adjacency    = json.load(open("data/%s/input/county_adjacency_lower48.jso
 # It's important that the dates are in chronological order.<br/>
 # The index of the event is important for writing observations.
 
-# In[342]:
+# In[5]:
 
 dates = list(map(lambda s: datetime.strptime(s, "%m/%d/%Y").date().strftime('%m/%d/%Y'), ili_data["Ending"]))
 
 
-# In[343]:
+# In[6]:
 
 print("Number of dates:", len(dates))
 
@@ -105,14 +105,14 @@ print("Number of dates:", len(dates))
 # The covariate matrices should be of size $n$ by $d$.<br />
 # The population vector should be of size $n$ by $1$.
 
-# In[344]:
+# In[7]:
 
 fips_to_cov1 = defaultdict(list)
 fips_to_cov2 = defaultdict(list)
 fips_to_pop = {}
 
 
-# In[345]:
+# In[8]:
 
 for fips_code, blob in tweets_data.items():
     
@@ -143,7 +143,7 @@ for fips_code, blob in tweets_data.items():
 # 
 # We extract regions and counties for *only* the relevant counties from the training data.<br />
 
-# In[346]:
+# In[9]:
 
 regions = set()
 for i, col in enumerate(ili_data.columns):
@@ -151,14 +151,14 @@ for i, col in enumerate(ili_data.columns):
         regions.add(col)
 
 
-# In[347]:
+# In[10]:
 
 counties = set()
 for r in regions:
     counties = counties.union(set(regions_to_counties[r].keys()))
 
 
-# In[348]:
+# In[11]:
 
 print('Number of regions:', len(regions))
 print('Number of counties:', len(counties))
@@ -172,7 +172,7 @@ print('Number of counties:', len(counties))
 # - index_to_county
 # - county_to_index
 
-# In[349]:
+# In[12]:
 
 county_to_index = {}
 for i, fips in enumerate(counties):
@@ -180,7 +180,7 @@ for i, fips in enumerate(counties):
 index_to_county = {v: k for k, v in county_to_index.items()}
 
 
-# In[350]:
+# In[13]:
 
 county_pop_matrix = []
 cov1_matrix = []
@@ -196,19 +196,19 @@ cov1_matrix = np.array(cov1_matrix)
 cov2_matrix = np.array(cov2_matrix)
 
 
-# In[351]:
+# In[14]:
 
 cov1_matrix = (cov1_matrix - np.mean(cov1_matrix)) / np.std(cov1_matrix)
 cov2_matrix = (cov2_matrix - np.mean(cov2_matrix)) / np.std(cov2_matrix)
 
 
-# In[352]:
+# In[15]:
 
 np.savetxt('data_processed/covariates1.txt', cov1_matrix)
 np.savetxt('data_processed/covariates2.txt', cov2_matrix)
 
 
-# In[353]:
+# In[16]:
 
 print(cov1_matrix.shape)
 print(cov2_matrix.shape)
@@ -226,7 +226,7 @@ print(county_pop_matrix.shape)
 # 
 # The resulting matrix should be of size $m$ by $n$.
 
-# In[354]:
+# In[17]:
 
 region_to_index = {}
 for i, r in enumerate(regions):
@@ -234,7 +234,7 @@ for i, r in enumerate(regions):
 index_to_region = {v: k for k, v in region_to_index.items()}
 
 
-# In[355]:
+# In[18]:
 
 county_map_matrix = np.zeros((len(regions), len(counties)))
 region_pop_matrix = [0] * len(regions)
@@ -248,13 +248,13 @@ for i, r in index_to_region.items():
         region_pop_matrix[i] += fips_to_pop[fips]
 
 
-# In[356]:
+# In[19]:
 
 np.savetxt('data_processed/county_map.txt', county_map_matrix)
 np.savetxt('data_processed/region_pops.txt', region_pop_matrix)
 
 
-# In[357]:
+# In[20]:
 
 print(county_map_matrix.shape)
 
@@ -273,7 +273,7 @@ print(county_map_matrix.shape)
 # $$Dw_{i,i} = \sum_j W_{i,j}$$
 # And $I$ is meant for regularization to ensure the matrix is positive definite.
 
-# In[358]:
+# In[21]:
 
 W = np.zeros(((len(counties), len(counties))))
 
@@ -296,12 +296,12 @@ for blob in county_adjacency.values():
         W[j][i] = 1
 
 
-# In[359]:
+# In[22]:
 
 np.savetxt("data_processed/W.txt", W)
 
 
-# In[385]:
+# In[23]:
 
 D = np.zeros(((len(counties), len(counties))))
 
@@ -309,59 +309,82 @@ for i in range(len(counties)):
     D[i,i] = np.sum(W[i,:])
 
 
-# In[386]:
+# In[24]:
 
 D = D / np.max(D)
 
 
-# In[387]:
+# In[25]:
 
 print(D)
 
 
-# In[362]:
+# In[26]:
 
 np.savetxt('data_processed/D.txt', np.diag(D))
 
 
-# **Manage spatial pairs.**
+# **Manage spatial triples.**
 
-# In[373]:
+# In[48]:
 
-spatial_pairs = []
+spatial_triples = []
 for i in range(W.shape[0]):
   for j in range(W.shape[1]):
     if W[i][j] == 1:
-      spatial_pairs.append((i,j))
+#       for t in range(len(dates)):
+      spatial_triples.append((i,j))
 
 
-# In[376]:
+# In[49]:
 
-print("Spatial pairs:", len(spatial_pairs))
+print("Spatial triples:", len(spatial_triples))
 
 
-# In[378]:
+# In[50]:
 
-np.savetxt("data_processed/spatial_obs.txt", np.array(spatial_pairs))
+np.savetxt("data_processed/spatial_obs.txt", np.array(spatial_triples))
+
+
+# **Manage temporal triples.**
+
+# In[51]:
+
+temporal_triples = []
+for t in range(len(dates) - 1):
+#   for c in range(len(counties)):
+  temporal_triples.append((t, t+1))
+
+
+# In[52]:
+
+print("Temporal triples:", len(temporal_triples))
+
+
+# In[54]:
+
+np.savetxt("data_processed/temporal_obs.txt", np.array(temporal_triples))
 
 
 # #### Write headers for BLOG code
 
-# In[154]:
+# In[55]:
 
 header_file = open("flu_spread_header.blog", "w")
 header_file.write("""
 type County;
 type Region;
 type Week;
-type SpatialPair;
+type SpatialTriple;
+type TemporalTriple;
 
 distinct County counties[{0}];
 distinct Region regions[{1}];
 distinct Week weeks[{2}];
-distinct SpatialPair spatial_pairs[{3}];
+distinct SpatialTriple spatial_triples[{3}];
+distinct TemporalTriple temporal_triples[{4}];
 
-""".format(len(counties), len(regions), len(dates), len(spatial_pairs)))
+""".format(len(counties), len(regions), len(dates), len(spatial_triples), len(temporal_triples)))
 header_file.close()
 
 
@@ -442,7 +465,7 @@ footer_file.write("      sigmoid(logit(counties[%d], t)))) / region_pop[toInt(r)
 footer_file.write("    %f);\n\n" % region_variance)
 footer_file.write("""
 
-obs region_rate(r, t) = observations[toInt(t)][toInt(r)] for Region r, Week t;
+obs region_rate(r, t) = observations[toInt(t)][toInt(r)] for Region r, Week t: observations[toInt(t)][toInt(r)] > 0.0;
 
 query tau1;
 query rho;

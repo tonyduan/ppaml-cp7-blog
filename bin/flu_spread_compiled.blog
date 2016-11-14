@@ -2,22 +2,25 @@
 type County;
 type Region;
 type Week;
-type SpatialPair;
+type SpatialTriple;
+type TemporalTriple;
 
 distinct County counties[82];
 distinct Region regions[9];
 distinct Week weeks[103];
-distinct SpatialPair spatial_pairs[432];
+distinct SpatialTriple spatial_triples[432];
+distinct TemporalTriple temporal_triples[102];
 
 // ----
 // define hyperparameters
 // ----
-random Real rho ~ Gamma(1.05, 0.5);
+/*random Real rho ~ Gamma(1.05, 0.5);*/
+fixed Real rho = 0;
 random Real tau1 ~ Gamma(3.0, 0.1);
-random Real beta1 ~ TruncatedGauss(0.1, 0.1, 0.0, 0.5);
-random Real beta2 ~ TruncatedGauss(0.1, 0.1, 0.0, 0.5);
-/*fixed Real beta1 = 0;*/
-/*fixed Real beta2 = 0;*/
+/*random Real beta1 ~ TruncatedGauss(0.1, 0.1, 0.0, 0.5);*/
+/*random Real beta2 ~ TruncatedGauss(0.1, 0.1, 0.0, 0.5);*/
+fixed Real beta1 = 0;
+fixed Real beta2 = 0;
 
 // ----
 // load data
@@ -33,7 +36,8 @@ fixed RealMatrix D = loadRealMatrix("data_processed/D.txt");
 fixed RealMatrix W = loadRealMatrix("data_processed/W.txt");
 
 fixed RealMatrix observations = loadRealMatrix("data_processed/obs.txt");
-fixed RealMatrix spatial_obs = loadRealMatrix("data_processed/spatial_obs.txt");
+/*fixed RealMatrix spatial_obs = loadRealMatrix("data_processed/spatial_obs.txt");*/
+fixed RealMatrix temporal_obs = loadRealMatrix("data_processed/temporal_obs.txt");
 
 // ---
 // utility functions to convert integers to objects.
@@ -52,7 +56,7 @@ fixed Real sigmoid(Real value) = 1.0 / (1.0 + exp(-1.0 * value));
 // variance defined by the diagonal matrix.
 // ---
 random Real y(County c, Week t) ~
-  Gaussian(priors[toInt(c)][toInt(t)], D[toInt(c)]);
+  Gaussian(-4.0, D[toInt(c)] / 10.0);
 
 // ---
 // define spatial edges and temporal edges and observe them to be true.
@@ -60,17 +64,19 @@ random Real y(County c, Week t) ~
 // the boolean distribution doesn't matter because only likelihoods are
 // considered (thanks Nishant!).
 // ---
-random Boolean temporal_edge(Week t, County c) ~
-  BooleanDistrib( exp(tau1 * y(c, t) * y(c, toWeek(toInt(t)-1))) );
+random Boolean temporal_edge(County c, TemporalTriple t) ~
+  BooleanDistrib( exp(tau1 *
+                      y(c, toWeek(toInt(temporal_obs[toInt(t)][0]))) *
+                      y(c, toWeek(toInt(temporal_obs[toInt(t)][1]))) ));
 
-random Boolean spatial_edge(Week t, SpatialPair p) ~
+/*random Boolean spatial_edge(Week t, SpatialTriple s) ~
   BooleanDistrib( exp(tau1 *
                       rho *
-                      y(toCounty(toInt(spatial_obs[toInt(p)][0])), t) *
-                      y(toCounty(toInt(spatial_obs[toInt(p)][1])), t)   ) );
-
-obs temporal_edge(t, c) = true for Week t, County c : toInt(t) > 0;
-obs spatial_edge(t, p) = true for Week t, SpatialPair p;
+                      y(toCounty(toInt(spatial_obs[toInt(s)][0])), t) *
+                      y(toCounty(toInt(spatial_obs[toInt(s)][1])), t)   ));
+*/
+obs temporal_edge(c, t) = true for County c, TemporalTriple t;
+/*obs spatial_edge(t, s) = true for Week t, SpatialTriple s;*/
 
 // ----
 // county rate is calculated by logit model.
@@ -174,7 +180,7 @@ random Real region_rate(Region r, Week t) ~
 
 
 
-obs region_rate(r, t) = observations[toInt(t)][toInt(r)] for Region r, Week t;
+obs region_rate(r, t) = observations[toInt(t)][toInt(r)] for Region r, Week t: observations[toInt(t)][toInt(r)] > 0.0;
 
 query tau1;
 query rho;
