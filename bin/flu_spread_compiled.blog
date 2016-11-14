@@ -14,13 +14,18 @@ distinct TemporalTriple temporal_triples[102];
 // ----
 // define hyperparameters
 // ----
-/*random Real rho ~ Gamma(1.05, 0.5);*/
-fixed Real rho = 0;
-random Real tau1 ~ Gamma(3.0, 0.1);
-/*random Real beta1 ~ TruncatedGauss(0.1, 0.1, 0.0, 0.5);*/
-/*random Real beta2 ~ TruncatedGauss(0.1, 0.1, 0.0, 0.5);*/
-fixed Real beta1 = 0;
-fixed Real beta2 = 0;
+random Real rho ~ Gamma(1.05, 0.5);
+/*random Real tau1 ~ Gamma(3.0, 0.1);*/
+random Real beta1 ~ TruncatedGauss(0.25, 0.1, 0.1, 0.5);
+random Real beta2 ~ TruncatedGauss(0.25, 0.1, 0.1, 0.5);
+/*random Real beta1 ~ Gaussian(0.0, 10.0);*/
+/*random Real beta2 ~ Gaussian(0.0, 10.0);*/
+random Real bias ~ Gaussian(-4.0, 0.01);
+/*fixed Real beta2 = 0.0;*/
+/*fixed Real rho = 0.5;*/
+fixed Real tau1 = 10.0;
+/*fixed Real beta1 = 0;*/
+/*fixed Real beta2 = 0;*/
 
 // ----
 // load data
@@ -36,7 +41,7 @@ fixed RealMatrix D = loadRealMatrix("data_processed/D.txt");
 fixed RealMatrix W = loadRealMatrix("data_processed/W.txt");
 
 fixed RealMatrix observations = loadRealMatrix("data_processed/obs.txt");
-/*fixed RealMatrix spatial_obs = loadRealMatrix("data_processed/spatial_obs.txt");*/
+fixed RealMatrix spatial_obs = loadRealMatrix("data_processed/spatial_obs.txt");
 fixed RealMatrix temporal_obs = loadRealMatrix("data_processed/temporal_obs.txt");
 
 // ---
@@ -56,7 +61,7 @@ fixed Real sigmoid(Real value) = 1.0 / (1.0 + exp(-1.0 * value));
 // variance defined by the diagonal matrix.
 // ---
 random Real y(County c, Week t) ~
-  Gaussian(-4.0, D[toInt(c)] / 10.0);
+  Gaussian(bias, D[toInt(c)] * 2.0);
 
 // ---
 // define spatial edges and temporal edges and observe them to be true.
@@ -65,18 +70,18 @@ random Real y(County c, Week t) ~
 // considered (thanks Nishant!).
 // ---
 random Boolean temporal_edge(County c, TemporalTriple t) ~
-  BooleanDistrib( exp(tau1 *
-                      y(c, toWeek(toInt(temporal_obs[toInt(t)][0]))) *
-                      y(c, toWeek(toInt(temporal_obs[toInt(t)][1]))) ));
+  BooleanDistrib( exp(1.0 * tau1 *
+                      (y(c, toWeek(toInt(temporal_obs[toInt(t)][0]))) - bias)*
+                      (y(c, toWeek(toInt(temporal_obs[toInt(t)][1]))) - bias)));
 
-/*random Boolean spatial_edge(Week t, SpatialTriple s) ~
-  BooleanDistrib( exp(tau1 *
+random Boolean spatial_edge(Week t, SpatialTriple s) ~
+  BooleanDistrib( exp(1.0 * tau1 *
                       rho *
-                      y(toCounty(toInt(spatial_obs[toInt(s)][0])), t) *
-                      y(toCounty(toInt(spatial_obs[toInt(s)][1])), t)   ));
-*/
+                      (y(toCounty(toInt(spatial_obs[toInt(s)][0])), t) - bias)*
+                      (y(toCounty(toInt(spatial_obs[toInt(s)][1])), t) - bias) ));
+
 obs temporal_edge(c, t) = true for County c, TemporalTriple t;
-/*obs spatial_edge(t, s) = true for Week t, SpatialTriple s;*/
+obs spatial_edge(t, s) = true for Week t, SpatialTriple s;
 
 // ----
 // county rate is calculated by logit model.
@@ -84,7 +89,7 @@ obs temporal_edge(c, t) = true for County c, TemporalTriple t;
 random Real logit(County c, Week t) ~
   Gaussian(toReal(beta1 * covariates1[toInt(c)][toInt(t)] +
                   beta2 * covariates2[toInt(c)][toInt(t)] +
-                  y(c, t)), 0.0001);
+                  y(c, t)), 0.001);
 
 // ----
 // region rate is the sum over county rates -- set up in preprocessing

@@ -37,8 +37,9 @@ Our setup script works on Amazon EC2 Ubuntu 14.04.
 
 Configuration is:
 
-- Small dataset: 16896 random variables, 2M samples
-- Medium dataset: 
+- Small dataset: 82 counties -- 16896 random variables, 10M samples
+- Middle dataset: 277 counties -- 57066 random variables, 40M samples
+- Full dataset: 3059 counties -- 630158 random variables, 100M samples
 
 Requirements are approximately:
 
