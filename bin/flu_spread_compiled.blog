@@ -61,7 +61,7 @@ fixed Real sigmoid(Real value) = 1.0 / (1.0 + exp(-1.0 * value));
 // variance defined by the diagonal matrix.
 // ---
 random Real y(County c, Week t) ~
-  Gaussian(bias, D[toInt(c)] * 2.0);
+  Gaussian(bias, D[toInt(c)] * 9.0);
 
 // ---
 // define spatial edges and temporal edges and observe them to be true.
