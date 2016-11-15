@@ -17,9 +17,9 @@ distinct TemporalTriple temporal_triples[102];
 /*random Real rho ~ Gamma(1.05, 0.5);
 random Real tau1 ~ Gamma(3.0, 0.1);*/
 random Real beta1 ~ TruncatedGauss(0.25, 0.1, 0.1, 0.7);
-random Real beta2 ~ TruncatedGauss(0.25, 0.1, 0.1, 0.7);
+/*random Real beta2 ~ TruncatedGauss(0.25, 0.1, 0.1, 0.7);*/
 /*random Real beta1 ~ Gaussian(0.0, 10.0);*/
-/*random Real beta2 ~ Gaussian(0.0, 10.0);*/
+random Real beta2 ~ Gaussian(0.0, 10.0);
 random Real bias ~ Gaussian(-4.0, 0.01);
 /*fixed Real beta2 = 0.0;*/
 fixed Real rho = 0.525;
