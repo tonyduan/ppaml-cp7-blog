@@ -87,9 +87,9 @@ corr_matrix = np.zeros((len(index_to_county), len(dates)))
 
 # In[20]:
 
-for i in range(len(dates)):
-  for j in range(len(index_to_county)):
-    corr_matrix[j][i] = correlations[(j,i)]
+# for i in range(len(dates)):
+  # for j in range(len(index_to_county)):
+    # corr_matrix[j][i] = correlations[(j,i)]
 
 
 # In[13]:

@@ -1,5 +1,5 @@
 
-random Real region_rate(Region r, Week t) ~ 
+random Real region_rate(Region r, Week t) ~
   Gaussian(
     accu(county_map[toInt(r)] * vstack(
       sigmoid(logit(counties[0], t)),
@@ -95,5 +95,4 @@ query rho;
 query beta1;
 query beta2;
 
-query y(c, t) for County c, Week t;
 query logit(c, t) for County c, Week t;

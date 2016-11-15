@@ -60,8 +60,8 @@ fixed Real sigmoid(Real value) = 1.0 / (1.0 + exp(-1.0 * value));
 // at the logit of the region rate (from observations), and with
 // variance defined by the diagonal matrix.
 // ---
-random Real y(County c, Week t) ~
-  Gaussian(bias, D[toInt(c)] * 9.0);
+/*random Real y(County c, Week t) ~*/
+/*  Gaussian(bias, D[toInt(c)]);*/
 
 // ---
 // define spatial edges and temporal edges and observe them to be true.
@@ -71,14 +71,14 @@ random Real y(County c, Week t) ~
 // ---
 random Boolean temporal_edge(County c, TemporalTriple t) ~
   BooleanDistrib( exp(1.0 * tau1 *
-                      (y(c, toWeek(toInt(temporal_obs[toInt(t)][0]))) - bias)*
-                      (y(c, toWeek(toInt(temporal_obs[toInt(t)][1]))) - bias)));
+                      (logit(c, toWeek(toInt(temporal_obs[toInt(t)][0]))) - bias)*
+                      (logit(c, toWeek(toInt(temporal_obs[toInt(t)][1]))) - bias)));
 
 random Boolean spatial_edge(Week t, SpatialTriple s) ~
   BooleanDistrib( exp(1.0 * tau1 *
                       rho *
-                      (y(toCounty(toInt(spatial_obs[toInt(s)][0])), t) - bias)*
-                      (y(toCounty(toInt(spatial_obs[toInt(s)][1])), t) - bias) ));
+                      (logit(toCounty(toInt(spatial_obs[toInt(s)][0])), t) - bias)*
+                      (logit(toCounty(toInt(spatial_obs[toInt(s)][1])), t) - bias) ));
 
 obs temporal_edge(c, t) = true for County c, TemporalTriple t;
 obs spatial_edge(t, s) = true for Week t, SpatialTriple s;
@@ -87,16 +87,16 @@ obs spatial_edge(t, s) = true for Week t, SpatialTriple s;
 // county rate is calculated by logit model.
 // ----
 random Real logit(County c, Week t) ~
-  Gaussian(toReal(beta1 * covariates1[toInt(c)][toInt(t)] +
-                  beta2 * covariates2[toInt(c)][toInt(t)] +
-                  y(c, t)), 0.001);
+  Gaussian(toReal(bias +
+                  beta1 * covariates1[toInt(c)][toInt(t)] +
+                  beta2 * covariates2[toInt(c)][toInt(t)]), D[toInt(c)]);
 
 // ----
 // region rate is the sum over county rates -- set up in preprocessing
 //   (make nondeterministic as Gaussian with very small variance)
 // ----
 
-random Real region_rate(Region r, Week t) ~ 
+random Real region_rate(Region r, Week t) ~
   Gaussian(
     accu(county_map[toInt(r)] * vstack(
       sigmoid(logit(counties[0], t)),
@@ -192,5 +192,4 @@ query rho;
 query beta1;
 query beta2;
 
-query y(c, t) for County c, Week t;
 query logit(c, t) for County c, Week t;
