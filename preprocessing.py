@@ -449,7 +449,7 @@ np.savetxt("data_processed/priors.txt", priors)
 # In[160]:
 
 footer_file = open("flu_spread_footer.blog", "w")
-region_variance = 0.005
+region_variance = 0.1
 
 
 # In[161]:

@@ -84,7 +84,7 @@ random Real region_rate(Region r, Week t) ~
       sigmoid(logit(counties[79], t)),
       sigmoid(logit(counties[80], t)),
       sigmoid(logit(counties[81], t)))) / region_pop[toInt(r)],
-    0.005000);
+    0.100000);
 
 
 
