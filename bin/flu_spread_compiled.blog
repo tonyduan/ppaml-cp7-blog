@@ -84,10 +84,9 @@ obs spatial_edge(t, s) = true for Week t, SpatialTriple s;
 // county rate is calculated by logit model.
 // ----
 random Real logit(County c, Week t) ~
-  UniformReal(-8.0, -0.25);
-/*  Gaussian(toReal(bias +*/
-/*                  beta1 * covariates1[toInt(c)][toInt(t)] +*/
-/*                  beta2 * covariates2[toInt(c)][toInt(t)]), D[toInt(c)]);*/
+  Gaussian(toReal(bias +
+                  beta1 * covariates1[toInt(c)][toInt(t)] +
+                  beta2 * covariates2[toInt(c)][toInt(t)]), D[toInt(c)] * 9.0);
 
 // ----
 // region rate is the sum over county rates -- set up in preprocessing
