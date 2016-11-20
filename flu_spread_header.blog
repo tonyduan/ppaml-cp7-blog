@@ -5,9 +5,9 @@ type Week;
 type SpatialTriple;
 type TemporalTriple;
 
-distinct County counties[82];
-distinct Region regions[9];
+distinct County counties[277];
+distinct Region regions[25];
 distinct Week weeks[103];
-distinct SpatialTriple spatial_triples[432];
+distinct SpatialTriple spatial_triples[1480];
 distinct TemporalTriple temporal_triples[102];
 

@@ -3,13 +3,13 @@
 // ----
 /*random Real rho ~ Gamma(1.05, 0.5);
 random Real tau1 ~ Gamma(3.0, 0.1);*/
-/*random Real beta1 ~ TruncatedGauss(0.1, 0.1, 0.0, 0.25);*/
-/*random Real beta2 ~ TruncatedGauss(0.1, 0.1, 0.0, 0.25);*/
+random Real beta1 ~ TruncatedGauss(0.1, 0.1, 0.0, 0.25);
+random Real beta2 ~ TruncatedGauss(0.1, 0.1, 0.0, 0.25);
 random Real bias ~ Gaussian(-4.0, 0.01);
 fixed Real rho = 0.5;
 fixed Real tau1 = 0.5;
-fixed Real beta1 = 0;
-fixed Real beta2 = 0;
+/*fixed Real beta1 = 0;
+fixed Real beta2 = 0;*/
 
 // ----
 // load data
@@ -71,10 +71,9 @@ obs spatial_edge(t, s) = true for Week t, SpatialTriple s;
 // county rate is calculated by logit model.
 // ----
 random Real logit(County c, Week t) ~
-    UniformReal(-7.0, -0.25);
-/*  Gaussian(toReal(bias +
+  Gaussian(toReal(bias +
                   beta1 * covariates1[toInt(c)][toInt(t)] +
-                  beta2 * covariates2[toInt(c)][toInt(t)]), D[toInt(c)] * 9.0);*/
+                  beta2 * covariates2[toInt(c)][toInt(t)]), D[toInt(c)] * 9.0);
 
 // ----
 // region rate is the sum over county rates -- set up in preprocessing
