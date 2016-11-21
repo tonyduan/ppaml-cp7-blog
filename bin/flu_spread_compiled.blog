@@ -18,7 +18,7 @@ distinct TemporalPair temporal_pairs[102];
 /*random Real tau1 ~ Gamma(3.0, 0.1);*/
 random Real beta1 ~ TruncatedGauss(0.75, 0.5, 0.0, 2.0);
 random Real beta2 ~ TruncatedGauss(0.75, 0.5, 0.0, 2.0);
-random Real bias ~ Gaussian(-5.0, 0.1);
+random Real bias ~ Gaussian(-4.0, 1.0);
 fixed Real rho = 0.5;
 fixed Real tau1 = 3.0;
 
