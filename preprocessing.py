@@ -22,7 +22,7 @@
 # <img style="display:inline;" src="images/gmrf.png" /><img style="display:inline;"  src="images/adjacency.png" />
 # <img style="display:inline;" src="images/model.png" />
 
-# In[1]:
+# In[195]:
 
 import functools
 import json
@@ -36,7 +36,7 @@ from collections import defaultdict
 from datetime import datetime
 
 
-# In[2]:
+# In[196]:
 
 def is_kernel():
     if 'IPython' not in sys.modules:
@@ -45,7 +45,7 @@ def is_kernel():
     return getattr(get_ipython(), 'kernel', None) is not None
 
 
-# In[3]:
+# In[197]:
 
 if not is_kernel():
     if len(sys.argv) <= 1:
@@ -60,7 +60,7 @@ else:
 # 
 # Need to make sure to load from the right training data size.
 
-# In[4]:
+# In[198]:
 
 ili_data            = pd.read_csv("data/%s/input/Flu_ILI.csv" % TRAINING_SIZE)
 tweets_data         = json.load(open("data/%s/input/Flu_Vacc_Tweet_TRAIN.json" % TRAINING_SIZE))
@@ -74,12 +74,12 @@ county_adjacency    = json.load(open("data/%s/input/county_adjacency_lower48.jso
 # It's important that the dates are in chronological order.<br/>
 # The index of the event is important for writing observations.
 
-# In[5]:
+# In[199]:
 
 dates = list(map(lambda s: datetime.strptime(s, "%m/%d/%Y").date().strftime('%m/%d/%Y'), ili_data["Ending"]))
 
 
-# In[6]:
+# In[200]:
 
 print("Number of dates:", len(dates))
 
@@ -105,21 +105,19 @@ print("Number of dates:", len(dates))
 # The covariate matrices should be of size $n$ by $d$.<br />
 # The population vector should be of size $n$ by $1$.
 
-# In[7]:
+# In[201]:
 
 fips_to_cov1 = defaultdict(list)
 fips_to_cov2 = defaultdict(list)
 fips_to_pop = {}
 
 
-# In[8]:
+# In[202]:
 
 for fips_code, blob in tweets_data.items():
     
     if not 'Vaccination percentage %' in blob.keys():
         continue
-    
-    vacc_percentage = 0.0
         
     for date in dates:
     
@@ -128,10 +126,8 @@ for fips_code, blob in tweets_data.items():
             cov2 = np.log(0.001 / (1 + 0.001))
         else:
             cov1 = np.log((blob['No. of Tweets'][date] + 0.1) / blob['Population, 2014 estimate'])
-            cov2 = np.log(((blob['Vaccination percentage %'][date] / 100 - vacc_percentage)  + 0.001) / 
-                           (1-(blob['Vaccination percentage %'][date] / 100 - vacc_percentage) + 0.001))
-
-#             vacc_percentage = blob['Vaccination percentage %'][date] / 100
+            cov2 = np.log(((blob['Vaccination percentage %'][date] / 100)  + 0.001) / 
+                           (1-(blob['Vaccination percentage %'][date] / 100) + 0.001))
             
         fips_to_cov1[fips_code].append(cov1)
         fips_to_cov2[fips_code].append(cov2)
@@ -143,7 +139,7 @@ for fips_code, blob in tweets_data.items():
 # 
 # We extract regions and counties for *only* the relevant counties from the training data.<br />
 
-# In[9]:
+# In[203]:
 
 regions = set()
 for i, col in enumerate(ili_data.columns):
@@ -151,14 +147,14 @@ for i, col in enumerate(ili_data.columns):
         regions.add(col)
 
 
-# In[10]:
+# In[204]:
 
 counties = set()
 for r in regions:
     counties = counties.union(set(regions_to_counties[r].keys()))
 
 
-# In[11]:
+# In[205]:
 
 print('Number of regions:', len(regions))
 print('Number of counties:', len(counties))
@@ -183,7 +179,7 @@ print('Number of counties:', len(counties))
 # 
 # The resulting matrix should be of size $m$ by $n$.
 
-# In[120]:
+# In[206]:
 
 county_to_index = {}
 for i, fips in enumerate(counties):
@@ -191,7 +187,7 @@ for i, fips in enumerate(counties):
 index_to_county = {v: k for k, v in county_to_index.items()}
 
 
-# In[121]:
+# In[207]:
 
 region_to_index = {}
 for i, r in enumerate(regions):
@@ -199,7 +195,7 @@ for i, r in enumerate(regions):
 index_to_region = {v: k for k, v in region_to_index.items()}
 
 
-# In[122]:
+# In[208]:
 
 county_pop_matrix = []
 cov1_matrix = []
@@ -215,7 +211,7 @@ cov1_matrix = np.array(cov1_matrix)
 cov2_matrix = np.array(cov2_matrix)
 
 
-# In[123]:
+# In[209]:
 
 county_map_matrix = np.zeros((len(regions), len(counties)))
 region_pop_matrix = [0] * len(regions)
@@ -229,7 +225,7 @@ for i, r in index_to_region.items():
         region_pop_matrix[i] += fips_to_pop[fips]
 
 
-# In[124]:
+# In[210]:
 
 np.savetxt('data_processed/county_map.txt', county_map_matrix)
 np.savetxt('data_processed/region_pops.txt', region_pop_matrix)
@@ -239,13 +235,18 @@ np.savetxt('data_processed/region_pops.txt', region_pop_matrix)
 # 
 # Aggregate covariate 1 results at the region level.
 
-# In[125]:
+# In[211]:
+
+cov2_matrix[cov2_matrix < -2] = -2
+
+
+# In[212]:
 
 cov1_matrix = np.dot(county_map_matrix, cov1_matrix) / np.array(region_pop_matrix)[:, np.newaxis]
 cov1_matrix = np.dot((county_map_matrix > 0).astype(int).T, cov1_matrix)
 
 
-# In[126]:
+# In[213]:
 
 ewma_window = 15
 
@@ -256,7 +257,7 @@ def apply_double_ewma(vector):
     return dewma[ewma_window:]
 
 
-# In[133]:
+# In[214]:
 
 for i in range(len(cov1_matrix)):
     cov1_matrix[i] = apply_double_ewma(cov1_matrix[i])
@@ -264,25 +265,31 @@ for i in range(len(cov2_matrix)):
     cov2_matrix[i] = apply_double_ewma(cov2_matrix[i])
 
 
-# In[134]:
+# In[215]:
 
 cov1_matrix = (cov1_matrix - np.mean(cov1_matrix)) / np.std(cov1_matrix)
 cov2_matrix = (cov2_matrix - np.mean(cov2_matrix)) / np.std(cov2_matrix)
 
 
-# In[135]:
+# In[216]:
 
 np.savetxt('data_processed/covariates1.txt', cov1_matrix)
 np.savetxt('data_processed/covariates2.txt', cov2_matrix)
 
 
-# In[138]:
+# In[219]:
+
+# import matplotlib.pyplot as plt
+# % matplotlib inline
+
+
+# In[220]:
 
 # plt.plot(cov1_matrix.T)
-# plt.plot(cov2_matrix.T)
+# # plt.plot(cov2_matrix.T)
 
 
-# In[139]:
+# In[172]:
 
 print(cov1_matrix.shape)
 print(cov2_matrix.shape)
@@ -303,7 +310,7 @@ print(county_pop_matrix.shape)
 # $$Dw_{i,i} = \sum_j W_{i,j}$$
 # And $I$ is meant for regularization to ensure the matrix is positive definite.
 
-# In[36]:
+# In[173]:
 
 W = np.zeros(((len(counties), len(counties))))
 
@@ -326,12 +333,12 @@ for blob in county_adjacency.values():
         W[j][i] = 1
 
 
-# In[37]:
+# In[174]:
 
 np.savetxt("data_processed/W.txt", W)
 
 
-# In[38]:
+# In[175]:
 
 D = np.zeros(((len(counties), len(counties))))
 
@@ -339,24 +346,24 @@ for i in range(len(counties)):
     D[i,i] = np.sum(W[i,:])
 
 
-# In[39]:
+# In[176]:
 
 #D = D / np.max(D)
 
 
-# In[40]:
+# In[177]:
 
 print(D)
 
 
-# In[41]:
+# In[178]:
 
 np.savetxt('data_processed/D.txt', np.diag(D))
 
 
 # **Manage spatial triples.**
 
-# In[42]:
+# In[179]:
 
 spatial_triples = []
 for i in range(W.shape[0]):
@@ -366,19 +373,19 @@ for i in range(W.shape[0]):
       spatial_triples.append((i,j))
 
 
-# In[43]:
+# In[180]:
 
 print("Spatial pairs:", len(spatial_triples))
 
 
-# In[44]:
+# In[181]:
 
 np.savetxt("data_processed/spatial_obs.txt", np.array(spatial_triples))
 
 
 # **Manage temporal triples.**
 
-# In[45]:
+# In[182]:
 
 temporal_triples = []
 for t in range(len(dates) - 1):
@@ -386,19 +393,19 @@ for t in range(len(dates) - 1):
   temporal_triples.append((t, t+1))
 
 
-# In[46]:
+# In[183]:
 
 print("Temporal pairs:", len(temporal_triples))
 
 
-# In[47]:
+# In[184]:
 
 np.savetxt("data_processed/temporal_obs.txt", np.array(temporal_triples))
 
 
 # #### Write headers for BLOG code
 
-# In[48]:
+# In[185]:
 
 header_file = open("flu_spread_header.blog", "w")
 header_file.write("""
@@ -422,12 +429,12 @@ header_file.close()
 # 
 # We ignore any entries that are NaN in the training data.
 
-# In[54]:
+# In[186]:
 
 obs = np.ones((len(dates), len(regions))) * -1
 
 
-# In[55]:
+# In[187]:
 
 for i, row in ili_data.iterrows():
     
@@ -440,49 +447,49 @@ for i, row in ili_data.iterrows():
         obs[i][j] = rate
 
 
-# In[57]:
+# In[188]:
 
 np.savetxt("data_processed/obs.txt", obs)
 
 
 # **Write priors.**
 
-# In[66]:
+# In[82]:
 
 priors = np.zeros((len(counties), len(dates)))
 
 
-# In[63]:
+# In[83]:
 
 priors.shape
 
 
-# In[70]:
+# In[84]:
 
 for c in range(len(counties)):
   for t in range(len(dates)):
     priors[c][t] = obs[t][np.argmax(county_map_matrix[:,c])] + 0.001
 
 
-# In[71]:
+# In[85]:
 
 priors = -1 * np.log((1 - priors) / (priors))
 
 
-# In[72]:
+# In[86]:
 
 np.savetxt("data_processed/priors.txt", priors)
 
 
 # #### Write region-level rates BLOG code, observations, and queries.
 
-# In[73]:
+# In[87]:
 
 footer_file = open("flu_spread_footer.blog", "w")
 region_variance = 0.005
 
 
-# In[74]:
+# In[88]:
 
 footer_file.write("""
 random Real region_rate(Region r, Week t) ~ 
@@ -509,19 +516,19 @@ footer_file.close()
 
 # #### Save necessary data for post-processing.
 
-# In[75]:
+# In[89]:
 
 with open("log/dates.pickle", "wb") as outfile:
     pickle.dump(dates, outfile)
 
 
-# In[76]:
+# In[90]:
 
 with open("log/index_to_county.pickle", "wb") as outfile:
     pickle.dump(index_to_county, outfile)
 
 
-# In[77]:
+# In[91]:
 
 with open("log/index_to_region.pickle", "wb") as outfile:
     pickle.dump(index_to_region, outfile)
