@@ -30,7 +30,7 @@ if not is_kernel():
         sys.exit()
     INPUT_SIZE = sys.argv[1]
 else:
-    INPUT_SIZE = "Small"
+    INPUT_SIZE = "Middle"
 
 
 # **Load previously saved data.**
@@ -55,12 +55,12 @@ with open("log/index_to_region.pickle", "rb") as picklefile:
 
 # #### Parse out the county-level flu rates.
 
-# In[15]:
+# In[7]:
 
 OUTPUT_FILE = "out/output_%s.txt" % INPUT_SIZE.lower()
 
 
-# In[17]:
+# In[8]:
 
 pos_pattern = r"query : y\(County\[(\d+)\], Week\[(\d+)\]\)\n{2}Mean = (\d+\.\d+)\s"
 neg_pattern = r"query : y\(County\[(\d+)\], Week\[(\d+)\]\)\n{2}Mean = -(\d+\.\d+)\s"
@@ -71,7 +71,7 @@ with open(OUTPUT_FILE, "r") as output_file:
     neg_searches = re.findall(neg_pattern, output_file.read())
 
 
-# In[18]:
+# In[9]:
 
 correlations = {}
 for q in pos_searches:
@@ -80,24 +80,24 @@ for q in neg_searches:
     correlations[int(q[0]), int(q[1])] = -1.0 * float(q[2])
 
 
-# In[19]:
+# In[10]:
 
 corr_matrix = np.zeros((len(index_to_county), len(dates)))
 
 
-# In[20]:
+# In[11]:
 
 # for i in range(len(dates)):
-  # for j in range(len(index_to_county)):
-    # corr_matrix[j][i] = correlations[(j,i)]
+#   for j in range(len(index_to_county)):
+#     corr_matrix[j][i] = correlations[(j,i)]
 
 
-# In[13]:
+# In[16]:
 
 corr_matrix.shape
 
 
-# In[14]:
+# In[17]:
 
 pos_pattern = r"query : logit\(County\[(\d+)\], Week\[(\d+)\]\)\n{2}Mean = (\d+\.\d+)\s"
 neg_pattern = r"query : logit\(County\[(\d+)\], Week\[(\d+)\]\)\n{2}Mean = -(\d+\.\d+)\s"
@@ -108,7 +108,7 @@ with open(OUTPUT_FILE, "r") as output_file:
     neg_searches = re.findall(neg_pattern, output_file.read())
 
 
-# In[245]:
+# In[18]:
 
 predictions = {}
 for q in pos_searches:
@@ -117,7 +117,7 @@ for q in neg_searches:
     predictions[int(q[0]), int(q[1])] = -1.0 * float(q[2])
 
 
-# In[246]:
+# In[19]:
 
 for k, v in predictions.items():
   v = 1.0 / (1.0 + np.exp(-1.0 * v))
@@ -126,12 +126,12 @@ for k, v in predictions.items():
 
 # #### Write output JSON.
 
-# In[247]:
+# In[20]:
 
 output_dict = {}
 
 
-# In[248]:
+# In[21]:
 
 for (i, fips) in index_to_county.items():
     county_dict = {
@@ -142,7 +142,7 @@ for (i, fips) in index_to_county.items():
     output_dict[fips] = county_dict
 
 
-# In[249]:
+# In[22]:
 
 with open("out/%s/CountyWeeklyILI.json" % INPUT_SIZE, "w") as jsonfile:
     jsonfile.write(json.dumps(output_dict))
@@ -150,12 +150,12 @@ with open("out/%s/CountyWeeklyILI.json" % INPUT_SIZE, "w") as jsonfile:
 
 # #### Evaluate
 
-# In[250]:
+# In[23]:
 
 eval_data = []
 
 
-# In[251]:
+# In[24]:
 
 with open("data/%s/eval/Flu_ILI_TRUTH.csv" % INPUT_SIZE, "r") as csvfile:
     reader = csv.DictReader(csvfile)
@@ -163,13 +163,13 @@ with open("data/%s/eval/Flu_ILI_TRUTH.csv" % INPUT_SIZE, "r") as csvfile:
         eval_data.append(row)
 
 
-# In[252]:
+# In[25]:
 
 county_map_matrix = np.loadtxt("./data_processed/county_map.txt")
 region_pop_matrix = np.loadtxt("./data_processed/region_pops.txt")
 
 
-# In[253]:
+# In[26]:
 
 print(county_map_matrix.shape)
 print(region_pop_matrix.shape)
@@ -177,18 +177,18 @@ print(region_pop_matrix.shape)
 
 # **Graphs**
 
-# In[260]:
+# In[27]:
 
 history = []
 county_level_history = []
 
 
-# In[261]:
+# In[28]:
 
 loss = 0.0
 
 
-# In[262]:
+# In[29]:
 
 for t, date in enumerate(dates):
     county_vector = np.array([predictions[(i, t)] for i in range(len(index_to_county))])
@@ -201,98 +201,93 @@ for t, date in enumerate(dates):
             loss += region_pop_matrix[i] * (predicted_rate * 100 - float(eval_data[t][index_to_region[i]][0:-1]))**2
 
 
-# In[263]:
+# In[30]:
 
 history = np.array(history).T
 county_level_history = np.array(county_level_history).T
 
 
-# In[264]:
+# In[31]:
 
 print("Total loss:", loss)
 
 
-# In[265]:
+# In[32]:
 
 print("MSE:", loss / np.sum(region_pop_matrix) / np.sum(len(dates)))
 
 
-# In[266]:
+# In[33]:
 
 print("RMSE:", (loss / np.sum(region_pop_matrix) / np.sum(len(dates)))**0.5)
 
 
-# In[267]:
+# In[34]:
 
 sigmoid = lambda x: 1 / (1 + np.exp(-x))
 
 
-# In[268]:
+# In[35]:
 
 logit = lambda y: -1 * np.log((1 - y) / y)
 
 
-# In[269]:
+# In[36]:
 
 obs = np.loadtxt("data_processed/obs.txt").T
 
 
-# In[270]:
+# In[37]:
 
 logit(county_level_history[0][20]) == logit(predictions[(0,20)])
 
 
-# In[271]:
+# In[12]:
+
+# % matplotlib inline
+
+
+# In[42]:
 
 plt.figure(figsize=(18, 6))
 plt.subplot(1,2,1)
-plt.plot(np.array(history)[:,:50].T)
+plt.plot(np.array(history)[:,:].T)
 plt.ylim([0, np.max(history)])
 plt.title("Inferred region rates.")
 plt.subplot(1,2,2)
-plt.plot(obs[:,:50].T)
+plt.plot(obs[:,:].T)
 plt.ylim([0, np.max(history)])
 plt.title("Observed region rates.")
 plt.savefig("out/%s/region_rates.png" % INPUT_SIZE)
 
 
-# In[272]:
+# In[47]:
 
 ind = np.random.randint(0, len(index_to_county))
 
 
-# In[273]:
-
-# ind = 0
-
-
-# In[274]:
+# In[49]:
 
 priors = np.loadtxt("data_processed/priors.txt")
 
 
-# In[275]:
+# In[50]:
 
 plt.figure(figsize=(12,12))
 plt.subplot(3,2,1)
-plt.plot(corr_matrix[ind,:50], '.g')
-plt.plot(logit(np.array(county_level_history)[ind,:50]), '.b')
+plt.plot(corr_matrix[ind,:], '.g')
+plt.plot(logit(np.array(county_level_history)[ind,:]), '.b')
 plt.title("Inferred county logits.")
 plt.subplot(3,2,2)
-plt.plot(priors[ind,:50], '.r')
+plt.plot(priors[ind,:], '.r')
 plt.title("Prior county logits.")
 plt.subplot(3,2,3)
-plt.plot(np.array(county_level_history)[ind,:50], '.b')
+plt.plot(np.array(county_level_history)[ind,:], '.b')
 plt.title("Inferred county rates.")
 plt.subplot(3,2,4)
-plt.plot(sigmoid(priors[ind,:50]), '.r')
+plt.plot(sigmoid(priors[ind,:]), '.r')
 plt.title("Observed county rates.")
 plt.savefig("out/%s/county_rates.png" % INPUT_SIZE)
-
-
-# In[7]:
-
-# % matplotlib inline
 
 
 # In[ ]:

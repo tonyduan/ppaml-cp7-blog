@@ -1,15 +1,11 @@
 // ----
 // define hyperparameters
 // ----
-/*random Real rho ~ Gamma(1.05, 0.5);
-random Real tau1 ~ Gamma(3.0, 0.1);*/
-random Real beta1 ~ TruncatedGauss(0.1, 0.1, 0.0, 0.25);
-random Real beta2 ~ TruncatedGauss(0.1, 0.1, 0.0, 0.25);
-random Real bias ~ Gaussian(-4.0, 0.01);
-fixed Real rho = 0.5;
-fixed Real tau1 = 0.5;
-/*fixed Real beta1 = 0;
-fixed Real beta2 = 0;*/
+random Real rho ~ Gamma(1.05, 0.5);
+random Real tau1 ~ Gamma(3.0, 0.1);
+random Real beta1 ~ TruncatedGauss(1.0, 0.5, 0.0, 3.0);
+random Real beta2 ~ TruncatedGauss(1.0, 0.5, 0.0, 3.0);
+random Real bias ~ Gaussian(-4.0, 0.1);
 
 // ----
 // load data
@@ -53,19 +49,18 @@ fixed Real sigmoid(Real value) = 1.0 / (1.0 + exp(-1.0 * value));
 // the boolean distribution doesn't matter because only likelihoods are
 // considered (thanks Nishant!).
 // ---
-random Boolean temporal_edge(County c, TemporalTriple t) ~
+random Boolean temporal_edge(County c, TemporalPair t) ~
   BooleanDistrib( exp(1.0 * tau1 *
                       (logit(c, toWeek(toInt(temporal_obs[toInt(t)][0]))) - bias)*
                       (logit(c, toWeek(toInt(temporal_obs[toInt(t)][1]))) - bias)));
 
-random Boolean spatial_edge(Week t, SpatialTriple s) ~
-  BooleanDistrib( exp(1.0 * tau1 *
-                      rho *
+random Boolean spatial_edge(Week t, SpatialPair s) ~
+  BooleanDistrib( exp(1.0 * tau1 * rho *
                       (logit(toCounty(toInt(spatial_obs[toInt(s)][0])), t) - bias)*
                       (logit(toCounty(toInt(spatial_obs[toInt(s)][1])), t) - bias) ));
 
-obs temporal_edge(c, t) = true for County c, TemporalTriple t;
-obs spatial_edge(t, s) = true for Week t, SpatialTriple s;
+obs temporal_edge(c, t) = true for County c, TemporalPair t;
+obs spatial_edge(t, s) = true for Week t, SpatialPair s;
 
 // ----
 // county rate is calculated by logit model.
@@ -73,7 +68,7 @@ obs spatial_edge(t, s) = true for Week t, SpatialTriple s;
 random Real logit(County c, Week t) ~
   Gaussian(toReal(bias +
                   beta1 * covariates1[toInt(c)][toInt(t)] +
-                  beta2 * covariates2[toInt(c)][toInt(t)]), D[toInt(c)] * 9.0);
+                  beta2 * covariates2[toInt(c)][toInt(t)]), D[toInt(c)]);
 
 // ----
 // region rate is the sum over county rates -- set up in preprocessing

@@ -2,12 +2,12 @@
 type County;
 type Region;
 type Week;
-type SpatialTriple;
-type TemporalTriple;
+type SpatialPair;
+type TemporalPair;
 
-distinct County counties[277];
-distinct Region regions[25];
+distinct County counties[82];
+distinct Region regions[9];
 distinct Week weeks[103];
-distinct SpatialTriple spatial_triples[1480];
-distinct TemporalTriple temporal_triples[102];
+distinct SpatialPair spatial_pairs[432];
+distinct TemporalPair temporal_pairs[102];
 

@@ -31,10 +31,10 @@ compile:
          -i bin/flu_spread_compiled.blog \
          -o bin/flu_spread_compiled.cpp \
 		 -e MHSampler \
-         -n 500000000 \
-         --burn-in 499999990
+         -n 200000 \
+         --burn-in 100000
 
-	sed -i 's/accu(__fixed_county_map\[r\]\*/dot(__fixed_county_map.row(r),/g' bin/flu_spread_compiled.cpp
+	sed -i.bk 's/accu(__fixed_county_map\[r\]\*/dot(__fixed_county_map.row(r),/g' bin/flu_spread_compiled.cpp
 
 	g++ -I bin -Ofast -std=c++11 \
 		bin/flu_spread_compiled.cpp \
