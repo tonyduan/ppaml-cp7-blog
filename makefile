@@ -30,9 +30,9 @@ compile:
 	../swift/swift \
          -i bin/flu_spread_compiled.blog \
          -o bin/flu_spread_compiled.cpp \
-		 -e MHSampler \
+		 -e GibbsSampler \
          -n 2000000 \
-         --burn-in 1999995
+         --burn-in 1999900
 
 	sed -i.bk 's/accu(__fixed_county_map\[r\]\*/dot(__fixed_county_map.row(r),/g' bin/flu_spread_compiled.cpp
 
