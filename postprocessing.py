@@ -181,124 +181,124 @@ print(county_map_matrix.shape)
 print(region_pop_matrix.shape)
 
 
-# **Graphs**
-
-# In[128]:
-
-history = []
-county_level_history = []
-
-
-# In[129]:
-
-loss = 0.0
-
-
-# In[130]:
-
-for t, date in enumerate(dates):
-    county_vector = np.array([predictions[(i, t)] for i in range(len(index_to_county))])
-    region_rates = np.dot(county_map_matrix, county_vector)
-    region_rates = region_rates / region_pop_matrix
-    history.append(region_rates)
-    county_level_history.append(county_vector)
-    for i, predicted_rate in enumerate(region_rates):
-        if eval_data[t][index_to_region[i]] != 'NaN':
-            loss += region_pop_matrix[i] * (predicted_rate * 100 - float(eval_data[t][index_to_region[i]][0:-1]))**2
-
-
-# In[131]:
-
-history = np.array(history).T
-county_level_history = np.array(county_level_history).T
-
-
-# In[132]:
-
-print("Total loss:", loss)
-
-
-# In[133]:
-
-print("MSE:", loss / np.sum(region_pop_matrix) / np.sum(len(dates)))
-
-
-# In[134]:
-
-print("RMSE:", (loss / np.sum(region_pop_matrix) / np.sum(len(dates)))**0.5)
-
-
-# In[135]:
-
-sigmoid = lambda x: 1 / (1 + np.exp(-x))
-
-
-# In[136]:
-
-logit = lambda y: -1 * np.log((1 - y) / y)
-
-
-# In[137]:
-
-obs = np.loadtxt("data_processed/obs.txt").T
-
-
-# In[138]:
-
-# % matplotlib inline
-
-
-# In[141]:
-
-plt.plot(cov1.T)
-
-
-# In[97]:
-
-plt.figure(figsize=(18, 6))
-plt.subplot(1,2,1)
-plt.plot(np.array(history)[:,:].T)
-plt.ylim([0, np.max(history)])
-plt.title("Inferred region rates.")
-plt.subplot(1,2,2)
-plt.plot(obs[:,:].T)
-plt.ylim([0, np.max(history)])
-plt.title("Observed region rates.")
-plt.savefig("out/%s/region_rates.png" % INPUT_SIZE)
-
-
-# In[101]:
-
-ind = np.random.randint(0, len(index_to_county))
-
-
-# In[102]:
-
-priors = np.loadtxt("data_processed/priors.txt")
-
-
-# In[103]:
-
-plt.figure(figsize=(12,12))
-plt.subplot(3,2,1)
-plt.plot(corr_matrix[ind,:], '.g')
-plt.plot(logit(np.array(county_level_history)[ind,:]), '.b')
-plt.title("Inferred county logits.")
-plt.subplot(3,2,2)
-plt.plot(priors[ind,:], '.r')
-plt.xlim([0, 103])
-plt.title("Observed county logits.")
-plt.subplot(3,2,3)
-plt.plot(np.array(county_level_history)[ind,:], '.b')
-plt.title("Inferred county rates.")
-plt.subplot(3,2,4)
-plt.plot(sigmoid(priors[ind,:]), '.r')
-plt.xlim([0, 103])
-plt.title("Observed county rates.")
-plt.savefig("out/%s/county_rates.png" % INPUT_SIZE)
-
-
-# In[ ]:
-
-
-
+# # **Graphs**
+#
+# # In[128]:
+#
+# history = []
+# county_level_history = []
+#
+#
+# # In[129]:
+#
+# loss = 0.0
+#
+#
+# # In[130]:
+#
+# for t, date in enumerate(dates):
+#     county_vector = np.array([predictions[(i, t)] for i in range(len(index_to_county))])
+#     region_rates = np.dot(county_map_matrix, county_vector)
+#     region_rates = region_rates / region_pop_matrix
+#     history.append(region_rates)
+#     county_level_history.append(county_vector)
+#     for i, predicted_rate in enumerate(region_rates):
+#         if eval_data[t][index_to_region[i]] != 'NaN':
+#             loss += region_pop_matrix[i] * (predicted_rate * 100 - float(eval_data[t][index_to_region[i]][0:-1]))**2
+#
+#
+# # In[131]:
+#
+# history = np.array(history).T
+# county_level_history = np.array(county_level_history).T
+#
+#
+# # In[132]:
+#
+# print("Total loss:", loss)
+#
+#
+# # In[133]:
+#
+# print("MSE:", loss / np.sum(region_pop_matrix) / np.sum(len(dates)))
+#
+#
+# # In[134]:
+#
+# print("RMSE:", (loss / np.sum(region_pop_matrix) / np.sum(len(dates)))**0.5)
+#
+#
+# # In[135]:
+#
+# sigmoid = lambda x: 1 / (1 + np.exp(-x))
+#
+#
+# # In[136]:
+#
+# logit = lambda y: -1 * np.log((1 - y) / y)
+#
+#
+# # In[137]:
+#
+# obs = np.loadtxt("data_processed/obs.txt").T
+#
+#
+# # In[138]:
+#
+# # % matplotlib inline
+#
+#
+# # In[141]:
+#
+# plt.plot(cov1.T)
+#
+#
+# # In[97]:
+#
+# plt.figure(figsize=(18, 6))
+# plt.subplot(1,2,1)
+# plt.plot(np.array(history)[:,:].T)
+# plt.ylim([0, np.max(history)])
+# plt.title("Inferred region rates.")
+# plt.subplot(1,2,2)
+# plt.plot(obs[:,:].T)
+# plt.ylim([0, np.max(history)])
+# plt.title("Observed region rates.")
+# plt.savefig("out/%s/region_rates.png" % INPUT_SIZE)
+#
+#
+# # In[101]:
+#
+# ind = np.random.randint(0, len(index_to_county))
+#
+#
+# # In[102]:
+#
+# priors = np.loadtxt("data_processed/priors.txt")
+#
+#
+# # In[103]:
+#
+# plt.figure(figsize=(12,12))
+# plt.subplot(3,2,1)
+# plt.plot(corr_matrix[ind,:], '.g')
+# plt.plot(logit(np.array(county_level_history)[ind,:]), '.b')
+# plt.title("Inferred county logits.")
+# plt.subplot(3,2,2)
+# plt.plot(priors[ind,:], '.r')
+# plt.xlim([0, 103])
+# plt.title("Observed county logits.")
+# plt.subplot(3,2,3)
+# plt.plot(np.array(county_level_history)[ind,:], '.b')
+# plt.title("Inferred county rates.")
+# plt.subplot(3,2,4)
+# plt.plot(sigmoid(priors[ind,:]), '.r')
+# plt.xlim([0, 103])
+# plt.title("Observed county rates.")
+# plt.savefig("out/%s/county_rates.png" % INPUT_SIZE)
+#
+#
+# # In[ ]:
+#
+#
+#
