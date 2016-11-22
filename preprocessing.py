@@ -286,8 +286,8 @@ cov1_matrix_diff = np.zeros_like(cov1_matrix)
 
 # In[130]:
 
-for i in range(len(cov1_matrix)):
-    cov1_matrix_diff[i] = cov1_matrix[i] - (np.max(cov1_matrix, axis=0) - cov1_matrix[i])
+#for i in range(len(cov1_matrix)):
+#    cov1_matrix_diff[i] = cov1_matrix[i] - (np.max(cov1_matrix, axis=0) - cov1_matrix[i])
 
 
 # In[134]:
