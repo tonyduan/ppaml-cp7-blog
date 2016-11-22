@@ -5,7 +5,7 @@
 /*random Real tau1 ~ Gamma(3.0, 0.1);*/
 /*random Real beta1 ~ TruncatedGauss(1.25, 0.5, 1.0, 2.0);
 random Real beta2 ~ TruncatedGauss(0.5, 0.5, 0.0, 0.75);*/
-fixed Real beta1 = 1.00;
+fixed Real beta1 = 1.35;
 fixed Real beta2 = 0.5;
 fixed Real rho = 0.25;
 fixed Real tau1 = 0.50;
