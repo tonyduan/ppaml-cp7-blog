@@ -5,9 +5,9 @@ type Week;
 type SpatialPair;
 type TemporalPair;
 
-distinct County counties[82];
-distinct Region regions[9];
+distinct County counties[277];
+distinct Region regions[25];
 distinct Week weeks[103];
-distinct SpatialPair spatial_pairs[432];
+distinct SpatialPair spatial_pairs[1480];
 distinct TemporalPair temporal_pairs[102];
 
