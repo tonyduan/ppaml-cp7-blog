@@ -43,7 +43,7 @@ Requirements are approximately:
 
 - Small dataset: 2 GB RAM.
 - Middle dataset: 4 GB RAM.
-- Full dataset: 8 GB RAM.
+- Full dataset: 12 GB RAM.
 
 ## Miscellaneous Notes
 
