@@ -7,7 +7,7 @@ printf "Usage: %s param_file input_dir output_dir log_path\n" "$0" >&2
 exit 1
 fi
 
-# load parameter -- n_samples, burn in will be (n_samples - 5)
+# load parameter -- n_samples, burn in will be (n_samples - 50)
 
 source $1
 
@@ -40,7 +40,7 @@ printf "Compiling BLOG code to C++.\n"
        -o bin/flu_spread_compiled.cpp \
        -e GibbsSampler \
        -n $n_samples \
-			 --burn-in $(( $n_samples - 5 )) > "$4"
+			 --burn-in $(( $n_samples - 50 )) > "$4"
 
 printf "Compiling C++ code.\n"
 

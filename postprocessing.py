@@ -229,27 +229,27 @@ print("RMSE:", (loss / np.sum(region_pop_matrix) / np.sum(len(dates)))**0.5)
 
 
 # In[56]:
-
-sigmoid = lambda x: 1 / (1 + np.exp(-x))
-
-
-# In[57]:
-
-logit = lambda y: -1 * np.log((1 - y) / y)
-
-
-# In[58]:
-
+#
+# sigmoid = lambda x: 1 / (1 + np.exp(-x))
+#
+#
+# # In[57]:
+#
+# logit = lambda y: -1 * np.log((1 - y) / y)
+#
+#
+# # In[58]:
+#
 # obs = np.loadtxt("data_processed/obs.txt").T
-
-
-# In[59]:
-
-# % matplotlib inline
-
-
-# In[60]:
-
+#
+#
+# # In[59]:
+#
+# # % matplotlib inline
+#
+#
+# # In[60]:
+#
 # plt.figure(figsize=(18, 6))
 # plt.subplot(1,2,1)
 # plt.plot(np.array(history)[:,:].T)
@@ -260,45 +260,45 @@ logit = lambda y: -1 * np.log((1 - y) / y)
 # plt.ylim([0, np.max(history)])
 # plt.title("Observed region rates.")
 # plt.savefig("out/%s/region_rates.png" % INPUT_SIZE)
-
-
-# In[74]:
-
-# ind = np.random.randint(0, len(index_to_county))
-
-
-# In[75]:
-
-# priors = np.loadtxt("data_processed/priors.txt")
-
-
-# In[76]:
-
-# plt.figure(figsize=(12,12))
-# plt.subplot(3,2,1)
-# plt.plot(corr_matrix[ind,:], '.g')
-# plt.plot(logit(np.array(county_level_history)[ind,:]), '.b')
-# plt.title("Inferred county logits.")
-# plt.subplot(3,2,2)
-# plt.plot(priors[ind,:], '.r')
-# plt.xlim([0, 103])
-# plt.title("Observed county logits.")
-# plt.subplot(3,2,3)
-# plt.plot(np.array(county_level_history)[ind,:], '.b')
-# plt.title("Inferred county rates.")
-# plt.subplot(3,2,4)
-# plt.plot(sigmoid(priors[ind,:]), '.r')
-# plt.xlim([0, 103])
-# plt.title("Observed county rates.")
-# plt.savefig("out/%s/county_rates.png" % INPUT_SIZE)
-
-
-# In[77]:
-
-# plt.plot(cov1.T)
-
-
-# In[ ]:
-
-
-
+#
+#
+# # In[74]:
+#
+# # ind = np.random.randint(0, len(index_to_county))
+#
+#
+# # In[75]:
+#
+# # priors = np.loadtxt("data_processed/priors.txt")
+#
+#
+# # In[76]:
+#
+# # plt.figure(figsize=(12,12))
+# # plt.subplot(3,2,1)
+# # plt.plot(corr_matrix[ind,:], '.g')
+# # plt.plot(logit(np.array(county_level_history)[ind,:]), '.b')
+# # plt.title("Inferred county logits.")
+# # plt.subplot(3,2,2)
+# # plt.plot(priors[ind,:], '.r')
+# # plt.xlim([0, 103])
+# # plt.title("Observed county logits.")
+# # plt.subplot(3,2,3)
+# # plt.plot(np.array(county_level_history)[ind,:], '.b')
+# # plt.title("Inferred county rates.")
+# # plt.subplot(3,2,4)
+# # plt.plot(sigmoid(priors[ind,:]), '.r')
+# # plt.xlim([0, 103])
+# # plt.title("Observed county rates.")
+# # plt.savefig("out/%s/county_rates.png" % INPUT_SIZE)
+#
+#
+# # In[77]:
+#
+# # plt.plot(cov1.T)
+#
+#
+# # In[ ]:
+#
+#
+#
