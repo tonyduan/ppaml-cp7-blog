@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[56]:
 
 import csv
 import json
@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 
 
-# In[2]:
+# In[106]:
 
 def is_kernel():
     if 'IPython' not in sys.modules:
@@ -22,7 +22,7 @@ def is_kernel():
     return getattr(get_ipython(), 'kernel', None) is not None
 
 
-# In[10]:
+# In[107]:
 
 if not is_kernel():
     if len(sys.argv) <= 1:
@@ -35,32 +35,38 @@ else:
 
 # **Load previously saved data.**
 
-# In[11]:
+# In[108]:
 
 with open("log/index_to_county.pickle", "rb") as picklefile:
     index_to_county = pickle.load(picklefile)
 
 
-# In[12]:
+# In[109]:
 
 with open("log/dates.pickle", "rb") as picklefile:
     dates = pickle.load(picklefile)
 
 
-# In[13]:
+# In[110]:
 
 with open("log/index_to_region.pickle", "rb") as picklefile:
     index_to_region = pickle.load(picklefile)
 
 
+# In[111]:
+
+cov1 = np.loadtxt("data_processed/covariates1.txt")
+cov2 = np.loadtxt("data_processed/covariates2.txt")
+
+
 # #### Parse out the county-level flu rates.
 
-# In[14]:
+# In[112]:
 
 OUTPUT_FILE = "out/output_%s.txt" % INPUT_SIZE.lower()
 
 
-# In[15]:
+# In[113]:
 
 pos_pattern = r"query : y\(County\[(\d+)\], Week\[(\d+)\]\)\n{2}Mean = (\d+\.\d+)\s"
 neg_pattern = r"query : y\(County\[(\d+)\], Week\[(\d+)\]\)\n{2}Mean = -(\d+\.\d+)\s"
@@ -71,7 +77,7 @@ with open(OUTPUT_FILE, "r") as output_file:
     neg_searches = re.findall(neg_pattern, output_file.read())
 
 
-# In[16]:
+# In[114]:
 
 correlations = {}
 for q in pos_searches:
@@ -80,24 +86,24 @@ for q in neg_searches:
     correlations[int(q[0]), int(q[1])] = -1.0 * float(q[2])
 
 
-# In[17]:
+# In[115]:
 
 corr_matrix = np.zeros((len(index_to_county), len(dates)))
 
 
-# In[18]:
+# In[116]:
 
 # for i in range(len(dates)):
 #   for j in range(len(index_to_county)):
 #     corr_matrix[j][i] = correlations[(j,i)]
 
 
-# In[19]:
+# In[117]:
 
 corr_matrix.shape
 
 
-# In[20]:
+# In[118]:
 
 pos_pattern = r"query : logit\(County\[(\d+)\], Week\[(\d+)\]\)\n{2}Mean = (\d+\.\d+)\s"
 neg_pattern = r"query : logit\(County\[(\d+)\], Week\[(\d+)\]\)\n{2}Mean = -(\d+\.\d+)\s"
@@ -108,7 +114,7 @@ with open(OUTPUT_FILE, "r") as output_file:
     neg_searches = re.findall(neg_pattern, output_file.read())
 
 
-# In[21]:
+# In[119]:
 
 predictions = {}
 for q in pos_searches:
@@ -117,7 +123,7 @@ for q in neg_searches:
     predictions[int(q[0]), int(q[1])] = -1.0 * float(q[2])
 
 
-# In[22]:
+# In[120]:
 
 for k, v in predictions.items():
   v = 1.0 / (1.0 + np.exp(-1.0 * v))
@@ -126,12 +132,12 @@ for k, v in predictions.items():
 
 # #### Write output JSON.
 
-# In[23]:
+# In[121]:
 
 output_dict = {}
 
 
-# In[24]:
+# In[122]:
 
 for (i, fips) in index_to_county.items():
     county_dict = {
@@ -142,7 +148,7 @@ for (i, fips) in index_to_county.items():
     output_dict[fips] = county_dict
 
 
-# In[25]:
+# In[123]:
 
 with open("out/%s/CountyWeeklyILI.json" % INPUT_SIZE, "w") as jsonfile:
     jsonfile.write(json.dumps(output_dict))
@@ -150,12 +156,12 @@ with open("out/%s/CountyWeeklyILI.json" % INPUT_SIZE, "w") as jsonfile:
 
 # #### Evaluate
 
-# In[26]:
+# In[124]:
 
 eval_data = []
 
 
-# In[27]:
+# In[125]:
 
 with open("data/%s/eval/Flu_ILI_TRUTH.csv" % INPUT_SIZE, "r") as csvfile:
     reader = csv.DictReader(csvfile)
@@ -163,13 +169,13 @@ with open("data/%s/eval/Flu_ILI_TRUTH.csv" % INPUT_SIZE, "r") as csvfile:
         eval_data.append(row)
 
 
-# In[28]:
+# In[126]:
 
 county_map_matrix = np.loadtxt("./data_processed/county_map.txt")
 region_pop_matrix = np.loadtxt("./data_processed/region_pops.txt")
 
 
-# In[29]:
+# In[127]:
 
 print(county_map_matrix.shape)
 print(region_pop_matrix.shape)
@@ -177,18 +183,18 @@ print(region_pop_matrix.shape)
 
 # **Graphs**
 
-# In[37]:
+# In[128]:
 
 history = []
 county_level_history = []
 
 
-# In[38]:
+# In[129]:
 
 loss = 0.0
 
 
-# In[39]:
+# In[130]:
 
 for t, date in enumerate(dates):
     county_vector = np.array([predictions[(i, t)] for i in range(len(index_to_county))])
@@ -201,53 +207,53 @@ for t, date in enumerate(dates):
             loss += region_pop_matrix[i] * (predicted_rate * 100 - float(eval_data[t][index_to_region[i]][0:-1]))**2
 
 
-# In[40]:
+# In[131]:
 
 history = np.array(history).T
 county_level_history = np.array(county_level_history).T
 
 
-# In[41]:
+# In[132]:
 
 print("Total loss:", loss)
 
 
-# In[42]:
+# In[133]:
 
 print("MSE:", loss / np.sum(region_pop_matrix) / np.sum(len(dates)))
 
 
-# In[43]:
+# In[134]:
 
 print("RMSE:", (loss / np.sum(region_pop_matrix) / np.sum(len(dates)))**0.5)
 
 
-# In[44]:
+# In[135]:
 
 sigmoid = lambda x: 1 / (1 + np.exp(-x))
 
 
-# In[45]:
+# In[136]:
 
 logit = lambda y: -1 * np.log((1 - y) / y)
 
 
-# In[46]:
+# In[137]:
 
 obs = np.loadtxt("data_processed/obs.txt").T
 
 
-# In[47]:
-
-logit(county_level_history[0][20]) == logit(predictions[(0,20)])
-
-
-# In[52]:
+# In[138]:
 
 # % matplotlib inline
 
 
-# In[53]:
+# In[141]:
+
+plt.plot(cov1.T)
+
+
+# In[97]:
 
 plt.figure(figsize=(18, 6))
 plt.subplot(1,2,1)
@@ -261,17 +267,17 @@ plt.title("Observed region rates.")
 plt.savefig("out/%s/region_rates.png" % INPUT_SIZE)
 
 
-# In[61]:
+# In[101]:
 
 ind = np.random.randint(0, len(index_to_county))
 
 
-# In[62]:
+# In[102]:
 
 priors = np.loadtxt("data_processed/priors.txt")
 
 
-# In[63]:
+# In[103]:
 
 plt.figure(figsize=(12,12))
 plt.subplot(3,2,1)

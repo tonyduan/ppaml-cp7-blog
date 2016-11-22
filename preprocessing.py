@@ -22,7 +22,7 @@
 # <img style="display:inline;" src="images/gmrf.png" /><img style="display:inline;"  src="images/adjacency.png" />
 # <img style="display:inline;" src="images/model.png" />
 
-# In[1]:
+# In[75]:
 
 import functools
 import json
@@ -36,7 +36,7 @@ from collections import defaultdict
 from datetime import datetime
 
 
-# In[2]:
+# In[76]:
 
 def is_kernel():
     if 'IPython' not in sys.modules:
@@ -45,7 +45,7 @@ def is_kernel():
     return getattr(get_ipython(), 'kernel', None) is not None
 
 
-# In[3]:
+# In[77]:
 
 if not is_kernel():
     if len(sys.argv) <= 1:
@@ -60,7 +60,7 @@ else:
 # 
 # Need to make sure to load from the right training data size.
 
-# In[4]:
+# In[78]:
 
 ili_data            = pd.read_csv("data/%s/input/Flu_ILI.csv" % TRAINING_SIZE)
 tweets_data         = json.load(open("data/%s/input/Flu_Vacc_Tweet_TRAIN.json" % TRAINING_SIZE))
@@ -74,12 +74,12 @@ county_adjacency    = json.load(open("data/%s/input/county_adjacency_lower48.jso
 # It's important that the dates are in chronological order.<br/>
 # The index of the event is important for writing observations.
 
-# In[5]:
+# In[79]:
 
 dates = list(map(lambda s: datetime.strptime(s, "%m/%d/%Y").date().strftime('%m/%d/%Y'), ili_data["Ending"]))
 
 
-# In[6]:
+# In[80]:
 
 print("Number of dates:", len(dates))
 
@@ -105,14 +105,14 @@ print("Number of dates:", len(dates))
 # The covariate matrices should be of size $n$ by $d$.<br />
 # The population vector should be of size $n$ by $1$.
 
-# In[7]:
+# In[81]:
 
 fips_to_cov1 = defaultdict(list)
 fips_to_cov2 = defaultdict(list)
 fips_to_pop = {}
 
 
-# In[8]:
+# In[82]:
 
 for fips_code, blob in tweets_data.items():
     
@@ -122,10 +122,12 @@ for fips_code, blob in tweets_data.items():
     for date in dates:
     
         if date not in blob['No. of Tweets']:
-            cov1 = np.log(0.1 / blob['Population, 2014 estimate'])
+#             cov1 = np.log(0.1 / blob['Population, 2014 estimate'])
+            cov1 = 0.1
             cov2 = np.log(0.001 / (1 + 0.001))
         else:
-            cov1 = np.log((blob['No. of Tweets'][date] + 0.1) / blob['Population, 2014 estimate'])
+#             cov1 = np.log((blob['No. of Tweets'][date] + 0.1) / blob['Population, 2014 estimate'])
+            cov1 = blob['No. of Tweets'][date] + 0.1
             cov2 = np.log(((blob['Vaccination percentage %'][date] / 100)  + 0.001) / 
                            (1-(blob['Vaccination percentage %'][date] / 100) + 0.001))
             
@@ -139,7 +141,7 @@ for fips_code, blob in tweets_data.items():
 # 
 # We extract regions and counties for *only* the relevant counties from the training data.<br />
 
-# In[9]:
+# In[83]:
 
 regions = set()
 for i, col in enumerate(ili_data.columns):
@@ -147,14 +149,14 @@ for i, col in enumerate(ili_data.columns):
         regions.add(col)
 
 
-# In[10]:
+# In[84]:
 
 counties = set()
 for r in regions:
     counties = counties.union(set(regions_to_counties[r].keys()))
 
 
-# In[11]:
+# In[85]:
 
 print('Number of regions:', len(regions))
 print('Number of counties:', len(counties))
@@ -179,7 +181,7 @@ print('Number of counties:', len(counties))
 # 
 # The resulting matrix should be of size $m$ by $n$.
 
-# In[12]:
+# In[86]:
 
 county_to_index = {}
 for i, fips in enumerate(counties):
@@ -187,7 +189,7 @@ for i, fips in enumerate(counties):
 index_to_county = {v: k for k, v in county_to_index.items()}
 
 
-# In[13]:
+# In[87]:
 
 region_to_index = {}
 for i, r in enumerate(regions):
@@ -195,7 +197,7 @@ for i, r in enumerate(regions):
 index_to_region = {v: k for k, v in region_to_index.items()}
 
 
-# In[14]:
+# In[88]:
 
 county_pop_matrix = []
 cov1_matrix = []
@@ -211,7 +213,7 @@ cov1_matrix = np.array(cov1_matrix)
 cov2_matrix = np.array(cov2_matrix)
 
 
-# In[15]:
+# In[89]:
 
 county_map_matrix = np.zeros((len(regions), len(counties)))
 region_pop_matrix = [0] * len(regions)
@@ -225,7 +227,7 @@ for i, r in index_to_region.items():
         region_pop_matrix[i] += fips_to_pop[fips]
 
 
-# In[16]:
+# In[90]:
 
 np.savetxt('data_processed/county_map.txt', county_map_matrix)
 np.savetxt('data_processed/region_pops.txt', region_pop_matrix)
@@ -235,18 +237,24 @@ np.savetxt('data_processed/region_pops.txt', region_pop_matrix)
 # 
 # Aggregate covariate 1 results at the region level.
 
-# In[17]:
+# In[91]:
+
+cov1_matrix = np.log(np.dot(np.ones_like(county_map_matrix), cov1_matrix) / np.array(region_pop_matrix)[:, np.newaxis])
+cov1_matrix = np.dot((county_map_matrix > 0).astype(int).T, cov1_matrix)
+
+
+# In[92]:
 
 cov2_matrix[cov2_matrix < -2] = -2
 
 
-# In[18]:
+# In[93]:
 
-cov1_matrix = np.dot(county_map_matrix, cov1_matrix) / np.array(region_pop_matrix)[:, np.newaxis]
-cov1_matrix = np.dot((county_map_matrix > 0).astype(int).T, cov1_matrix)
+# cov1_matrix = np.dot(county_map_matrix, cov1_matrix) / np.array(region_pop_matrix)[:, np.newaxis]
+# cov1_matrix = np.dot((county_map_matrix > 0).astype(int).T, cov1_matrix)
 
 
-# In[19]:
+# In[94]:
 
 ewma_window = 15
 
@@ -257,7 +265,7 @@ def apply_double_ewma(vector):
     return dewma[ewma_window:]
 
 
-# In[20]:
+# In[95]:
 
 for i in range(len(cov1_matrix)):
     cov1_matrix[i] = apply_double_ewma(cov1_matrix[i])
@@ -265,41 +273,57 @@ for i in range(len(cov2_matrix)):
     cov2_matrix[i] = apply_double_ewma(cov2_matrix[i])
 
 
-# In[21]:
+# In[96]:
 
 cov1_matrix = (cov1_matrix - np.mean(cov1_matrix)) / np.std(cov1_matrix)
 cov2_matrix = (cov2_matrix - np.mean(cov2_matrix)) / np.std(cov2_matrix)
 
 
-# In[22]:
+# In[129]:
+
+cov1_matrix_diff = np.zeros_like(cov1_matrix)
+
+
+# In[130]:
+
+for i in range(len(cov1_matrix)):
+    cov1_matrix_diff[i] = cov1_matrix[i] - (np.max(cov1_matrix, axis=0) - cov1_matrix[i])
+
+
+# In[134]:
+
+cov1_matrix = cov1_matrix_diff
+
+
+# In[97]:
 
 np.savetxt('data_processed/covariates1.txt', cov1_matrix)
 np.savetxt('data_processed/covariates2.txt', cov2_matrix)
 
 
-# In[26]:
+# In[104]:
 
 # import matplotlib.pyplot as plt
 # % matplotlib inline
 
 
-# In[31]:
+# In[113]:
 
 # plt.plot(cov1_matrix.T)
 # plt.plot(cov2_matrix.T)
 
 
-# In[32]:
+# In[106]:
 
 # plt.plot((np.dot(county_map_matrix, cov1_matrix) / np.array(region_pop_matrix)[:, np.newaxis]).T)
 
 
-# In[33]:
+# In[107]:
 
 # plt.plot((np.dot(county_map_matrix, cov2_matrix) / np.array(region_pop_matrix)[:, np.newaxis]).T)
 
 
-# In[172]:
+# In[108]:
 
 print(cov1_matrix.shape)
 print(cov2_matrix.shape)
@@ -320,7 +344,7 @@ print(county_pop_matrix.shape)
 # $$Dw_{i,i} = \sum_j W_{i,j}$$
 # And $I$ is meant for regularization to ensure the matrix is positive definite.
 
-# In[173]:
+# In[109]:
 
 W = np.zeros(((len(counties), len(counties))))
 
