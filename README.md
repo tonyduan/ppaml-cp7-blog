@@ -23,8 +23,6 @@ Then run the inference code. Example usage:
 
     ./run.sh config/solution-smoketest input/Small results/Small results/Small/log.txt
 
-Total loss as calculated by our evaluation script will be logged.
-
 ## Solutions
 
 We ran our code for the Small and Middle datasets and the corresponding solutions can be found in the `solns` folder.
@@ -44,8 +42,8 @@ Configuration is:
 Requirements are approximately:
 
 - Small dataset: 2 GB RAM.
-- Middle dataset: 8 GB RAM.
-- Full dataset: 80 GB RAM.
+- Middle dataset: 4 GB RAM.
+- Full dataset: 8 GB RAM.
 
 ## Miscellaneous Notes
 
